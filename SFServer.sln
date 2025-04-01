@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Production", "Production", 
 		Production\docker-compose.yml = Production\docker-compose.yml
 		Production\entrypoint.sh = Production\entrypoint.sh
 		Production\nginx.conf = Production\nginx.conf
+		Production\default.conf.template = Production\default.conf.template
 	EndProjectSection
 EndProject
 Global
