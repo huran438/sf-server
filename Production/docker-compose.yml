@@ -50,9 +50,10 @@
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/templates/default.conf.template
-      - ./nginx_entrypoint.sh:/entrypoint.sh
+      - ./entrypoint.sh:/entrypoint.sh
       - ./ssl.crt:/etc/nginx/ssl/ssl.crt
       - ./ssl.key:/etc/nginx/ssl/ssl.key
+    entrypoint: ["/entrypoint.sh"]
     depends_on:
       - api
       - ui
