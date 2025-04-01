@@ -1,0 +1,105 @@
+﻿@model SFServer.UI.Models.EconomyViewModel
+
+@{
+    ViewData["Title"] = "Economy";
+}
+
+<h1>Economy</h1>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs" id="economyTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="wallet-tab" data-bs-toggle="tab" data-bs-target="#wallet" type="button"
+                role="tab" aria-controls="wallet" aria-selected="true">Wallet</button>
+    </li>
+    <!-- Future tabs can go here -->
+</ul>
+<div class="tab-content" id="economyTabContent">
+    <!-- Wallet Tab -->
+    <div class="tab-pane fade show active" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">
+        <h3 class="mt-3">Wallet - List of Currencies</h3>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Icon</th>
+                    <th>Rich Text</th>
+                    <th>Initial Amount</th>
+                    <th>Capacity</th>
+                    <th>Refill Seconds</th>
+                    <th>Color</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var currency in Model.Currencies)
+                {
+                    <tr>
+                        <td>@currency.Title</td>
+                        <td>@currency.Icon</td>
+                        <td>@currency.RichText</td>
+                        <td>@currency.InitialAmount</td>
+                        <td>@currency.Capacity</td>
+                        <td>@currency.RefillSeconds</td>
+                        <td>@currency.Color</td>
+                        <td>
+                            <a asp-action="EditCurrency" asp-route-id="@currency.Id" class="btn btn-sm btn-warning">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Toggleable Add Currency Form -->
+        <hr />
+        <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#addCurrencyForm" aria-expanded="false" aria-controls="addCurrencyForm">
+            Add Currency
+        </button>
+
+        <div class="collapse" id="addCurrencyForm">
+            <div class="card card-body">
+                <h3 class="mt-3">New Currency</h3>
+                <form asp-action="CreateCurrency" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyTitle">Title</label>
+                        <input type="text" class="form-control" name="NewCurrencyTitle" required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyIcon">Icon</label>
+                        <input type="text" class="form-control" name="NewCurrencyIcon" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyRichText">Rich Text</label>
+                        <input type="text" class="form-control" name="NewCurrencyRichText" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyInitialAmount">Initial Amount</label>
+                        <input type="number" class="form-control" name="NewCurrencyInitialAmount" min="0" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyCapacity">Capacity</label>
+                        <input type="number" class="form-control" name="NewCurrencyCapacity" min="0" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyRefillSeconds">Refill Seconds</label>
+                        <input type="number" class="form-control" name="NewCurrencyRefillSeconds" min="0" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="NewCurrencyColorHex">Color (Hex Code)</label>
+                        <input type="text" class="form-control" name="NewCurrencyColorHex" placeholder="#RRGGBB" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Currency</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

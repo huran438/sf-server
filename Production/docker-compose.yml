@@ -1,0 +1,69 @@
+﻿services:
+  api:
+    container_name: api
+    build:
+      context: ..
+      dockerfile: ./SecretGameBackend.API/Dockerfile
+    restart: unless-stopped
+    environment:
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ConnectionStrings__DefaultConnection: ${DB_CONNECTION}
+      ASPNETCORE_ENVIRONMENT: ${ENVIRONMENT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TIMEOUT_HOURS: ${JWT_TIMEOUT_HOURS}
+    volumes:
+      - datakeys:/var/app-keys
+    expose:
+      - "8080"
+    networks:
+      - app-network
+
+  ui:
+    container_name: ui
+    build:
+      context: ..
+      dockerfile: ./SecretGameBackend.UI/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ENVIRONMENT}
+      SERVER_COPYRIGHT: ${SERVER_COPYRIGHT}
+      SERVER_TITLE: ${SERVER_TITLE}
+      API_BASE_URL: ${API_BASE_URL}
+      JS_API_BASE_URL: ${JS_API_BASE_URL}
+    volumes:
+      - datakeys:/var/app-keys
+    expose:
+      - "8080"
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template
+      - ./nginx_entrypoint.sh:/entrypoint.sh
+      - ./ssl.crt:/etc/nginx/ssl/ssl.crt
+      - ./ssl.key:/etc/nginx/ssl/ssl.key
+    depends_on:
+      - api
+      - ui
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+volumes:
+  datakeys:
+
+networks:
+  app-network:
+    driver: bridge

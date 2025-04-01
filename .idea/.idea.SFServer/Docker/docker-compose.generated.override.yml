@@ -1,0 +1,37 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  api:
+    build:
+      context: "C:\\Users\\huran\\Documents\\Unity\\BaaS"
+      dockerfile: "./SecretGameBackend.API/Dockerfile"
+      target: "build"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/SecretGameBackend.API.dll"
+    environment: {}
+    image: "secretgamebackend.api:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\huran\\Documents\\Unity\\BaaS\\SecretGameBackend.API:/app:rw"
+    - "C:\\Users\\huran\\Documents\\Unity\\BaaS:/src:rw"
+    - "C:\\Users\\huran\\.nuget\\packages:/root/.nuget/packages"
+    working_dir: "/app"
+  ui:
+    build:
+      context: "C:\\Users\\huran\\Documents\\Unity\\BaaS"
+      dockerfile: "./SecretGameBackend.UI/Dockerfile"
+      target: "build"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net9.0/SecretGameBackend.UI.dll"
+    environment:
+      ASPNETCORE_STATICWEBASSETS: "/app/bin/Debug/net9.0/SecretGameBackend.UI.staticwebassets.runtime.CT.json"
+    image: "secretgamebackend.ui:dev"
+    ports: []
+    volumes:
+    - "C:\\Users\\huran\\Documents\\Unity\\BaaS\\SecretGameBackend.UI:/app:rw"
+    - "C:\\Users\\huran\\Documents\\Unity\\BaaS:/src:rw"
+    - "C:\\Users\\huran\\.nuget\\packages:/root/.nuget/packages"
+    working_dir: "/app"

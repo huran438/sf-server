@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h1>Welcome to Secret Game Backend UI</h1>
+<p>This is the web interface for the Secret Game Backend service.</p>
+
+<canvas id="myChart">
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                datasets: [{
+                    label: 'Example',
+                    backgroundColor: 'rgb(255, 99, 132, 0.5)',
+                    borderColor: 'rgb(255, 99, 132, 1)',
+                    data: [0, 10, 5, 2, 20, 30, 45]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Chart.js Line Chart'
+                    }
+                }
+            }
+        });
+    </script>
+</canvas>

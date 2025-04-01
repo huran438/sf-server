@@ -1,0 +1,178 @@
+﻿@model SFServer.UI.Models.UserProfiles.EditUserProfileViewModel
+@using SecretGameBackend.Shared.Models.UserProfile
+
+<h1>Edit User Profile</h1>
+
+<!-- Bootstrap Tabs -->
+<ul class="nav nav-tabs" id="profileTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button"
+                role="tab" aria-controls="general" aria-selected="true">General
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="credentials-tab" data-bs-toggle="tab" data-bs-target="#credentials" type="button" role="tab"
+                aria-controls="credentials" aria-selected="false">Credentials
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="wallet-tab" data-bs-toggle="tab" data-bs-target="#wallet" type="button" role="tab"
+                aria-controls="wallet" aria-selected="false">Wallet
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="profileTabContent">
+    @{
+        var currentUser = User.FindFirst("UserId");
+        var currentUserId = currentUser?.Value;
+        var isSelf = currentUserId == Model.Id.ToString();
+        var isAdmin = User.IsInRole("Admin");
+    }
+
+    <!-- General Tab -->
+    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id"/>
+            <div class="form-group mb-3">
+                <label>Id</label>
+                <input class="form-control" value="@currentUserId" disabled/>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Username"></label>
+                <input asp-for="Username" class="form-control"/>
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control"/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            @if (Model.Role == UserRole.Admin)
+            {
+                <input type="hidden" asp-for="Role"/>
+                <div class="form-group mb-3">
+                    <label>Role</label>
+                    <input class="form-control" value="Admin" disabled/>
+                </div>
+            }
+            else
+            {
+                <div class="form-group mb-3">
+                    <label asp-for="Role"></label>
+                    <enum-dropdown asp-for="Role" enum-type="@(typeof(UserRole))"
+                                   exclude="@(new[] { nameof(UserRole.Admin), nameof(UserRole.Guest) })"/>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+            }
+
+            @if (isAdmin || isSelf)
+            {
+                <h3 class="mt-4">Change Password</h3>
+                <div class="form-group mb-3">
+                    <label asp-for="NewPassword">New Password</label>
+                    <input asp-for="NewPassword" type="password" class="form-control" placeholder="New Password"/>
+                    <span asp-validation-for="NewPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control"
+                           placeholder="Confirm New Password"/>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            }
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-success">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                <!-- Remove Profile button placed next to Save and Cancel -->
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                        data-bs-target="#confirmDeleteModal">Remove Profile
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Credentials Tab -->
+    <div class="tab-pane fade" id="credentials" role="tabpanel" aria-labelledby="credentials-tab">
+        <h3 class="mt-3">Credentials</h3>
+        <input type="hidden" asp-for="GoogleId"/>
+        <div class="form-group mb-3">
+            <label>Google</label>
+            <input class="form-control" value="@Model.GoogleId" disabled/>
+        </div>
+        <input type="hidden" asp-for="AppleId"/>
+        <div class="form-group mb-3">
+            <label>Apple</label>
+            <input class="form-control" value="@Model.AppleId" disabled/>
+        </div>
+        <input type="hidden" asp-for="FacebookId"/>
+        <div class="form-group mb-3">
+            <label>Facebook</label>
+            <input class="form-control" value="@Model.FacebookId" disabled/>
+        </div>
+    </div>
+
+    <!-- Wallet Tab -->
+    <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">
+        <h3 class="mt-3">Wallet</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.WalletItems)
+            {
+                <tr>
+                    <td>@item.Currency</td>
+                    <td>
+                        <input type="number" class="form-control" value="@item.Amount" id="wallet-@item.Id" min="0"/>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-primary update-wallet" data-id="@item.Id">Update
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Delete Profile Modal Partial -->
+@await Html.PartialAsync("_DeleteProfileModal", Model.Id)
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".update-wallet").click(function () {
+                var itemId = $(this).data("id");
+                var amount = $("#wallet-" + itemId).val();
+                $.ajax({
+                    url: apiBaseUrl + 'Wallet/' + itemId,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({Id: itemId, Amount: amount}),
+                    beforeSend: function (xhr) {
+                        if (jwtToken) {
+                            xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
+                        }
+                    },
+                    success: function () {
+                        alert("Wallet updated for currency ID " + itemId);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error updating wallet:", status, error, xhr.responseText);
+                        alert("Error updating wallet: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

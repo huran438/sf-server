@@ -1,0 +1,15 @@
+﻿@model SFServer.UI.Models.EnumDropdownViewModel
+
+@{
+    var enumValues = Enum.GetValues(Model.EnumType)
+        .Cast<Enum>()
+        .Where(v => Model.Exclude == null || !Model.Exclude.Contains(v))
+        .Select(v => new SelectListItem(v.ToString(), v.ToString(), v.Equals(Model.Selected)));
+}
+
+<select name="@Model.Name" class="form-control">
+    @foreach (var item in enumValues)
+    {
+        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+    }
+</select>

@@ -1,0 +1,39 @@
+﻿@model List<SecretGameBackend.Shared.Models.Wallet.WalletItem>
+
+@{
+    ViewData["Title"] = "My Wallet";
+}
+
+<h1>My Wallet</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Currency</th>
+        <th>Amount</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Currency.Title</td>
+            <td>
+                <form asp-action="UpdateWalletItem" method="post" class="d-flex">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="walletItemId" value="@item.Id" />
+                    <input type="number" name="amount" class="form-control me-2" value="@item.Amount" min="0" />
+                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                </form>
+            </td>
+            <td><!-- Additional actions if needed --></td>
+        </tr>
+    }
+    </tbody>
+</table>

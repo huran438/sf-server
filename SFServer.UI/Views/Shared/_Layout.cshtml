@@ -1,0 +1,167 @@
+﻿@using SecretGameBackend.Shared.Models.UserProfile
+@inject IConfiguration Configuration
+<script>
+    var apiBaseUrl = '@Configuration["JS_API_BASE_URL"]';
+    if (!apiBaseUrl.endsWith("/")) {
+        apiBaseUrl += "/";
+    }
+    var jwtToken = '@User.FindFirst("JwtToken")?.Value';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/SFServer.UI.styles.css" asp-append-version="true"/>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="" asp-controller="Home"
+               asp-action="Index">@Configuration["SERVER_TITLE"]</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+
+                    @if (User.IsInRole(nameof(UserRole.Admin)) || User.IsInRole(nameof(UserRole.Developer)))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="UserProfiles" asp-action="Index">Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Economy" asp-action="Index">Economy</a>
+                        </li>
+                    }
+                </ul>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="d-flex align-items-center">
+                        <span id="server-time" class="me-3 text-primary fw-bold">--:--:--</span>
+
+                        @if (User.IsInRole(nameof(UserRole.Admin)))
+                        {
+                            <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
+                               asp-action="Edit"
+                               asp-route-id="@User.FindFirst("UserId")?.Value">
+                                🧑‍💼 @User.Identity.Name
+                            </a>
+                        }
+                        else if (User.IsInRole(nameof(UserRole.Developer)))
+                        {
+                            <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
+                               asp-action="Edit"
+                               asp-route-id="@User.FindFirst("UserId")?.Value">
+                                👨‍💻 @User.Identity.Name
+                            </a>
+                        }
+                        else if (User.IsInRole(nameof(UserRole.User)))
+                        {
+                            <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
+                               asp-action="Edit"
+                               asp-route-id="@User.FindFirst("UserId")?.Value">
+                                🙆 @User.Identity.Name
+                            </a>
+                        }
+                        else if (User.IsInRole(nameof(UserRole.Guest)))
+                        {
+                            <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
+                               asp-action="Edit"
+                               asp-route-id="@User.FindFirst("UserId")?.Value">
+                                🥷 @User.Identity.Name
+                            </a>
+                        }
+
+
+
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="mb-0">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container d-flex justify-content-between align-items-center">
+        <span>@Configuration["SERVER_COPYRIGHT"]</span>
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="ServerSettings" asp-action="Index">
+                Server Settings
+            </a>
+        }
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    function formatUTCDate(date) {
+        const day = ("0" + date.getUTCDate()).slice(-2);
+        const month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
+        const year = date.getUTCFullYear();
+        const hours = ("0" + date.getUTCHours()).slice(-2);
+        const minutes = ("0" + date.getUTCMinutes()).slice(-2);
+        const seconds = ("0" + date.getUTCSeconds()).slice(-2);
+        return `${day}.${month}.${year} ${hours}:${minutes}:${seconds} UTC`;
+    }
+
+    function updateServerTime() {
+        const now = new Date();
+        const formattedTime = formatUTCDate(now);
+        const timeElem = document.getElementById('server-time');
+        if (timeElem) {
+            timeElem.textContent = formattedTime;
+        }
+    }
+
+    function copyEpochTime() {
+        const now = new Date();
+        const epochTime = Math.floor(now.getTime() / 1000); // Unix epoch time in seconds
+        navigator.clipboard.writeText(epochTime.toString())
+            .then(() => {
+                alert("Unix epoch time (" + epochTime + ") copied to clipboard.");
+            })
+            .catch((err) => {
+                console.error("Failed to copy epoch time: ", err);
+            });
+    }
+
+    // Update time every second.
+    setInterval(updateServerTime, 1000);
+    updateServerTime();
+
+    // Once the DOM is loaded, attach click event to the time element.
+    document.addEventListener('DOMContentLoaded', function () {
+        const timeElem = document.getElementById('server-time');
+        if (timeElem) {
+            timeElem.style.cursor = "pointer"; // indicates it is clickable
+            timeElem.addEventListener('click', copyEpochTime);
+        }
+    });
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
