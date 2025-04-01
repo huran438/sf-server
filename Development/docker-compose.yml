@@ -23,7 +23,7 @@
     container_name: api
     build:
       context: ..
-      dockerfile: ./SecretGameBackend.API/Dockerfile
+      dockerfile: ./SFServer.API/Dockerfile
     restart: unless-stopped
     environment:
       ADMIN_USERNAME: ${ADMIN_USERNAME}
@@ -47,7 +47,7 @@
     container_name: ui
     build:
       context: ..
-      dockerfile: ./SecretGameBackend.UI/Dockerfile
+      dockerfile: ./SFServer.UI/Dockerfile
     restart: unless-stopped
     volumes:
       - datakeys:/var/app-keys

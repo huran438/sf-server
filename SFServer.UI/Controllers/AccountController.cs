@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using SecretGameBackend.Shared.Models.Auth;
 using SFServer.UI.Models.UserProfiles;
 
+namespace SFServer.UI.Controllers;
+
 [AllowAnonymous]
 public class AccountController : Controller
 {

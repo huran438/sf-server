@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+namespace SFServer.API.Controllers;
+
 [ApiController]
 [Route("[controller]")]
 [AllowAnonymous]

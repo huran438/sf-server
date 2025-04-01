@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SFServer.API.Data;
 using SecretGameBackend.Shared.Models.Auth;
 using SecretGameBackend.Shared.Models.UserProfile;
+using SFServer.API.Data;
 using shortid;
 using shortid.Configuration;
+
+namespace SFServer.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]

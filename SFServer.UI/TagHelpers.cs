@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.ComponentModel;
-using System.Reflection;
 
-namespace SFServer.UI.TagHelpers
+namespace SFServer.UI
 {
     [HtmlTargetElement("enum-dropdown", Attributes = "asp-for, enum-type")]
     public class EnumDropdownTagHelper : TagHelper
