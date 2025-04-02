@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using SecretGameBackend.Shared.Models;
-using SecretGameBackend.Shared.Models.Wallet;
+using SFServer.Shared.Models.Wallet;
 
 namespace SFServer.UI.Models
 {

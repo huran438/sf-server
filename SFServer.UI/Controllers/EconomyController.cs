@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecretGameBackend.Shared.Models.Wallet;
+using SFServer.Shared.Models.Wallet;
 using SFServer.UI.Models;
 
 namespace SFServer.UI.Controllers

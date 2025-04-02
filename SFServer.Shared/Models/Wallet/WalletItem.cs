@@ -1,4 +1,4 @@
-﻿namespace SecretGameBackend.Shared.Models.Wallet
+﻿namespace SFServer.Shared.Models.Wallet
 {
     public class WalletItem
     {

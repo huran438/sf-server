@@ -20,7 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Development", "Development"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Production", "Production", "{67412FAF-7268-4286-ADF0-56F8D691CDC6}"
 	ProjectSection(SolutionItems) = preProject
-		Production\.env = Production\.env
 		Production\docker-compose.yml = Production\docker-compose.yml
 		Production\entrypoint.sh = Production\entrypoint.sh
 		Production\nginx.conf = Production\nginx.conf

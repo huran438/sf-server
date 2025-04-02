@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using SecretGameBackend.Shared.Models;
 
 namespace SFServer.UI.Models
 {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecretGameBackend.Shared.Models;
-using SecretGameBackend.Shared.Models.UserProfile;
-using SecretGameBackend.Shared.Models.Wallet;
+using SFServer.Shared.Models.UserProfile;
+using SFServer.Shared.Models.Wallet;
 
 namespace SFServer.API.Data
 {

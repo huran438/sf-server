@@ -1,10 +1,7 @@
-﻿using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc;
-using SecretGameBackend.Shared.Models;
-using SFServer.UI.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using SecretGameBackend.Shared.Models.UserProfile;
-using SecretGameBackend.Shared.Models.Wallet;
+using SFServer.Shared.Models.UserProfile;
+using SFServer.Shared.Models.Wallet;
 using SFServer.UI.Models.UserProfiles;
 
 namespace SFServer.UI.Controllers

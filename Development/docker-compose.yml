@@ -31,14 +31,13 @@
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ConnectionStrings__DefaultConnection: ${DB_CONNECTION}
       ASPNETCORE_ENVIRONMENT: ${ENVIRONMENT}
-      GOOGLE_PLAY_CLIENT_ID: ${GOOGLE_PLAY_CLIENT_ID}
       JWT_SECRET: ${JWT_SECRET}
       JWT_TIMEOUT_HOURS: ${JWT_TIMEOUT_HOURS}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     volumes:
       - datakeys:/var/app-keys
     ports:
-      - "5000:8080"
+      - "5005:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -52,14 +51,13 @@
     volumes:
       - datakeys:/var/app-keys
     ports:
-      - "5001:8080"
+      - "5006:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ENVIRONMENT}
       SERVER_COPYRIGHT: ${SERVER_COPYRIGHT}
       SERVER_TITLE: ${SERVER_TITLE}
       API_BASE_URL: ${API_BASE_URL}
       JS_API_BASE_URL: ${JS_API_BASE_URL}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     depends_on:
       db:
         condition: service_healthy

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
-
-namespace SFServer.UI.Models
+﻿namespace SFServer.UI.Models
 {
     public class EnumDropdownViewModel
     {

@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SecretGameBackend.Shared.Models.Auth;
-using SecretGameBackend.Shared.Models.UserProfile;
 using SFServer.API.Data;
+using SFServer.Shared.Models.Auth;
+using SFServer.Shared.Models.UserProfile;
 using shortid;
 using shortid.Configuration;
 
@@ -280,7 +280,7 @@ public class AuthController : ControllerBase
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
-                Audience = new List<string> { _config["GOOGLE_PLAY_CLIENT_ID"] }
+                Audience = new List<string> { _config["GOOGLE_CLIENT_ID"] }
             };
             payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, settings);
         }

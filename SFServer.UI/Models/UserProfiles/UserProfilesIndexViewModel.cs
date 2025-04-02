@@ -1,4 +1,4 @@
-﻿using SecretGameBackend.Shared.Models.UserProfile;
+﻿using SFServer.Shared.Models.UserProfile;
 
 namespace SFServer.UI.Models.UserProfiles
 {

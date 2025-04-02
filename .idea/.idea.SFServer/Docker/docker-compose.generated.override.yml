@@ -2,36 +2,36 @@
 services:
   api:
     build:
-      context: "C:\\Users\\huran\\Documents\\Unity\\BaaS"
-      dockerfile: "./SecretGameBackend.API/Dockerfile"
+      context: "/Users/ilyakhurani/Git/sf-server"
+      dockerfile: "./SFServer.API/Dockerfile"
       target: "build"
     command: []
     entrypoint:
     - "dotnet"
-    - "/app/bin/Debug/net9.0/SecretGameBackend.API.dll"
+    - "/app/bin/Debug/net9.0/SFServer.API.dll"
     environment: {}
-    image: "secretgamebackend.api:dev"
+    image: "sfserver.api:dev"
     ports: []
     volumes:
-    - "C:\\Users\\huran\\Documents\\Unity\\BaaS\\SecretGameBackend.API:/app:rw"
-    - "C:\\Users\\huran\\Documents\\Unity\\BaaS:/src:rw"
-    - "C:\\Users\\huran\\.nuget\\packages:/root/.nuget/packages"
+    - "/Users/ilyakhurani/Git/sf-server/SFServer.API:/app:rw"
+    - "/Users/ilyakhurani/Git/sf-server:/src:rw"
+    - "/Users/ilyakhurani/.nuget/packages:/root/.nuget/packages"
     working_dir: "/app"
   ui:
     build:
-      context: "C:\\Users\\huran\\Documents\\Unity\\BaaS"
-      dockerfile: "./SecretGameBackend.UI/Dockerfile"
+      context: "/Users/ilyakhurani/Git/sf-server"
+      dockerfile: "./SFServer.UI/Dockerfile"
       target: "build"
     command: []
     entrypoint:
     - "dotnet"
-    - "/app/bin/Debug/net9.0/SecretGameBackend.UI.dll"
+    - "/app/bin/Debug/net9.0/SFServer.UI.dll"
     environment:
-      ASPNETCORE_STATICWEBASSETS: "/app/bin/Debug/net9.0/SecretGameBackend.UI.staticwebassets.runtime.CT.json"
-    image: "secretgamebackend.ui:dev"
+      ASPNETCORE_STATICWEBASSETS: "/app/bin/Debug/net9.0/SFServer.UI.staticwebassets.runtime.CT.json"
+    image: "sfserver.ui:dev"
     ports: []
     volumes:
-    - "C:\\Users\\huran\\Documents\\Unity\\BaaS\\SecretGameBackend.UI:/app:rw"
-    - "C:\\Users\\huran\\Documents\\Unity\\BaaS:/src:rw"
-    - "C:\\Users\\huran\\.nuget\\packages:/root/.nuget/packages"
+    - "/Users/ilyakhurani/Git/sf-server/SFServer.UI:/app:rw"
+    - "/Users/ilyakhurani/Git/sf-server:/src:rw"
+    - "/Users/ilyakhurani/.nuget/packages:/root/.nuget/packages"
     working_dir: "/app"

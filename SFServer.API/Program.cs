@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SFServer.API.Data;
-using SecretGameBackend.Shared.Models.UserProfile;
+using SFServer.Shared.Models.UserProfile;
 
 var builder = WebApplication.CreateBuilder(args);
 

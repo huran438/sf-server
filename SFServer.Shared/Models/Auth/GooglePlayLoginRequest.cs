@@ -1,6 +1,6 @@
 ﻿
 
-namespace SecretGameBackend.Shared.Models.Auth
+namespace SFServer.Shared.Models.Auth
 {
     public class GooglePlayLoginRequest
     {

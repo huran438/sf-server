@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecretGameBackend.Shared.Models.Auth;
+using SFServer.Shared.Models.Auth;
 using SFServer.UI.Models.UserProfiles;
 
 namespace SFServer.UI.Controllers;

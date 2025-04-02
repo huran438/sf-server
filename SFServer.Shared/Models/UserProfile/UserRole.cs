@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace SecretGameBackend.Shared.Models.UserProfile
+namespace SFServer.Shared.Models.UserProfile
 {
     public enum UserRole
     {
