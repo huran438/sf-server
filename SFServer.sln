@@ -10,6 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFServer.Shared", "SFServer.Shared\SFServer.Shared.csproj", "{F9F1D7D0-5211-48EF-BACA-FF1B0904A289}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0D8992D3-F9FE-4DC7-8C43-3BA49410DCCE}"
+	ProjectSection(SolutionItems) = preProject
+		.env.template = .env.template
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Development", "Development", "{FCA4D49B-E38E-43E2-ACDA-D87FBE076DF2}"
 	ProjectSection(SolutionItems) = preProject
