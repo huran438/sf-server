@@ -115,6 +115,7 @@ namespace SFServer.API.Controllers
             existing.Email = updated.Email;
             existing.Role = updated.Role;
             existing.LastEditAt = DateTime.UtcNow;
+            existing.DebugMode = updated.DebugMode;
             
             // Determine if current user is trying to change someone else's password
             bool isSelf = User.FindFirst("UserId")?.Value == existing.Id.ToString();

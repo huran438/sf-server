@@ -147,11 +147,12 @@ namespace SFServer.UI.Controllers
                 Username = profile.Username,
                 Email = profile.Email,
                 Role = profile.Role,
-                GoogleId = profile.GooglePlayId
+                GoogleId = profile.GooglePlayId,
+                DebugMode = profile.DebugMode
             };
 
             // After retrieving the user's profile:
-            Guid userId = profile.Id; // assuming this is the user ID
+            var userId = profile.Id; // assuming this is the user ID
             var walletItems = await httpClient.GetFromJsonAsync<List<WalletItem>>($"Wallet/{userId}");
 
             // Map them to your view model.
@@ -193,6 +194,7 @@ namespace SFServer.UI.Controllers
             existingProfile.Username = model.Username;
             existingProfile.Email = model.Email;
             existingProfile.Role = model.Role;
+            existingProfile.DebugMode = model.Role is UserRole.Admin or UserRole.Developer && model.DebugMode;
 
             // Update password if a new one is provided.
             if (!string.IsNullOrWhiteSpace(model.NewPassword) && model.NewPassword == model.ConfirmPassword)

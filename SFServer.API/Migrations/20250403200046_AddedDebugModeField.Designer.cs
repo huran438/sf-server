@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SFServer.API.Data;
@@ -11,9 +12,11 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(UserProfilesDbContext))]
-    partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250403200046_AddedDebugModeField")]
+    partial class AddedDebugModeField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

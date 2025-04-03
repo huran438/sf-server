@@ -1,0 +1,14 @@
+{
+    "name": "SFServer.Shared.Models",
+    "rootNamespace": "SFServer.Shared.Models",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

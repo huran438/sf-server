@@ -1,4 +1,6 @@
-﻿namespace SFServer.Shared.Models.Wallet
+﻿using System;
+
+namespace SFServer.Shared.Models.Wallet
 {
     public class WalletUpdateDto
     {

@@ -10,7 +10,7 @@ public class EditUserProfileViewModel
     public string Username { get; set; }
     
     [EmailAddress]
-    public string Email { get; set; }
+    public string? Email { get; set; }
     
     [Required]
     public UserRole Role { get; set; }
@@ -31,4 +31,6 @@ public class EditUserProfileViewModel
     public string? ConfirmPassword { get; set; }
     
     public List<WalletItemViewModel> WalletItems { get; set; } = [];
+    
+    public bool DebugMode { get; set; }
 }
