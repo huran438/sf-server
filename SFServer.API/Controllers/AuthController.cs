@@ -103,9 +103,10 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role.ToString(),
+            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken
+            JwtToken = jwtToken,
+            DebugMode = user.DebugMode,
         };
 
         return Ok(response);
@@ -164,9 +165,10 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role.ToString(),
+            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken
+            JwtToken = jwtToken,
+            DebugMode = false,
         };
 
         return Ok(response);
@@ -214,7 +216,8 @@ public class AuthController : ControllerBase
                 CreatedAt = DateTime.UtcNow,
                 LastEditAt = DateTime.UtcNow,
                 LastLoginAt = DateTime.UtcNow,
-                GooglePlayId = googlePlayId
+                GooglePlayId = googlePlayId,
+                DebugMode = false,
             };
             
             var hasher = new PasswordHasher<UserProfile>();
@@ -237,10 +240,10 @@ public class AuthController : ControllerBase
         // Generate JWT token.
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role.ToString()),
-            new Claim("UserId", user.Id.ToString())
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Email, user.Email ?? string.Empty),
+            new(ClaimTypes.Role, user.Role.ToString()),
+            new("UserId", user.Id.ToString())
         };
 
         var expirationDate = GetExpirationDate();
@@ -260,9 +263,10 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role.ToString(),
+            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken
+            JwtToken = jwtToken,
+            DebugMode = user.DebugMode,
         };
 
         return Ok(response);

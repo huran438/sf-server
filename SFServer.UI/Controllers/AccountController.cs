@@ -43,7 +43,7 @@ public class AccountController : Controller
         {
             new(ClaimTypes.Name, loginResponse.Username),
             new(ClaimTypes.Email, loginResponse.Email),
-            new(ClaimTypes.Role, loginResponse.Role),
+            new(ClaimTypes.Role, loginResponse.Role.ToString()),
             new("JwtToken", loginResponse.JwtToken),
             new("UserId", loginResponse.UserId.ToString())  // NEW claim for user id
         };
