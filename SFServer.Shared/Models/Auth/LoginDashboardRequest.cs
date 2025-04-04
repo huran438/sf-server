@@ -2,8 +2,10 @@
 
 namespace SFServer.Shared.Models.Auth
 {
-    public class LoginRequest
+    public class LoginDashboardRequest
     {
         public string Credential { get; set; }
+        
+        public string Password { get; set; }
     }
 }

@@ -30,7 +30,7 @@ public class AccountController : Controller
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
 
-        var response = await httpClient.PostAsJsonAsync("Auth/login", model);
+        var response = await httpClient.PostAsJsonAsync("Auth/login-dashboard", model);
         if (!response.IsSuccessStatusCode)
         {
             ModelState.AddModelError("", "Invalid credentials");

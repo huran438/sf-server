@@ -30,6 +30,87 @@ public class AuthController : ControllerBase
         _config = config;
         _db = db;
     }
+    
+    [HttpPost("login-dashboard")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (string.IsNullOrEmpty(request.Credential))
+        {
+            return await AnonymousLogin();
+        }
+
+        UserProfile user = null;
+
+        // Try to interpret the credential as an ID (integer)
+        if (Guid.TryParse(request.Credential, out Guid id))
+        {
+            user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        // If not found and if the credential contains '@', try email lookup.
+        if (user == null && request.Credential.Contains("@"))
+        {
+            user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Credential.ToLower());
+        }
+
+        // If still not found, try username lookup.
+        if (user == null)
+        {
+            user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
+        }
+
+        if (user == null)
+            return Unauthorized("User not found");
+
+        // Only allow Admin or Developer logins (or allow others as per your business logic)
+        if (user.Role != UserRole.Admin && user.Role != UserRole.Developer)
+            return Unauthorized("You do not have permission to access this service.");
+
+        var hasher = new PasswordHasher<UserProfile>();
+        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+        if (result == PasswordVerificationResult.Failed)
+            return Unauthorized("Invalid password");
+
+        // Create JWT token.
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET"]));
+        var expirationDate = GetExpirationDate();
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken(
+            issuer: _config["Jwt:Issuer"],
+            audience: _config["Jwt:Audience"],
+            claims: claims,
+            expires: expirationDate,
+            signingCredentials: creds
+        );
+        var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+
+        user.LastLoginAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        var response = new LoginResponse
+        {
+            UserId = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            Role = user.Role,
+            ExpirationDate = expirationDate,
+            JwtToken = jwtToken,
+            DebugMode = user.DebugMode,
+        };
+
+        return Ok(response);
+    }
 
     [HttpPost("login")]
     [AllowAnonymous]
@@ -65,18 +146,6 @@ public class AuthController : ControllerBase
 
         if (user == null)
             return Unauthorized("User not found");
-
-        // Only allow Admin or Developer logins (or allow others as per your business logic)
-        if (request.AdminPanel && user.Role != UserRole.Admin && user.Role != UserRole.Developer)
-            return Unauthorized("You do not have permission to access this service.");
-
-        if (user.Role != UserRole.Guest)
-        {
-            var hasher = new PasswordHasher<UserProfile>();
-            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-            if (result == PasswordVerificationResult.Failed)
-                return Unauthorized("Invalid password");
-        }
 
         // Create JWT token.
         var claims = new List<Claim>
@@ -136,11 +205,7 @@ public class AuthController : ControllerBase
             LastEditAt = DateTime.UtcNow,
             LastLoginAt = DateTime.UtcNow
         };
-
-        // Generate a dummy password hash (since password isn't used in anonymous login)
-        var hasher = new PasswordHasher<UserProfile>();
-        user.PasswordHash = hasher.HashPassword(user, Guid.NewGuid().ToString());
-
+        
         _db.UserProfiles.Add(user);
         await _db.SaveChangesAsync();
 
@@ -182,12 +247,12 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GooglePlayLogin([FromBody] GooglePlayLoginRequest request)
     {
-        var result = await VerifyIdTokenAsync(request.Token);
-        
         // Validate token using Google's API
         GoogleJsonWebSignature.Payload payload;
+        
         try
         {
+            var result = await VerifyIdTokenAsync(request.Token);
             // VerifyAsync checks the token signature and expiration.
             // Make sure to set your expected audience (client ID) in the validation settings.
             var settings = new GoogleJsonWebSignature.ValidationSettings()
@@ -198,6 +263,14 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            if (string.IsNullOrEmpty(request.Credential))
+            {
+                return await Login(new LoginRequest
+                {
+                    Credential = request.Credential
+                });
+            }
+            
             return BadRequest("Invalid Google Play token: " + ex.Message);
         }
 

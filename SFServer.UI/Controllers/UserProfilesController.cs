@@ -111,7 +111,7 @@ namespace SFServer.UI.Controllers
                 Role = model.Role,
                 CreatedAt = DateTime.UtcNow
             };
-
+            
             var hasher = new PasswordHasher<UserProfile>();
             newUser.PasswordHash = hasher.HashPassword(newUser, model.Password);
 
@@ -121,12 +121,10 @@ namespace SFServer.UI.Controllers
             {
                 return RedirectToAction("Index");
             }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", $"Failed to add user. {errorContent}");
-                return View(model);
-            }
+
+            var errorContent = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", $"Failed to add user. {errorContent}");
+            return View(model);
         }
 
         // GET: /UserProfiles/Edit/{id}
