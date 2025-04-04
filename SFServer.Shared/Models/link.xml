@@ -1,0 +1,3 @@
+<linker>
+    <assembly fullname="SFServer.Shared.Models" preserve="all" />
+</linker>
