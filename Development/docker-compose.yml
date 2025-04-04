@@ -34,6 +34,7 @@
       JWT_SECRET: ${JWT_SECRET}
       JWT_TIMEOUT_HOURS: ${JWT_TIMEOUT_HOURS}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     volumes:
       - datakeys:/var/app-keys
     ports:

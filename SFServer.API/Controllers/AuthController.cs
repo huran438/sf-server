@@ -2,6 +2,9 @@
 using System.Security.Claims;
 using System.Text;
 using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -179,6 +182,8 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GooglePlayLogin([FromBody] GooglePlayLoginRequest request)
     {
+        var result = await VerifyIdTokenAsync(request.Token);
+        
         // Validate token using Google's API
         GoogleJsonWebSignature.Payload payload;
         try
@@ -189,7 +194,7 @@ public class AuthController : ControllerBase
             {
                 Audience = new List<string> { _config["GOOGLE_CLIENT_ID"] }
             };
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, settings);
+            payload = await GoogleJsonWebSignature.ValidateAsync(result.IdToken, settings);
         }
         catch (Exception ex)
         {
@@ -271,6 +276,20 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
+    
+    private Task<TokenResponse> VerifyIdTokenAsync(string idToken)
+    {
+        var request = new AuthorizationCodeTokenRequest()
+        {
+            ClientId = _config["GOOGLE_CLIENT_ID"],
+            ClientSecret = _config["GOOGLE_CLIENT_SECRET"],
+            RedirectUri = "",
+            Code = idToken,
+            GrantType = "authorization_code"
+        };
+
+        return request.ExecuteAsync(new HttpClient(), "https://www.googleapis.com/oauth2/v4/token", CancellationToken.None, Google.Apis.Util.SystemClock.Default);
+    }
 
     // Optionally, add an endpoint to link an existing profile to a Google Play account.
     // This could be used when a user is already authenticated locally, then chooses "Link Google Play".
@@ -278,6 +297,9 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> LinkGooglePlay([FromBody] GooglePlayLoginRequest request)
     {
+
+        var result = await VerifyIdTokenAsync(request.Token);
+        
         // Validate token as above.
         GoogleJsonWebSignature.Payload payload;
         try
@@ -286,7 +308,8 @@ public class AuthController : ControllerBase
             {
                 Audience = new List<string> { _config["GOOGLE_CLIENT_ID"] }
             };
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, settings);
+            
+            payload = await GoogleJsonWebSignature.ValidateAsync(result.IdToken, settings);
         }
         catch (Exception ex)
         {
