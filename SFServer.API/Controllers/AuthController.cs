@@ -143,8 +143,12 @@ public class AuthController : ControllerBase
             user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
         }
 
+
         if (user == null)
-            return Unauthorized("User not found");
+        {
+            return await AnonymousLogin();
+        }
+
 
         // Create JWT token.
         var claims = new List<Claim>
@@ -203,7 +207,7 @@ public class AuthController : ControllerBase
             LastEditAt = DateTime.UtcNow,
             LastLoginAt = DateTime.UtcNow
         };
-        
+
         _db.UserProfiles.Add(user);
         await _db.SaveChangesAsync();
 
@@ -247,7 +251,7 @@ public class AuthController : ControllerBase
     {
         // Validate token using Google's API
         GoogleJsonWebSignature.Payload payload;
-        
+
         try
         {
             var result = await VerifyIdTokenAsync(request.Token);
@@ -268,7 +272,7 @@ public class AuthController : ControllerBase
                     Credential = request.Credential
                 });
             }
-            
+
             return BadRequest("Invalid Google Play token: " + ex.Message);
         }
 
@@ -295,7 +299,7 @@ public class AuthController : ControllerBase
                 GooglePlayId = googlePlayId,
                 DebugMode = false,
             };
-            
+
             var hasher = new PasswordHasher<UserProfile>();
             user.PasswordHash = hasher.HashPassword(user, Guid.NewGuid().ToString());
 
@@ -346,7 +350,7 @@ public class AuthController : ControllerBase
 
         return Ok(response);
     }
-    
+
     private Task<TokenResponse> VerifyIdTokenAsync(string idToken)
     {
         var request = new AuthorizationCodeTokenRequest()
@@ -367,9 +371,8 @@ public class AuthController : ControllerBase
     [Authorize]
     public async Task<IActionResult> LinkGooglePlay([FromBody] GooglePlayLoginRequest request)
     {
-
         var result = await VerifyIdTokenAsync(request.Token);
-        
+
         // Validate token as above.
         GoogleJsonWebSignature.Payload payload;
         try
@@ -378,7 +381,7 @@ public class AuthController : ControllerBase
             {
                 Audience = new List<string> { _config["GOOGLE_CLIENT_ID"] }
             };
-            
+
             payload = await GoogleJsonWebSignature.ValidateAsync(result.IdToken, settings);
         }
         catch (Exception ex)
@@ -403,7 +406,7 @@ public class AuthController : ControllerBase
         {
             user.Role = UserRole.User;
         }
-        
+
         await _db.SaveChangesAsync();
 
         return Ok("Google Play account linked.");
