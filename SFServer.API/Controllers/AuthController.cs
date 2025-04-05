@@ -1,8 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using Google.Apis.Auth;
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Requests;
 using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +12,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using SFServer.API.Data;
 using SFServer.Shared.Models.Auth;
+using SFServer.Shared.Models.Google;
 using SFServer.Shared.Models.UserProfile;
 using shortid;
 using shortid.Configuration;
@@ -30,7 +34,7 @@ public class AuthController : ControllerBase
         _config = config;
         _db = db;
     }
-    
+
     [HttpPost("login-dashboard")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
@@ -238,59 +242,98 @@ public class AuthController : ControllerBase
         return Ok(response);
     }
 
-    // POST /Auth/GooglePlayLogin
+    private async Task<TokenResponse> ExchangeCodeForToken(string authorizationCode)
+    {
+        using var client = new HttpClient();
+        var response = await client.PostAsync("https://oauth2.googleapis.com/token", new FormUrlEncodedContent(new[]
+        {
+            new KeyValuePair<string, string>("code", authorizationCode),
+            new KeyValuePair<string, string>("client_id", _config["GOOGLE_CLIENT_ID"]),
+            new KeyValuePair<string, string>("client_secret", _config["GOOGLE_CLIENT_SECRET"]),
+            new KeyValuePair<string, string>("redirect_uri", ""),
+            new KeyValuePair<string, string>("grant_type", "authorization_code"),
+        }));
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception($"Failed to exchange code: {json}");
+
+        return JsonConvert.DeserializeObject<TokenResponse>(json);
+    }
+    
+    
+    // Метод для получения информации об игроке с использованием access token
+    private async Task<string> GetPlayerInfoAsync(string accessToken, string playerId)
+    {
+        using var client = new HttpClient();
+
+        // Устанавливаем заголовок авторизации с Bearer-токеном
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        // Пример URL для запроса информации об игроке
+        // Если вы используете Google Play Games API, endpoint может выглядеть так:
+        var url = $"https://www.googleapis.com/games/v1/players/{playerId}";
+
+        var response = await client.GetAsync(url);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception("Failed to retrieve player info: " + error);
+        }
+
+        // Возвращаем сырые данные (JSON)
+        return await response.Content.ReadAsStringAsync();
+    }
+
     [HttpPost("GooglePlayLogin")]
     [AllowAnonymous]
     public async Task<IActionResult> GooglePlayLogin([FromBody] GooglePlayLoginRequest request)
     {
-        // Validate token using Google's API
-        GoogleJsonWebSignature.Payload payload;
+        if (string.IsNullOrWhiteSpace(request.GoogleClientId) || string.IsNullOrWhiteSpace(request.AuthCode))
+            return BadRequest("Missing PlayerId or AuthCode");
 
+        // Проверка действительности кода авторизации и обмен на токен
+        TokenResponse token;
         try
         {
-            var result = await VerifyIdTokenAsync(request.Token);
-            // VerifyAsync checks the token signature and expiration.
-            // Make sure to set your expected audience (client ID) in the validation settings.
-            var settings = new GoogleJsonWebSignature.ValidationSettings()
-            {
-                Audience = new List<string> { _config["GOOGLE_CLIENT_ID"] }
-            };
-            payload = await GoogleJsonWebSignature.ValidateAsync(result.IdToken, settings);
+            token = await ExchangeCodeForToken(request.AuthCode);
         }
         catch (Exception ex)
         {
-            if (string.IsNullOrEmpty(request.Credential))
-            {
-                return await Login(new LoginRequest
-                {
-                    Credential = request.Credential
-                });
-            }
-
-            return BadRequest("Invalid Google Play token: " + ex.Message);
+            return BadRequest("Invalid Google Play AuthCode: " + ex.Message);
         }
 
-        // Extract Google Play account info
-        string googlePlayId = payload.Subject; // The unique identifier for the Google account.
-        string email = payload.Email;
-        string name = payload.Name;
+        // (Опционально) Получаем информацию об игроке через Google Play Games API
+        GooglePlayerInfo playerInfo = null;
+        try
+        {
+            var playerInfoJson = await GetPlayerInfoAsync(token.AccessToken, request.GoogleClientId);
+            
+            playerInfo = JsonConvert.DeserializeObject<GooglePlayerInfo>(playerInfoJson);
+            
+            Console.WriteLine("Player Info: " + playerInfo);
+        }
+        catch (Exception ex)
+        {
+            // В зависимости от логики, можно вернуть ошибку или продолжить, если эта информация не критична
+            Console.WriteLine("Warning: Failed to retrieve player info: " + ex.Message);
+        }
 
-        // Check if a user already exists with this Google Play ID or email.
-        var user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.GooglePlayId == googlePlayId || (u.Email != null && u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase)));
+        // Поиск пользователя по PlayerId
+        var user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.GooglePlayId == request.GoogleClientId);
+
         if (user == null)
         {
-            // Option 1: Create a new user profile for anonymous players.
             user = new UserProfile
             {
                 Id = Guid.NewGuid(),
-                Username = GenerateUsername(),
-                FullName = string.IsNullOrWhiteSpace(name) ? null : name,
-                Email = email,
-                Role = UserRole.User, // Default role for Google Play users.
+                Username = playerInfo == null ? GenerateUsername() : playerInfo.DisplayName,
+                Role = UserRole.User,
                 CreatedAt = DateTime.UtcNow,
                 LastEditAt = DateTime.UtcNow,
                 LastLoginAt = DateTime.UtcNow,
-                GooglePlayId = googlePlayId,
+                GooglePlayId = request.GoogleClientId,
                 DebugMode = false,
             };
 
@@ -302,16 +345,10 @@ public class AuthController : ControllerBase
         }
         else
         {
-            // If user exists, update LastLoginAt and ensure GooglePlayId is set.
             user.LastLoginAt = DateTime.UtcNow;
-            if (string.IsNullOrWhiteSpace(user.GooglePlayId))
-            {
-                user.GooglePlayId = googlePlayId;
-                await _db.SaveChangesAsync();
-            }
+            await _db.SaveChangesAsync();
         }
 
-        // Generate JWT token.
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, user.Username),
@@ -322,85 +359,67 @@ public class AuthController : ControllerBase
         var expirationDate = GetExpirationDate();
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var token = new JwtSecurityToken(
+        var jwt = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
             claims: claims,
             expires: expirationDate,
             signingCredentials: creds
         );
-        var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+        var jwtToken = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-        var response = new LoginResponse
+        return Ok(new LoginResponse
         {
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
             ExpirationDate = expirationDate,
             JwtToken = jwtToken
-        };
-
-        return Ok(response);
+        });
     }
 
-    private Task<TokenResponse> VerifyIdTokenAsync(string idToken)
-    {
-        var request = new AuthorizationCodeTokenRequest()
-        {
-            ClientId = _config["GOOGLE_CLIENT_ID"],
-            ClientSecret = _config["GOOGLE_CLIENT_SECRET"],
-            RedirectUri = "",
-            Code = idToken,
-            GrantType = "authorization_code"
-        };
 
-        return request.ExecuteAsync(new HttpClient(), "https://www.googleapis.com/oauth2/v4/token", CancellationToken.None, Google.Apis.Util.SystemClock.Default);
-    }
-
-    // Optionally, add an endpoint to link an existing profile to a Google Play account.
-    // This could be used when a user is already authenticated locally, then chooses "Link Google Play".
     [HttpPost("LinkGooglePlay")]
     [Authorize]
     public async Task<IActionResult> LinkGooglePlay([FromBody] GooglePlayLoginRequest request)
     {
-        var result = await VerifyIdTokenAsync(request.Token);
+        if (string.IsNullOrWhiteSpace(request.GoogleClientId) || string.IsNullOrWhiteSpace(request.AuthCode))
+            return BadRequest("Missing PlayerId or AuthCode");
 
-        // Validate token as above.
-        GoogleJsonWebSignature.Payload payload;
+        // Проверяем AuthCode через Google
+        TokenResponse token;
         try
         {
-            var settings = new GoogleJsonWebSignature.ValidationSettings()
-            {
-                Audience = new List<string> { _config["GOOGLE_CLIENT_ID"] }
-            };
-
-            payload = await GoogleJsonWebSignature.ValidateAsync(result.IdToken, settings);
+            token = await ExchangeCodeForToken(request.AuthCode);
         }
         catch (Exception ex)
         {
-            return BadRequest("Invalid Google Play token: " + ex.Message);
+            return BadRequest("Invalid Google Play AuthCode: " + ex.Message);
         }
 
-        string googlePlayId = payload.Subject;
+        // Получаем текущего пользователя
+        var userIdClaim = User.FindFirst("UserId")?.Value;
+        if (!Guid.TryParse(userIdClaim, out Guid userId))
+            return Unauthorized("Invalid or missing UserId claim.");
 
-        // Get the current authenticated user.
-        var currentUserId = Guid.Parse(User.FindFirst("UserId")?.Value);
-        var user = await _db.UserProfiles.FindAsync(currentUserId);
+        var user = await _db.UserProfiles.FindAsync(userId);
         if (user == null)
-        {
             return NotFound("User not found.");
-        }
 
-        // Link the Google Play account.
-        user.GooglePlayId = googlePlayId;
+        // Проверяем, не привязан ли этот PlayerId к другому профилю
+        var existingUser = await _db.UserProfiles
+            .FirstOrDefaultAsync(u => u.GooglePlayId == request.GoogleClientId && u.Id != user.Id);
+        if (existingUser != null)
+            return BadRequest("This Google Play account is already linked to another profile.");
+
+        // Связываем PlayerId
+        user.GooglePlayId = request.GoogleClientId;
 
         if (user.Role == UserRole.Guest)
-        {
             user.Role = UserRole.User;
-        }
 
         await _db.SaveChangesAsync();
 
-        return Ok("Google Play account linked.");
+        return Ok("Google Play account linked successfully.");
     }
 }
