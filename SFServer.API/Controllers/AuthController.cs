@@ -102,10 +102,8 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken,
-            DebugMode = user.DebugMode,
+            JwtToken = jwtToken
         };
 
         return Ok(response);
@@ -177,10 +175,8 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken,
-            DebugMode = user.DebugMode,
+            JwtToken = jwtToken
         };
 
         return Ok(response);
@@ -235,10 +231,8 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken,
-            DebugMode = false,
+            JwtToken = jwtToken
         };
 
         return Ok(response);
@@ -342,10 +336,8 @@ public class AuthController : ControllerBase
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
-            Role = user.Role,
             ExpirationDate = expirationDate,
-            JwtToken = jwtToken,
-            DebugMode = user.DebugMode,
+            JwtToken = jwtToken
         };
 
         return Ok(response);

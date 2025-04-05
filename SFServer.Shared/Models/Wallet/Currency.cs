@@ -2,7 +2,7 @@
 
 namespace SFServer.Shared.Models.Wallet
 {
-    public class Currency
+    public class Currency : ISFServerModel
     {
         public Guid Id { get; set; }
 

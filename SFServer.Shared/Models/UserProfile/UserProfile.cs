@@ -3,7 +3,7 @@ using System;
 
 namespace SFServer.Shared.Models.UserProfile
 {
-    public class UserProfile
+    public class UserProfile : ISFServerModel
     {
         public Guid Id { get; set; }
         public string Username { get; set; }
