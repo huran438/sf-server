@@ -304,6 +304,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
+            Console.WriteLine("Invalid Google Play AuthCode: " + ex.Message);
             return BadRequest("Invalid Google Play AuthCode: " + ex.Message);
         }
 
