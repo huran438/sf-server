@@ -290,6 +290,9 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GooglePlayLogin([FromBody] GooglePlayLoginRequest request)
     {
+        
+        Console.WriteLine("Request: " + JsonConvert.SerializeObject(request));
+        
         if (string.IsNullOrWhiteSpace(request.GoogleClientId) || string.IsNullOrWhiteSpace(request.AuthCode))
             return BadRequest("Missing PlayerId or AuthCode");
 
@@ -312,7 +315,7 @@ public class AuthController : ControllerBase
             
             playerInfo = JsonConvert.DeserializeObject<GooglePlayerInfo>(playerInfoJson);
             
-            Console.WriteLine("Player Info: " + playerInfo);
+            Console.WriteLine("Player Info: " + JsonConvert.SerializeObject(playerInfoJson));
         }
         catch (Exception ex)
         {
