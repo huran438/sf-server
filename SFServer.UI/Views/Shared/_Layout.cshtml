@@ -12,6 +12,12 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
+    <script>
+        (function () {
+            var theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        })();
+    </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"]</title>
@@ -108,18 +114,20 @@
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
+<footer class="border-top footer text-muted mt-4 pt-3">
     <div class="container d-flex justify-content-between align-items-center">
         <span>@Configuration["SERVER_COPYRIGHT"]</span>
-        <button id="themeToggleBtn" class="btn btn-secondary">
-            <i class="bi bi-moon"></i> Toggle Theme
-        </button>
-        @if (User.IsInRole("Admin"))
-        {
-            <a class="btn btn-outline-secondary btn-sm" asp-controller="ServerSettings" asp-action="Index">
-                <i class="bi bi-gear"></i> Server Settings
-            </a>
-        }
+        <div class="d-flex gap-2">
+            <button id="themeToggleBtn" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-moon"></i> Toggle Theme
+            </button>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-outline-secondary btn-sm" asp-controller="ServerSettings" asp-action="Index">
+                    <i class="bi bi-gear"></i> Server Settings
+                </a>
+            }
+        </div>
     </div>
 </footer>
 
@@ -170,50 +178,46 @@
             timeElem.addEventListener('click', copyEpochTime);
         }
     });
-</script>
-@await RenderSectionAsync("Scripts", required: false)
-<script>
-    // Update navbar classes and link text color based on the current theme
-    function updateNavbarClass(theme) {
-        const navbar = document.querySelector('nav.navbar');
-        if (!navbar) return;
-        if (theme === 'dark') {
-            navbar.classList.remove('navbar-light', 'bg-light');
-            navbar.classList.add('navbar-dark', 'bg-dark');
-        } else {
-            navbar.classList.remove('navbar-dark', 'bg-dark');
-            navbar.classList.add('navbar-light', 'bg-light');
+
+    // Toast notifications
+    window.addEventListener('DOMContentLoaded', () => {
+        const errorToast = document.getElementById('errorToast');
+        const successToast = document.getElementById('successToast');
+
+        if ("@TempData["Error"]" !== "") {
+            new bootstrap.Toast(errorToast).show();
         }
 
-        // Update each nav link's text color
-        const navLinks = navbar.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            if (theme === 'dark') {
-                link.classList.remove('text-dark');
-                link.classList.add('text-light');
-            } else {
-                link.classList.remove('text-light');
-                link.classList.add('text-dark');
-            }
-        });
-    }
+        if ("@TempData["Success"]" !== "") {
+            new bootstrap.Toast(successToast).show();
+        }
+    });
+    // On DOMContentLoaded, retrieve the saved theme from localStorage or default to 'light'
+    document.addEventListener("DOMContentLoaded", function () {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        console.log("Saved theme is: " + savedTheme);
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        updateNavbarClass(savedTheme);
 
-    // Retrieve saved theme from localStorage or default to 'light'
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-bs-theme', savedTheme);
-    updateNavbarClass(savedTheme);
-
-    // Toggle between 'light' and 'dark' themes and persist the state
-    const toggleTheme = () => {
-        const html = document.documentElement;
-        const currentTheme = html.getAttribute('data-bs-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-bs-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateNavbarClass(newTheme);
-    };
-
-    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+        // Attach the toggle event to the theme button
+        const toggleBtn = document.getElementById('themeToggleBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-bs-theme');
+                const newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+                html.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateNavbarClass(newTheme);
+                console.log("Theme toggled. New theme is: " + newTheme);
+            });
+        } else {
+            console.warn("Theme toggle button not found.");
+        }
+    });
 </script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

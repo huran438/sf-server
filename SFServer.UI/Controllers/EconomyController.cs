@@ -203,16 +203,25 @@ namespace SFServer.UI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditInventoryItem(InventoryItem item)
+        public async Task<IActionResult> EditInventoryItem(EditInventoryItemViewModel item)
         {
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Invalid data submitted.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { activeTab = "inventory" });
             }
 
             using var httpClient = GetAuthenticatedHttpClient();
-            var response = await httpClient.PutAsJsonAsync($"InventoryItems/{item.Id}", item);
+            var response = await httpClient.PutAsJsonAsync($"InventoryItems/{item.Id}", new InventoryItem
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Description = item.Description,
+                Quantity = item.Quantity,
+                Type = item.Type,
+                ImageUrl = item.ImageUrl,
+                CreatedAt = item.CreatedAt
+            });
 
             if (!response.IsSuccessStatusCode)
             {
@@ -224,7 +233,7 @@ namespace SFServer.UI.Controllers
                 TempData["Success"] = "Inventory item updated successfully!";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { activeTab = "inventory" });
         }
 
         [HttpPost]
@@ -237,7 +246,7 @@ namespace SFServer.UI.Controllers
             if (!response.IsSuccessStatusCode)
                 TempData["Error"] = "Failed to delete inventory item.";
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { activeTab = "inventory" });
         }
 
         #endregion
