@@ -12,8 +12,8 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250401181736_Init")]
-    partial class Init
+    [Migration("20250404001626_AddedInventory_1")]
+    partial class AddedInventory_1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,58 @@ namespace SFServer.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SecretGameBackend.Shared.Models.UserProfile.UserProfile", b =>
+            modelBuilder.Entity("SFServer.Shared.Models.Inventory.Inventory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Inventories");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Models.Inventory.InventoryItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("InventoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryId");
+
+                    b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Models.UserProfile.UserProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,6 +88,9 @@ namespace SFServer.API.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("DebugMode")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -54,7 +108,6 @@ namespace SFServer.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Role")
@@ -62,7 +115,6 @@ namespace SFServer.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Username")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -70,7 +122,7 @@ namespace SFServer.API.Migrations
                     b.ToTable("UserProfiles");
                 });
 
-            modelBuilder.Entity("SecretGameBackend.Shared.Models.Wallet.Currency", b =>
+            modelBuilder.Entity("SFServer.Shared.Models.Wallet.Currency", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -80,11 +132,9 @@ namespace SFServer.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Icon")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("InitialAmount")
@@ -94,11 +144,9 @@ namespace SFServer.API.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("RichText")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -106,7 +154,7 @@ namespace SFServer.API.Migrations
                     b.ToTable("Currencies");
                 });
 
-            modelBuilder.Entity("SecretGameBackend.Shared.Models.Wallet.WalletItem", b =>
+            modelBuilder.Entity("SFServer.Shared.Models.Wallet.WalletItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,15 +176,38 @@ namespace SFServer.API.Migrations
                     b.ToTable("WalletItems");
                 });
 
-            modelBuilder.Entity("SecretGameBackend.Shared.Models.Wallet.WalletItem", b =>
+            modelBuilder.Entity("SFServer.Shared.Models.Inventory.Inventory", b =>
                 {
-                    b.HasOne("SecretGameBackend.Shared.Models.Wallet.Currency", "Currency")
+                    b.HasOne("SFServer.Shared.Models.UserProfile.UserProfile", "User")
+                        .WithOne()
+                        .HasForeignKey("SFServer.Shared.Models.Inventory.Inventory", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Models.Inventory.InventoryItem", b =>
+                {
+                    b.HasOne("SFServer.Shared.Models.Inventory.Inventory", null)
+                        .WithMany("Items")
+                        .HasForeignKey("InventoryId");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Models.Wallet.WalletItem", b =>
+                {
+                    b.HasOne("SFServer.Shared.Models.Wallet.Currency", "Currency")
                         .WithMany()
                         .HasForeignKey("CurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Models.Inventory.Inventory", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

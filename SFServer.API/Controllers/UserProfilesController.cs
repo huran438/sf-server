@@ -11,9 +11,9 @@ namespace SFServer.API.Controllers
     [Authorize(Roles = "Admin,Developer")]
     public class UserProfilesController : ControllerBase
     {
-        private readonly UserProfilesDbContext _context;
+        private readonly DatabaseContext _context;
 
-        public UserProfilesController(UserProfilesDbContext context)
+        public UserProfilesController(DatabaseContext context)
         {
             _context = context;
         }

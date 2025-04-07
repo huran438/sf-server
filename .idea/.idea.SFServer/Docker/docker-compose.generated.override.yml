@@ -2,7 +2,7 @@
 services:
   api:
     build:
-      context: "/Users/ilyakhurani/Git/sf-server"
+      context: "/Users/huran438/RiderProjects/sf-server"
       dockerfile: "./SFServer.API/Dockerfile"
       target: "build"
     command: []
@@ -13,13 +13,13 @@ services:
     image: "sfserver.api:dev"
     ports: []
     volumes:
-    - "/Users/ilyakhurani/Git/sf-server/SFServer.API:/app:rw"
-    - "/Users/ilyakhurani/Git/sf-server:/src:rw"
-    - "/Users/ilyakhurani/.nuget/packages:/root/.nuget/packages"
+    - "/Users/huran438/RiderProjects/sf-server/SFServer.API:/app:rw"
+    - "/Users/huran438/RiderProjects/sf-server:/src:rw"
+    - "/Users/huran438/.nuget/packages:/root/.nuget/packages"
     working_dir: "/app"
   ui:
     build:
-      context: "/Users/ilyakhurani/Git/sf-server"
+      context: "/Users/huran438/RiderProjects/sf-server"
       dockerfile: "./SFServer.UI/Dockerfile"
       target: "build"
     command: []
@@ -31,7 +31,7 @@ services:
     image: "sfserver.ui:dev"
     ports: []
     volumes:
-    - "/Users/ilyakhurani/Git/sf-server/SFServer.UI:/app:rw"
-    - "/Users/ilyakhurani/Git/sf-server:/src:rw"
-    - "/Users/ilyakhurani/.nuget/packages:/root/.nuget/packages"
+    - "/Users/huran438/RiderProjects/sf-server/SFServer.UI:/app:rw"
+    - "/Users/huran438/RiderProjects/sf-server:/src:rw"
+    - "/Users/huran438/.nuget/packages:/root/.nuget/packages"
     working_dir: "/app"

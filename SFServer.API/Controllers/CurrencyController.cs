@@ -11,8 +11,8 @@ namespace SFServer.API.Controllers
     [Authorize(Roles = "Admin,Developer")]
     public class CurrencyController : ControllerBase
     {
-        private readonly UserProfilesDbContext _context;
-        public CurrencyController(UserProfilesDbContext context)
+        private readonly DatabaseContext _context;
+        public CurrencyController(DatabaseContext context)
         {
             _context = context;
         }

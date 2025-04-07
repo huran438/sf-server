@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFServer.Shared.Models.Inventory;
 using SFServer.Shared.Models.Wallet;
 using SFServer.UI.Models;
+using SFServer.UI.Models.Economy;
 
 namespace SFServer.UI.Controllers
 {
@@ -31,48 +33,63 @@ namespace SFServer.UI.Controllers
             return client;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string activeTab)
         {
             using var httpClient = GetAuthenticatedHttpClient();
             var currencies = await httpClient.GetFromJsonAsync<List<Currency>>("Currency");
-            var model = new EconomyViewModel
+            var inventoryItems = await httpClient.GetFromJsonAsync<List<InventoryItem>>("InventoryItems");
+
+            var model = new EconomyDisplayViewModel
             {
-                Currencies = currencies ?? new List<Currency>()
+                Currencies = currencies ?? new List<Currency>(),
+                InventoryItems = inventoryItems ?? new List<InventoryItem>()
             };
+
+            // Optionally store activeTab in ViewBag (for server-side logging)
+            ViewBag.ActiveTab = activeTab ?? "wallet";
+
             return View(model);
         }
 
+
+        #region Currency
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCurrency(EconomyViewModel model)
+        public async Task<IActionResult> CreateCurrency(CurrencyCreateViewModel model)
         {
             if (!ModelState.IsValid)
-                return ValidationProblem();
+            {
+                // Return the Index view with an appropriate display model if needed.
+                return View("Index");
+            }
 
-
-            // Build the Currency object.
             var currency = new Currency
             {
                 Title = model.NewCurrencyTitle,
-                Icon = string.IsNullOrWhiteSpace(model.NewCurrencyIcon) ? string.Empty : model.NewCurrencyIcon,
-                RichText = string.IsNullOrWhiteSpace(model.NewCurrencyRichText) ? string.Empty : model.NewCurrencyRichText,
+                Icon = model.NewCurrencyIcon,
+                RichText = model.NewCurrencyRichText,
                 InitialAmount = model.NewCurrencyInitialAmount ?? 0,
                 Capacity = model.NewCurrencyCapacity ?? 0,
                 RefillSeconds = model.NewCurrencyRefillSeconds ?? 0,
-                Color = string.IsNullOrWhiteSpace(model.NewCurrencyIcon) ? "#FFFFFF" : model.NewCurrencyIcon,
+                Color = model.NewCurrencyColorHex
             };
 
             using var httpClient = GetAuthenticatedHttpClient();
-            var response = await httpClient.PostAsJsonAsync("Currency/create", currency);
+            var response = await httpClient.PostAsJsonAsync("currency/create", currency);
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = $"Failed to add currency: {response.StatusCode}";
+                return RedirectToAction("Index");
             }
 
+            TempData["Success"] = "Currency added successfully!";
             return RedirectToAction("Index");
         }
-        
-         // GET: /Economy/EditCurrency/{id}
+
+
+
+        // GET: /Economy/EditCurrency/{id}
         public async Task<IActionResult> EditCurrency(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
@@ -94,14 +111,14 @@ namespace SFServer.UI.Controllers
 
             return View(model);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCurrency(EditCurrencyViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
-    
+
             // Build the updated currency object, using ColorHex directly as a string.
             var updatedCurrency = new Currency
             {
@@ -128,7 +145,7 @@ namespace SFServer.UI.Controllers
                 return View(model);
             }
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCurrency(Guid id)
@@ -139,7 +156,90 @@ namespace SFServer.UI.Controllers
             {
                 TempData["Error"] = "Failed to delete currency.";
             }
+
             return RedirectToAction("Index");
         }
+
+        #endregion
+
+
+        #region Inventory
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateInventoryItem(InventoryItemCreateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToAction("Index", new { activeTab = "inventory" });
+            }
+
+            var inventoryItem = new InventoryItem
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Description = model.Description,
+                Quantity = model.Quantity,
+                Type = model.Type,
+                ImageUrl = model.ImageUrl,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            using var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.PostAsJsonAsync("InventoryItems", inventoryItem);
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = $"Failed to add inventory item: {response.StatusCode}";
+                return RedirectToAction("Index", new { activeTab = "inventory" });
+            }
+
+            TempData["Success"] = "Inventory item added successfully!";
+            // Redirect to Index with activeTab=inventory in the query string.
+            return RedirectToAction("Index", new { activeTab = "inventory" });
+        }
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditInventoryItem(InventoryItem item)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid data submitted.";
+                return RedirectToAction("Index");
+            }
+
+            using var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.PutAsJsonAsync($"InventoryItems/{item.Id}", item);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = $"Failed to update inventory item: {errorContent}";
+            }
+            else
+            {
+                TempData["Success"] = "Inventory item updated successfully!";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteInventoryItem(Guid id)
+        {
+            using var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.DeleteAsync($"InventoryItems/{id}");
+
+            if (!response.IsSuccessStatusCode)
+                TempData["Error"] = "Failed to delete inventory item.";
+
+            return RedirectToAction("Index");
+        }
+
+        #endregion
     }
 }

@@ -1,57 +1,63 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json;
 using SFServer.Shared.Models.Wallet;
 
 namespace SFServer.UI.Controllers
 {
     [Authorize]
-    public class WalletController : Controller
+    public abstract class ControllerAuthorize : Controller
     {
-        private readonly IConfiguration _configuration;
+        public IConfiguration Configuration => _configuration;
 
-        public WalletController(IConfiguration configuration)
+        public HttpClient Client => _client;
+
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _client;
+
+        public ControllerAuthorize(IConfiguration configuration)
         {
             _configuration = configuration;
-        }
-        
-        private HttpClient GetAuthenticatedHttpClient()
-        {
-            var client = new HttpClient { BaseAddress = new Uri(_configuration["API_BASE_URL"]) };
+            _client = new HttpClient { BaseAddress = new Uri(_configuration["API_BASE_URL"]) };
             var jwtToken = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
             if (!string.IsNullOrEmpty(jwtToken))
             {
-                client.DefaultRequestHeaders.Authorization =
+                _client.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
             }
             else
             {
                 Console.WriteLine("JWT token not found in user claims.");
             }
-            return client;
         }
-        
+    }
+
+    [Authorize]
+    public class WalletController : ControllerAuthorize
+    {
+        public WalletController(IConfiguration configuration) : base(configuration)
+        {
+        }
+
         public async Task<IActionResult> Index()
         {
             // Use Guid for user ID.
             Guid userId = Guid.Parse(User.FindFirst("UserId")?.Value);
-            using var client = GetAuthenticatedHttpClient();
-            var walletItems = await client.GetFromJsonAsync<List<WalletItem>>($"Wallet/{userId}");
+            var walletItems = await Client.GetFromJsonAsync<List<WalletItem>>($"Wallet/{userId}");
             return View(walletItems);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateWalletItem(Guid walletItemId, decimal amount)
         {
-            using var client = GetAuthenticatedHttpClient();
             // Build a minimal object with the ID and new amount.
             var updatePayload = new { Id = walletItemId, Amount = amount };
-            var response = await client.PutAsJsonAsync($"Wallet/{walletItemId}", updatePayload);
+            var response = await Client.PutAsJsonAsync($"Wallet/{walletItemId}", updatePayload);
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to update wallet item.";
             }
+
             return RedirectToAction("Index");
         }
     }

@@ -12,16 +12,16 @@ namespace SFServer.API.Controllers;
 [Route("[controller]")]
 public class ConnectionController : ControllerBase
 {
-    private readonly UserProfilesDbContext _db;
+    private readonly DatabaseContext _db;
 
-    public ConnectionController(UserProfilesDbContext db)
+    public ConnectionController(DatabaseContext db)
     {
         _db = db;
     }
-    
+
     [HttpPost("check")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
+    public async Task<IActionResult> Login([FromBody] CheckConnectionRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -30,9 +30,8 @@ public class ConnectionController : ControllerBase
         {
             ServerTime = DateTime.UtcNow,
             DebugMode = false,
-            
         };
-        
+
         if (string.IsNullOrEmpty(request.Credential))
         {
             return Ok(response);
@@ -60,7 +59,7 @@ public class ConnectionController : ControllerBase
 
         if (user == null)
             return Unauthorized("User not found");
-        
+
         response.DebugMode = (user.Role is UserRole.Admin or UserRole.Developer) && user.DebugMode;
 
         return Ok(response);

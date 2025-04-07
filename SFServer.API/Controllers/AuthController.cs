@@ -27,9 +27,9 @@ namespace SFServer.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly UserProfilesDbContext _db;
+    private readonly DatabaseContext _db;
 
-    public AuthController(IConfiguration config, UserProfilesDbContext db)
+    public AuthController(IConfiguration config, DatabaseContext db)
     {
         _config = config;
         _db = db;

@@ -11,8 +11,8 @@ namespace SFServer.API.Controllers
     [Authorize] // Requires authentication.
     public class WalletController : ControllerBase
     {
-        private readonly UserProfilesDbContext _context;
-        public WalletController(UserProfilesDbContext context)
+        private readonly DatabaseContext _context;
+        public WalletController(DatabaseContext context)
         {
             _context = context;
         }

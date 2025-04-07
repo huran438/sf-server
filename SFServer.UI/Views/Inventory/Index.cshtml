@@ -1,0 +1,30 @@
+﻿@model List<SFServer.Shared.Models.Inventory.InventoryItem>
+
+@{
+    ViewData["Title"] = "My Inventory";
+}
+
+<h1>My Inventory</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td><button>Test</button></td>
+        </tr>
+    }
+    </tbody>
+</table>
