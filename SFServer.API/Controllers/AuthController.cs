@@ -180,6 +180,7 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
         {
+            user.DeviceIds ??= [];
             user.DeviceIds.Add(request.DeviceId);
         }
         
@@ -358,6 +359,7 @@ public class AuthController : ControllerBase
             
             if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds != null && user.DeviceIds.Contains(request.DeviceId) == false)
             {
+                user.DeviceIds ??= [];
                 user.DeviceIds.Add(request.DeviceId);
             }
 
@@ -370,6 +372,7 @@ public class AuthController : ControllerBase
         {
             if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
             {
+                user.DeviceIds ??= [];
                 user.DeviceIds.Add(request.DeviceId);
             }
             
