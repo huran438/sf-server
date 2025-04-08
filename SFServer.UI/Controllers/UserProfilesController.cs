@@ -149,6 +149,11 @@ namespace SFServer.UI.Controllers
                 DebugMode = profile.DebugMode
             };
 
+            if (profile.DeviceIds != null)
+            {
+                viewModel.DeviceIds = profile.DeviceIds.ToArray();
+            }
+
             // After retrieving the user's profile:
             var userId = profile.Id; // assuming this is the user ID
             var walletItems = await httpClient.GetFromJsonAsync<List<WalletItem>>($"Wallet/{userId}");

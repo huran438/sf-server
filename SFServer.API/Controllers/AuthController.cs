@@ -177,10 +177,10 @@ public class AuthController : ControllerBase
 
         user.LastLoginAt = DateTime.UtcNow;
 
+        user.DeviceIds ??= [];
 
         if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
         {
-            user.DeviceIds ??= [];
             user.DeviceIds.Add(request.DeviceId);
         }
         
@@ -357,9 +357,10 @@ public class AuthController : ControllerBase
                 DebugMode = false
             };
             
-            if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds != null && user.DeviceIds.Contains(request.DeviceId) == false)
+            user.DeviceIds ??= [];
+            
+            if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
             {
-                user.DeviceIds ??= [];
                 user.DeviceIds.Add(request.DeviceId);
             }
 
@@ -370,9 +371,10 @@ public class AuthController : ControllerBase
         }
         else
         {
+            user.DeviceIds ??= [];
+            
             if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
             {
-                user.DeviceIds ??= [];
                 user.DeviceIds.Add(request.DeviceId);
             }
             

@@ -33,4 +33,6 @@ public class EditUserProfileViewModel
     public List<WalletItemViewModel> WalletItems { get; set; } = [];
     
     public bool DebugMode { get; set; }
+    
+    public string[] DeviceIds { get; set; } = [];
 }
