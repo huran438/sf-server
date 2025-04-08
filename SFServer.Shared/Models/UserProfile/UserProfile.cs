@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace SFServer.Shared.Models.UserProfile
 {
@@ -17,5 +18,6 @@ namespace SFServer.Shared.Models.UserProfile
         public string PasswordHash { get; set; }
         public string GooglePlayId { get; set; }
         public bool DebugMode { get; set; }
+        public List<string> DeviceIds { get; set; } = new();
     }
 }

@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
 
         if (string.IsNullOrEmpty(request.Credential))
         {
-            return await AnonymousLogin();
+            return BadRequest(ModelState);
         }
 
         UserProfile user = null;
@@ -119,8 +119,8 @@ public class AuthController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
-        if (string.IsNullOrEmpty(request.Credential))
+        
+        if (string.IsNullOrEmpty(request.Credential) && string.IsNullOrEmpty(request.DeviceId))
         {
             return await AnonymousLogin();
         }
@@ -128,13 +128,13 @@ public class AuthController : ControllerBase
         UserProfile user = null;
 
         // Try to interpret the credential as an ID (integer)
-        if (Guid.TryParse(request.Credential, out Guid id))
+        if (Guid.TryParse(request.Credential, out var id))
         {
             user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         // If not found and if the credential contains '@', try email lookup.
-        if (user == null && request.Credential.Contains("@"))
+        if (user == null && request.Credential.Contains('@'))
         {
             user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Credential.ToLower());
         }
@@ -145,10 +145,14 @@ public class AuthController : ControllerBase
             user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
         }
 
-
+        if (user == null && string.IsNullOrEmpty(request.DeviceId) == false)
+        {
+            user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.DeviceIds != null && u.DeviceIds.Contains(request.DeviceId));
+        }
+        
         if (user == null)
         {
-            return await AnonymousLogin();
+            return await AnonymousLogin(request.DeviceId);
         }
 
 
@@ -172,6 +176,13 @@ public class AuthController : ControllerBase
         var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
         user.LastLoginAt = DateTime.UtcNow;
+
+
+        if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
+        {
+            user.DeviceIds.Add(request.DeviceId);
+        }
+        
         await _db.SaveChangesAsync();
 
         var response = new LoginResponse
@@ -196,7 +207,7 @@ public class AuthController : ControllerBase
         return $"Guest{ShortId.Generate(new GenerationOptions(length: 8, useSpecialCharacters: false, useNumbers: true)).ToUpper()}";
     }
 
-    private async Task<IActionResult> AnonymousLogin()
+    private async Task<IActionResult> AnonymousLogin(string deviceId = null)
     {
         var user = new UserProfile
         {
@@ -208,6 +219,11 @@ public class AuthController : ControllerBase
             LastLoginAt = DateTime.UtcNow
         };
 
+        if (!string.IsNullOrWhiteSpace(deviceId))
+        {
+            user.DeviceIds.Add(deviceId);
+        }
+        
         _db.UserProfiles.Add(user);
         await _db.SaveChangesAsync();
 
@@ -331,27 +347,36 @@ public class AuthController : ControllerBase
         {
             user = new UserProfile
             {
-                Id = Guid.NewGuid(),
                 Username = playerInfo == null ? GenerateUsername() : playerInfo.DisplayName,
                 Role = UserRole.User,
                 CreatedAt = DateTime.UtcNow,
                 LastEditAt = DateTime.UtcNow,
                 LastLoginAt = DateTime.UtcNow,
                 GooglePlayId = request.GoogleClientId,
-                DebugMode = false,
+                DebugMode = false
             };
+            
+            if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds != null && user.DeviceIds.Contains(request.DeviceId) == false)
+            {
+                user.DeviceIds.Add(request.DeviceId);
+            }
 
             var hasher = new PasswordHasher<UserProfile>();
             user.PasswordHash = hasher.HashPassword(user, Guid.NewGuid().ToString());
 
             _db.UserProfiles.Add(user);
-            await _db.SaveChangesAsync();
         }
         else
         {
+            if (string.IsNullOrWhiteSpace(request.DeviceId) == false && user.DeviceIds.Contains(request.DeviceId) == false)
+            {
+                user.DeviceIds.Add(request.DeviceId);
+            }
+            
             user.LastLoginAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
         }
+
+        await _db.SaveChangesAsync();
 
         var claims = new List<Claim>
         {
