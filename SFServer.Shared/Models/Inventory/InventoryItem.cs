@@ -5,7 +5,7 @@ namespace SFServer.Shared.Models.Inventory
     public class InventoryItem
     {
         public Guid Id { get; set; } // Changed to Guid
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
         public int Quantity { get; set; }
         public string Type { get; set; } // e.g., Weapon, Consumable, Armor

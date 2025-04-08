@@ -63,7 +63,7 @@ public class InventoryItemsController : ControllerBase
         if (existingItem == null)
             return NotFound();
 
-        existingItem.Name = updatedItem.Name;
+        existingItem.Title = updatedItem.Title;
         existingItem.Description = updatedItem.Description;
         existingItem.Quantity = updatedItem.Quantity;
         existingItem.Type = updatedItem.Type;

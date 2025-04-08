@@ -177,7 +177,7 @@ namespace SFServer.UI.Controllers
             var inventoryItem = new InventoryItem
             {
                 Id = Guid.NewGuid(),
-                Name = model.Name,
+                Title = model.Name,
                 Description = model.Description,
                 Quantity = model.Quantity,
                 Type = model.Type,
@@ -215,7 +215,7 @@ namespace SFServer.UI.Controllers
             var response = await httpClient.PutAsJsonAsync($"InventoryItems/{item.Id}", new InventoryItem
             {
                 Id = item.Id,
-                Name = item.Name,
+                Title = item.Name,
                 Description = item.Description,
                 Quantity = item.Quantity,
                 Type = item.Type,

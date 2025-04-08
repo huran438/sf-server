@@ -121,11 +121,11 @@
             {
                 var modalId = "editInventoryModal_" + item.Id;
                 <tr>
-                    <td>@item.Name</td>
+                    <td>@item.Title</td>
                     <td>@item.Description</td>
                     <td>@item.Quantity</td>
                     <td>@item.Type</td>
-                    <td><img src="@item.ImageUrl" alt="@item.Name" style="max-height: 40px;" /></td>
+                    <td><img src="@item.ImageUrl" alt="@item.Title" style="max-height: 40px;" /></td>
                     <td>@item.CreatedAt.ToShortDateString()</td>
                     <td>
                         <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#@modalId">Edit</button>
@@ -142,7 +142,7 @@
             @await Html.PartialAsync("_EditInventoryItemModal", new SFServer.UI.Models.EditInventoryItemViewModel
             {
                 Id = item.Id,
-                Name = item.Name,
+                Name = item.Title,
                 Description = item.Description,
                 Quantity = item.Quantity,
                 Type = item.Type,
