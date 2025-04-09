@@ -67,17 +67,7 @@
                     <span asp-validation-for="Role" class="text-danger"></span>
                 </div>
             }
-
-            <label asp-for="DebugMode">Debug Mode</label>
-            @if (Model.Role is UserRole.Admin or UserRole.Developer)
-            {
-                <input asp-for="DebugMode" class="form-check-input" type="checkbox"/>
-            }
-            else
-            {
-                <input asp-for="DebugMode" class="form-check-input" type="checkbox" disabled/>
-            }
-
+            
             <div class="form-group mb-3">
                 <label asp-for="DeviceIds">Device Ids</label>
                 <table class="table table-sm">
@@ -85,18 +75,37 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Device Id</th>
+                        <th scope="col">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     @for (int i = 0; i < Model.DeviceIds.Length; i++)
                     {
                         <tr>
-                            <th scope="row">i+1</th>
+                            <th scope="row">@(i+1)</th>
                             <td>@Model.DeviceIds[i]</td>
+                            <td><button type="button" class="btn btn-danger"  style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">Delete</button></td>
                         </tr>
                     }
                     </tbody>
                 </table>
+            </div>
+            
+            <div class="form-group mb-3">
+            @if (Model.Role is UserRole.Admin or UserRole.Developer)
+            {
+                <div class="form-check form-switch">
+                    <label asp-for="DebugMode" class="form-check-label">Debug Mode</label>
+                    <input asp-for="DebugMode" class="form-check-input" type="checkbox"></input>
+                </div>
+            }
+            else
+            {
+                <div class="form-check form-switch">
+                    <label asp-for="DebugMode" class="form-check-label">Debug Mode</label>
+                    <input asp-for="DebugMode" class="form-check-input" type="checkbox" disabled/>
+                </div>
+            }
             </div>
 
             @if (isAdmin || isSelf)

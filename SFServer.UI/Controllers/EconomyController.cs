@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SFServer.Shared.Models.Wallet;
 using SFServer.UI.Models;
 
@@ -31,10 +30,12 @@ namespace SFServer.UI.Controllers
             return client;
         }
 
+        // GET: /Economy/Index
         public async Task<IActionResult> Index()
         {
             using var httpClient = GetAuthenticatedHttpClient();
-            var currencies = await httpClient.GetFromJsonAsync<List<Currency>>("Currency");
+            // Retrieve currencies using MessagePack
+            var currencies = await httpClient.GetFromMessagePackAsync<List<Currency>>("Currency");
             var model = new EconomyViewModel
             {
                 Currencies = currencies ?? new List<Currency>()
@@ -49,7 +50,6 @@ namespace SFServer.UI.Controllers
             if (!ModelState.IsValid)
                 return ValidationProblem();
 
-
             // Build the Currency object.
             var currency = new Currency
             {
@@ -63,7 +63,8 @@ namespace SFServer.UI.Controllers
             };
 
             using var httpClient = GetAuthenticatedHttpClient();
-            var response = await httpClient.PostAsJsonAsync("Currency/create", currency);
+            // Post the currency object using MessagePack.
+            var response = await httpClient.PostMessagePackAsync("Currency/create", currency);
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = $"Failed to add currency: {response.StatusCode}";
@@ -71,12 +72,13 @@ namespace SFServer.UI.Controllers
 
             return RedirectToAction("Index");
         }
-        
-         // GET: /Economy/EditCurrency/{id}
+
+        // GET: /Economy/EditCurrency/{id}
         public async Task<IActionResult> EditCurrency(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
-            var currency = await httpClient.GetFromJsonAsync<Currency>($"Currency/{id}");
+            // Retrieve the currency using MessagePack.
+            var currency = await httpClient.GetFromMessagePackAsync<Currency>($"Currency/{id}");
             if (currency == null)
                 return NotFound();
 
@@ -94,15 +96,15 @@ namespace SFServer.UI.Controllers
 
             return View(model);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCurrency(EditCurrencyViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
-    
-            // Build the updated currency object, using ColorHex directly as a string.
+
+            // Build the updated currency object.
             var updatedCurrency = new Currency
             {
                 Id = model.Id,
@@ -112,11 +114,12 @@ namespace SFServer.UI.Controllers
                 InitialAmount = model.InitialAmount,
                 Capacity = model.Capacity,
                 RefillSeconds = model.RefillSeconds,
-                Color = model.ColorHex ?? string.Empty // directly assign the string
+                Color = model.ColorHex ?? string.Empty
             };
 
             using var httpClient = GetAuthenticatedHttpClient();
-            var response = await httpClient.PutAsJsonAsync($"Currency/{model.Id}", updatedCurrency);
+            // Use MessagePack for the PUT update.
+            var response = await httpClient.PutAsMessagePackAsync($"Currency/{model.Id}", updatedCurrency);
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index", "Economy");
@@ -128,7 +131,7 @@ namespace SFServer.UI.Controllers
                 return View(model);
             }
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCurrency(Guid id)
@@ -139,6 +142,7 @@ namespace SFServer.UI.Controllers
             {
                 TempData["Error"] = "Failed to delete currency.";
             }
+
             return RedirectToAction("Index");
         }
     }

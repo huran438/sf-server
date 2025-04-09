@@ -1,4 +1,5 @@
 ﻿using System;
+using SFServer.Shared.Models.Base;
 
 namespace SFServer.Shared.Models.Connection
 {

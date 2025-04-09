@@ -37,6 +37,8 @@ public class AuthController : ControllerBase
 
     [HttpPost("login-dashboard")]
     [AllowAnonymous]
+    [Consumes("application/x-msgpack")]
+    [Produces("application/x-msgpack")]
     public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
     {
         if (!ModelState.IsValid)
@@ -115,6 +117,8 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [Consumes("application/x-msgpack")]
+    [Produces("application/x-msgpack")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (!ModelState.IsValid)
@@ -305,6 +309,8 @@ public class AuthController : ControllerBase
 
     [HttpPost("GooglePlayLogin")]
     [AllowAnonymous]
+    [Consumes("application/x-msgpack")]
+    [Produces("application/x-msgpack")]
     public async Task<IActionResult> GooglePlayLogin([FromBody] GooglePlayLoginRequest request)
     {
         
@@ -415,6 +421,8 @@ public class AuthController : ControllerBase
 
     [HttpPost("LinkGooglePlay")]
     [Authorize]
+    [Consumes("application/x-msgpack")]
+    [Produces("application/x-msgpack")]
     public async Task<IActionResult> LinkGooglePlay([FromBody] GooglePlayLoginRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.GoogleClientId) || string.IsNullOrWhiteSpace(request.AuthCode))

@@ -32,22 +32,23 @@ namespace SFServer.UI.Controllers
             return client;
         }
 
-
         public async Task<IActionResult> Index(int page = 1, string search = "", string sortColumn = "Id", string sortOrder = "asc")
         {
             try
             {
                 using var client = GetAuthenticatedHttpClient();
-                var profiles = await client.GetFromJsonAsync<List<UserProfile>>("UserProfiles");
+
+                // Retrieve profiles using MessagePack.
+                var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles");
 
                 // Filter profiles by search query.
                 if (!string.IsNullOrWhiteSpace(search))
                 {
-                    bool isNumeric = Guid.TryParse(search, out Guid searchId);
+                    bool isGuid = Guid.TryParse(search, out Guid searchId);
                     profiles = profiles.Where(p =>
                         p.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                         p.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                        (isNumeric && p.Id == searchId)
+                        (isGuid && p.Id == searchId)
                     ).ToList();
                 }
 
@@ -69,7 +70,6 @@ namespace SFServer.UI.Controllers
                 int totalPages = (int)Math.Ceiling(totalProfiles / (double)pageSize);
                 var pagedProfiles = profiles.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-                // Build the view model.
                 var model = new UserProfilesIndexViewModel
                 {
                     Users = pagedProfiles,
@@ -87,7 +87,6 @@ namespace SFServer.UI.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
         }
-
 
         // GET: /UserProfiles/Create
         public IActionResult Create()
@@ -111,12 +110,14 @@ namespace SFServer.UI.Controllers
                 Role = model.Role,
                 CreatedAt = DateTime.UtcNow
             };
-            
+
             var hasher = new PasswordHasher<UserProfile>();
             newUser.PasswordHash = hasher.HashPassword(newUser, model.Password);
 
             using var client = GetAuthenticatedHttpClient();
-            var response = await client.PostAsJsonAsync("UserProfiles", newUser);
+
+            // Use MessagePack for POST.
+            var response = await client.PostMessagePackAsync("UserProfiles", newUser);
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -131,14 +132,14 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
-            var profile = await httpClient.GetFromJsonAsync<UserProfile>($"UserProfiles/{id}");
+            // Get the user profile using MessagePack.
+            var profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
             if (profile == null)
             {
                 return NotFound();
             }
 
-
-            // Map UserProfile to EditUserProfileViewModel
+            // Map UserProfile to EditUserProfileViewModel.
             var viewModel = new EditUserProfileViewModel
             {
                 Id = profile.Id,
@@ -154,11 +155,9 @@ namespace SFServer.UI.Controllers
                 viewModel.DeviceIds = profile.DeviceIds.ToArray();
             }
 
-            // After retrieving the user's profile:
-            var userId = profile.Id; // assuming this is the user ID
-            var walletItems = await httpClient.GetFromJsonAsync<List<WalletItem>>($"Wallet/{userId}");
+            // Retrieve wallet items (also using MessagePack).
+            var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
 
-            // Map them to your view model.
             viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
             {
                 Id = w.Id,
@@ -185,29 +184,29 @@ namespace SFServer.UI.Controllers
                 return View(model);
             }
 
-            using var _httpClient = GetAuthenticatedHttpClient();
-            // Retrieve the existing user (preserving the existing password hash if no new password provided)
-            var existingProfile = await _httpClient.GetFromJsonAsync<UserProfile>($"UserProfiles/{id}");
+            using var httpClient = GetAuthenticatedHttpClient();
+            // Retrieve the existing user using MessagePack.
+            var existingProfile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
             if (existingProfile == null)
             {
                 return NotFound();
             }
 
-            // Update fields
+            // Update fields.
             existingProfile.Username = model.Username;
             existingProfile.Email = model.Email;
             existingProfile.Role = model.Role;
             existingProfile.DebugMode = model.Role is UserRole.Admin or UserRole.Developer && model.DebugMode;
 
-            // Update password if a new one is provided.
+            // Update password if provided.
             if (!string.IsNullOrWhiteSpace(model.NewPassword) && model.NewPassword == model.ConfirmPassword)
             {
                 var hasher = new PasswordHasher<UserProfile>();
                 existingProfile.PasswordHash = hasher.HashPassword(existingProfile, model.NewPassword);
             }
 
-            // Send the updated profile to the API (adjust your HTTP client call accordingly)
-            var response = await _httpClient.PutAsJsonAsync($"UserProfiles/{id}", existingProfile);
+            // Use MessagePack for PUT.
+            var response = await httpClient.PutAsMessagePackAsync($"UserProfiles/{id}", existingProfile);
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -219,7 +218,6 @@ namespace SFServer.UI.Controllers
                 return View(model);
             }
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

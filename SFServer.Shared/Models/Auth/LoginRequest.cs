@@ -1,10 +1,9 @@
-﻿using System;
+﻿using MessagePack;
 
 namespace SFServer.Shared.Models.Auth
 {
-    public class LoginRequest : ISFServerModel
+    [MessagePackObject]
+    public class LoginRequest : LoginRequestBase
     {
-        public string Credential { get; set; }
-        public string DeviceId { get; set; }
     }
 }

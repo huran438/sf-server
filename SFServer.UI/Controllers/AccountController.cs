@@ -30,34 +30,34 @@ public class AccountController : Controller
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
 
-        var response = await httpClient.PostAsJsonAsync("Auth/login-dashboard", model);
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            ModelState.AddModelError("", "Invalid credentials");
+            var loginResponse = await httpClient.PostAsMessagePackAsync<LoginViewModel, LoginResponse>("Auth/login-dashboard", model);
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.Name, loginResponse.Username),
+                new(ClaimTypes.Role, loginResponse.Role.ToString()),
+                new("JwtToken", loginResponse.JwtToken),
+                new("UserId", loginResponse.UserId.ToString())
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties { IsPersistent = true }
+            );
+
+            return RedirectToAction("Index", "UserProfiles");
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError("", "Invalid credentials or server error.");
             return View(model);
         }
-
-        var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.Name, loginResponse.Username),
-            new(ClaimTypes.Role, loginResponse.Role.ToString()),
-            new("JwtToken", loginResponse.JwtToken),
-            new("UserId", loginResponse.UserId.ToString())  // NEW claim for user id
-        };
-
-
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            new AuthenticationProperties { IsPersistent = true }
-        );
-
-        return RedirectToAction("Index", "UserProfiles");
     }
 
     public async Task<IActionResult> Logout()

@@ -1,24 +1,26 @@
 ﻿@using SFServer.Shared.Models.UserProfile
 @inject IConfiguration Configuration
-<script>
-    var apiBaseUrl = '@Configuration["JS_API_BASE_URL"]';
-    if (!apiBaseUrl.endsWith("/")) {
-        apiBaseUrl += "/";
-    }
-    var jwtToken = '@User.FindFirst("JwtToken")?.Value';
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script>
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/SFServer.UI.styles.css" asp-append-version="true"/>
+
+    <!-- API / Auth JS variables -->
+    <script>
+        let apiBaseUrl = '@Configuration["JS_API_BASE_URL"]';
+        if (!apiBaseUrl.endsWith("/")) {
+            apiBaseUrl += "/";
+        }
+        let jwtToken = '@User.FindFirst("JwtToken")?.Value';
+    </script>
 </head>
 <body>
 <header>
@@ -57,36 +59,36 @@
                 {
                     <div class="d-flex align-items-center">
                         <span id="server-time" class="me-3 text-primary fw-bold">--:--:--</span>
+                        @{
+                            var userId = User.FindFirst("UserId")?.Value;
+                            var userName = User.Identity.Name;
+                        }
                         @if (User.IsInRole(nameof(UserRole.Admin)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit"
-                               asp-route-id="@User.FindFirst("UserId")?.Value">
-                                <i class="bi bi-person-badge"></i> @User.Identity.Name
+                               asp-action="Edit" asp-route-id="@userId">
+                                <i class="bi bi-person-badge"></i> @userName
                             </a>
                         }
                         else if (User.IsInRole(nameof(UserRole.Developer)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit"
-                               asp-route-id="@User.FindFirst("UserId")?.Value">
-                                <i class="bi bi-code-slash"></i> @User.Identity.Name
+                               asp-action="Edit" asp-route-id="@userId">
+                                <i class="bi bi-code-slash"></i> @userName
                             </a>
                         }
                         else if (User.IsInRole(nameof(UserRole.User)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit"
-                               asp-route-id="@User.FindFirst("UserId")?.Value">
-                                <i class="bi bi-person"></i> @User.Identity.Name
+                               asp-action="Edit" asp-route-id="@userId">
+                                <i class="bi bi-person"></i> @userName
                             </a>
                         }
                         else if (User.IsInRole(nameof(UserRole.Guest)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit"
-                               asp-route-id="@User.FindFirst("UserId")?.Value">
-                                <i class="bi bi-person-lines-fill"></i> @User.Identity.Name
+                               asp-action="Edit" asp-route-id="@userId">
+                                <i class="bi bi-person-lines-fill"></i> @userName
                             </a>
                         }
                         <form asp-controller="Account" asp-action="Logout" method="post" class="mb-0">
@@ -107,24 +109,32 @@
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
-    <div class="container d-flex justify-content-between align-items-center">
+<footer class="footer border-top text-body-secondary bg-body-tertiary">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap py-3">
         <span>@Configuration["SERVER_COPYRIGHT"]</span>
-        <button id="themeToggleBtn" class="btn btn-secondary">
-            <i class="bi bi-moon"></i> Toggle Theme
-        </button>
+
         @if (User.IsInRole("Admin"))
         {
             <a class="btn btn-outline-secondary btn-sm" asp-controller="ServerSettings" asp-action="Index">
                 <i class="bi bi-gear"></i> Server Settings
             </a>
         }
+
+        <a id="themeToggleBtn" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-moon"></i> Toggle Theme
+        </a>
     </div>
 </footer>
 
+<!-- Scripts -->
+<script src="~/lib/chart.js/dist/chart.umd.js"></script>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+<!-- Theme and Clock Logic -->
 <script>
     function formatUTCDate(date) {
         const day = ("0" + date.getUTCDate()).slice(-2);
@@ -149,19 +159,13 @@
         const now = new Date();
         const epochTime = Math.floor(now.getTime() / 1000);
         navigator.clipboard.writeText(epochTime.toString())
-            .then(() => {
-                alert("Unix epoch time (" + epochTime + ") copied to clipboard.");
-            })
-            .catch((err) => {
-                console.error("Failed to copy epoch time: ", err);
-            });
+            .then(() => alert("Unix epoch time (" + epochTime + ") copied to clipboard."))
+            .catch(err => console.error("Failed to copy epoch time:", err));
     }
 
-    // Update time every second.
     setInterval(updateServerTime, 1000);
     updateServerTime();
 
-    // Attach click event to the time element once the DOM is loaded.
     document.addEventListener('DOMContentLoaded', function () {
         const timeElem = document.getElementById('server-time');
         if (timeElem) {
@@ -169,50 +173,35 @@
             timeElem.addEventListener('click', copyEpochTime);
         }
     });
-</script>
-@await RenderSectionAsync("Scripts", required: false)
-<script>
-    // Update navbar classes and link text color based on the current theme
+
     function updateNavbarClass(theme) {
         const navbar = document.querySelector('nav.navbar');
         if (!navbar) return;
-        if (theme === 'dark') {
-            navbar.classList.remove('navbar-light', 'bg-light');
-            navbar.classList.add('navbar-dark', 'bg-dark');
-        } else {
-            navbar.classList.remove('navbar-dark', 'bg-dark');
-            navbar.classList.add('navbar-light', 'bg-light');
-        }
 
-        // Update each nav link's text color
+        navbar.classList.toggle('navbar-dark', theme === 'dark');
+        navbar.classList.toggle('bg-dark', theme === 'dark');
+        navbar.classList.toggle('navbar-light', theme !== 'dark');
+        navbar.classList.toggle('bg-light', theme !== 'dark');
+
         const navLinks = navbar.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
-            if (theme === 'dark') {
-                link.classList.remove('text-dark');
-                link.classList.add('text-light');
-            } else {
-                link.classList.remove('text-light');
-                link.classList.add('text-dark');
-            }
+            link.classList.toggle('text-light', theme === 'dark');
+            link.classList.toggle('text-dark', theme !== 'dark');
         });
     }
 
-    // Retrieve saved theme from localStorage or default to 'light'
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-bs-theme', savedTheme);
     updateNavbarClass(savedTheme);
 
-    // Toggle between 'light' and 'dark' themes and persist the state
-    const toggleTheme = () => {
+    document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
         const html = document.documentElement;
         const currentTheme = html.getAttribute('data-bs-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-bs-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         updateNavbarClass(newTheme);
-    };
-
-    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+    });
 </script>
 </body>
 </html>

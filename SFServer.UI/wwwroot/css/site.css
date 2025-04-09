@@ -1,22 +1,52 @@
+/* Preserve original font sizing */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* Use flexbox layout only for spacing and sticky footer */
 body {
-  margin-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Allow content to fill available space */
+body > .container {
+    flex: 1 0 auto;
+    padding-bottom: 2rem; /* Optional: extra padding before footer */
+}
+
+/* Footer spacing */
+footer {
+    flex-shrink: 0;
+    margin-top: 2rem;
+    font-size: 1rem;    /* Adjust font size */
+    background-color: #f8f9fa; /* Light Bootstrap gray */
+    border-top: 1px solid #dee2e6; /* Subtle top border */
+}
+
+footer .container {
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap; /* Allows wrap on smaller screens */
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Focus styling */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }

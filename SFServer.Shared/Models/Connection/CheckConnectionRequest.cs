@@ -1,4 +1,6 @@
-﻿namespace SFServer.Shared.Models.Connection
+﻿using SFServer.Shared.Models.Base;
+
+namespace SFServer.Shared.Models.Connection
 {
     public class CheckConnectionRequest : ISFServerModel
     {

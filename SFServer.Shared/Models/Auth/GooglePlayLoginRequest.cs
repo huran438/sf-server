@@ -1,12 +1,14 @@
 ﻿using System;
+using MessagePack;
 
 namespace SFServer.Shared.Models.Auth
 {
-    public class GooglePlayLoginRequest : ISFServerModel
+    [MessagePackObject]
+    public class GooglePlayLoginRequest : LoginRequestBase
     {
-        public string Credential { get; set; }
-        public string DeviceId { get; set; }
+        [Key(4)]
         public string GoogleClientId { get; set; }
+        [Key(5)]
         public string AuthCode { get; set; }
     }
 }

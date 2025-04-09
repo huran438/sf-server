@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json;
 using SFServer.Shared.Models.Wallet;
 
 namespace SFServer.UI.Controllers
@@ -36,7 +35,9 @@ namespace SFServer.UI.Controllers
             // Use Guid for user ID.
             Guid userId = Guid.Parse(User.FindFirst("UserId")?.Value);
             using var client = GetAuthenticatedHttpClient();
-            var walletItems = await client.GetFromJsonAsync<List<WalletItem>>($"Wallet/{userId}");
+            
+            // Retrieve wallet items using MessagePack.
+            var walletItems = await client.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{userId}");
             return View(walletItems);
         }
         
@@ -45,9 +46,12 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> UpdateWalletItem(Guid walletItemId, decimal amount)
         {
             using var client = GetAuthenticatedHttpClient();
+            
             // Build a minimal object with the ID and new amount.
             var updatePayload = new { Id = walletItemId, Amount = amount };
-            var response = await client.PutAsJsonAsync($"Wallet/{walletItemId}", updatePayload);
+            
+            // Update the wallet item using MessagePack.
+            var response = await client.PutAsMessagePackAsync($"Wallet/{walletItemId}", updatePayload);
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to update wallet item.";

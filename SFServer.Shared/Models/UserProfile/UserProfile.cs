@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using SFServer.Shared.Models.Base;
 
 namespace SFServer.Shared.Models.UserProfile
 {
