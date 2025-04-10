@@ -14,9 +14,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SFServer.API.Data;
-using SFServer.Shared.Models.Auth;
-using SFServer.Shared.Models.Google;
-using SFServer.Shared.Models.UserProfile;
+using SFServer.Shared.Client.Auth;
+using SFServer.Shared.Server;
+using SFServer.Shared.Server.Auth;
+using SFServer.Shared.Server.Google;
+using SFServer.Shared.Server.UserProfile;
 using shortid;
 using shortid.Configuration;
 
@@ -37,8 +39,6 @@ public class AuthController : ControllerBase
 
     [HttpPost("login-dashboard")]
     [AllowAnonymous]
-    [Consumes("application/x-msgpack")]
-    [Produces("application/x-msgpack")]
     public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
     {
         if (!ModelState.IsValid)
@@ -103,11 +103,12 @@ public class AuthController : ControllerBase
         user.LastLoginAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
 
-        var response = new LoginResponse
+        var response = new DashboardLoginResponse
         {
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
+            Role = user.Role,
             ExpirationDate = expirationDate,
             JwtToken = jwtToken
         };
@@ -117,8 +118,6 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [AllowAnonymous]
-    [Consumes("application/x-msgpack")]
-    [Produces("application/x-msgpack")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (!ModelState.IsValid)
@@ -309,8 +308,6 @@ public class AuthController : ControllerBase
 
     [HttpPost("GooglePlayLogin")]
     [AllowAnonymous]
-    [Consumes("application/x-msgpack")]
-    [Produces("application/x-msgpack")]
     public async Task<IActionResult> GooglePlayLogin([FromBody] GooglePlayLoginRequest request)
     {
         
@@ -421,8 +418,6 @@ public class AuthController : ControllerBase
 
     [HttpPost("LinkGooglePlay")]
     [Authorize]
-    [Consumes("application/x-msgpack")]
-    [Produces("application/x-msgpack")]
     public async Task<IActionResult> LinkGooglePlay([FromBody] GooglePlayLoginRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.GoogleClientId) || string.IsNullOrWhiteSpace(request.AuthCode))

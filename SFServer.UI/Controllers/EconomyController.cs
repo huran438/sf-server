@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SFServer.Shared.Models.Wallet;
+using SFServer.Shared.Server.Wallet;
 using SFServer.UI.Models;
 
 namespace SFServer.UI.Controllers

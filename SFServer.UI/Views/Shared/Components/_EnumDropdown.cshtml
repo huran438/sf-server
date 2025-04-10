@@ -1,4 +1,5 @@
-﻿@model SFServer.UI.Models.EnumDropdownViewModel
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SFServer.UI.Models.EnumDropdownViewModel
 
 @{
     var enumValues = Enum.GetValues(Model.EnumType)

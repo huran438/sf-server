@@ -1,4 +1,4 @@
-﻿using SFServer.Shared.Models.UserProfile;
+﻿using SFServer.Shared.Server.UserProfile;
 
 namespace SFServer.UI.Models.UserProfiles
 {

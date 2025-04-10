@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFServer.Shared.Models.UserProfile;
-using SFServer.Shared.Models.Wallet;
+using SFServer.Shared.Server.UserProfile;
+using SFServer.Shared.Server.Wallet;
 
 namespace SFServer.API.Data
 {

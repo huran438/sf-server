@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using SFServer.Shared.Models.Wallet;
+using SFServer.Shared.Server.Wallet;
 
 namespace SFServer.UI.Models
 {

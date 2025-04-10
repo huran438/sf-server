@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using SFServer.Shared.Models.UserProfile;
-using SFServer.Shared.Models.Wallet;
+using SFServer.Shared.Server.UserProfile;
+using SFServer.Shared.Server.Wallet;
 using SFServer.UI.Models.UserProfiles;
 
 namespace SFServer.UI.Controllers
@@ -47,7 +47,7 @@ namespace SFServer.UI.Controllers
                     bool isGuid = Guid.TryParse(search, out Guid searchId);
                     profiles = profiles.Where(p =>
                         p.Username.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                        p.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                        (p.Email != null && p.Email.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
                         (isGuid && p.Id == searchId)
                     ).ToList();
                 }

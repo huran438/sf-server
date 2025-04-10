@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SFServer.API.Data;
-using SFServer.Shared.Models.Wallet;
+using SFServer.Shared.Server.Wallet;
 
 namespace SFServer.API.Controllers
 {

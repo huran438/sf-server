@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SFServer.API.Data;
-using SFServer.Shared.Models.UserProfile;
+using SFServer.Shared.Server.UserProfile;
 
 namespace SFServer.API.Controllers
 {
@@ -42,7 +42,7 @@ namespace SFServer.API.Controllers
             }
     
             // Check if email exists (case-insensitive)
-            if (await _context.UserProfiles.AnyAsync(u => u.Email.ToLower() == profile.Email.ToLower()))
+            if (await _context.UserProfiles.AnyAsync(u => profile.Email != null && u.Email.ToLower() == profile.Email.ToLower()))
             {
                 return BadRequest("Email already exists.");
             }

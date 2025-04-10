@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SFServer.API.Data;
-using SFServer.Shared.Models.Auth;
-using SFServer.Shared.Models.Connection;
-using SFServer.Shared.Models.UserProfile;
+using SFServer.Shared.Client.Connection;
+using SFServer.Shared.Server;
+using SFServer.Shared.Server.Auth;
+using SFServer.Shared.Server.UserProfile;
 
 namespace SFServer.API.Controllers;
 

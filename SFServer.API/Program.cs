@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SFServer.API;
 using SFServer.API.Data;
-using SFServer.Shared.Models.UserProfile;
+using SFServer.Shared.Server.UserProfile;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,18 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
-builder.Services.AddControllers();
+
+var msgpackOptions = MessagePackSerializerOptions.Standard.WithResolver(ContractlessStandardResolver.Instance);
+
+builder.Services.AddControllers()
+    .AddMvcOptions(options =>
+    {
+        options.InputFormatters.Insert(0, new MessagePackInputFormatter(msgpackOptions));
+        options.OutputFormatters.Insert(0, new MessagePackOutputFormatter(msgpackOptions));
+        options.Conventions.Add(new GlobalMessagePackConvention("application/x-msgpack"));
+    });
+
+
 builder.Services.AddDbContext<UserProfilesDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDataProtection()
@@ -89,15 +101,6 @@ builder.Services.AddSwaggerGen(options =>
     };
     options.AddSecurityRequirement(securityRequirement);
 });
-
-var msgpackOptions = MessagePackSerializerOptions.Standard.WithResolver(ContractlessStandardResolver.Instance);
-
-builder.Services.AddControllers()
-    .AddMvcOptions(options =>
-    {
-        options.InputFormatters.Insert(0, new MessagePackInputFormatter(msgpackOptions));
-        options.OutputFormatters.Insert(0, new MessagePackOutputFormatter(msgpackOptions));
-    });
 
 var app = builder.Build();
 

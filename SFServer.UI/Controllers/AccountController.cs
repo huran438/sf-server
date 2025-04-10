@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SFServer.Shared.Models.Auth;
+using SFServer.Shared.Client.Auth;
+using SFServer.Shared.Server.Auth;
 using SFServer.UI.Models.UserProfiles;
 
 namespace SFServer.UI.Controllers;
@@ -32,7 +33,7 @@ public class AccountController : Controller
 
         try
         {
-            var loginResponse = await httpClient.PostAsMessagePackAsync<LoginViewModel, LoginResponse>("Auth/login-dashboard", model);
+            var loginResponse = await httpClient.PostAsMessagePackAsync<LoginViewModel, DashboardLoginResponse>("Auth/login-dashboard", model);
 
             var claims = new List<Claim>
             {
