@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SFServer.Shared.Client.Auth;
 using SFServer.Shared.Server.Auth;
 using SFServer.UI.Models.UserProfiles;
 

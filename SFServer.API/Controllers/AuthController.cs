@@ -2,10 +2,6 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
-using Google.Apis.Auth;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Requests;
 using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SFServer.API.Data;
 using SFServer.Shared.Client.Auth;
-using SFServer.Shared.Server;
 using SFServer.Shared.Server.Auth;
 using SFServer.Shared.Server.Google;
 using SFServer.Shared.Server.UserProfile;
