@@ -21,7 +21,7 @@ public class ConnectionController : ControllerBase
     
     [HttpPost("check")]
     [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
+    public async Task<IActionResult> CheckConnection([FromBody] CheckConnectionRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
