@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@using System.Reflection
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using SFServer.Shared.Server.UserProfile
 @model SFServer.UI.Models.UserProfiles.EditUserProfileViewModel
 
@@ -108,18 +109,28 @@
                                         </tr>
                                         </thead>
                                         <tbody class="table-group-divider">
-                                        <tr>
-                                            <th scope="row">1</th>
-                                            <td>Mark</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">2</th>
-                                            <td>Jacob</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">3</th>
-                                            <td>John</td>
-                                        </tr>
+                                        @{
+                                            if (Model.UserDevices[i] != null)
+                                            {
+                                                var properties = typeof(UserDevice).GetProperties(BindingFlags.Instance |
+                                                                                                  BindingFlags.Public | BindingFlags.NonPublic);
+                                                for (var index = 3; index < properties.Length; index++)
+                                                {
+                                                    var property = properties[index];
+                                                    if (!property.CanRead)
+                                                    {
+                                                        continue;
+                                                    }
+
+                                                    var propertyValue = property.GetValue(Model.UserDevices[i]);
+
+                                                    <tr>
+                                                        <th scope="row">@property.Name</th>
+                                                        <td>@propertyValue</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
                                         </tbody>
                                     </table>
                                 </div>
@@ -170,12 +181,14 @@
             }
 
             <div class="mt-3">
-                <button type="submit" class="btn btn-success">Save</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                <!-- Remove Profile button placed next to Save and Cancel -->
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                        data-bs-target="#confirmDeleteModal">Remove Profile
-                </button>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    <!-- Remove Profile button placed next to Save and Cancel -->
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal">Remove Profile
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -203,30 +216,48 @@
     <!-- Wallet Tab -->
     <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">
         <h3 class="mt-3">Wallet</h3>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Currency</th>
-                <th>Amount</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model.WalletItems)
-            {
-                <tr>
-                    <td>@item.Currency</td>
-                    <td>
-                        <input type="number" class="form-control" value="@item.Amount" id="wallet-@item.Id" min="0"/>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-primary update-wallet" data-id="@item.Id">Update
-                        </button>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Currency</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateWallet" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="UserId" value="@Model.Id"/>
+
+                        <table class="table table-hover table-bordered">
+                            <thead class="table">
+                            <tr>
+                                <th scope="col">Currency</th>
+                                <th scope="col">Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @for (var i = 0; i < Model.WalletItems.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.Hidden($"WalletItems[{i}].WalletItemId", Model.WalletItems[i].Id)
+                                        <span class="fw-bold">@Model.WalletItems[i].Currency</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" class="form-control"
+                                               name="WalletItems[@i].Amount"
+                                               value="@Model.WalletItems[i].Amount"/>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -235,30 +266,20 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            $(".update-wallet").click(function () {
-                var itemId = $(this).data("id");
-                var amount = $("#wallet-" + itemId).val();
-                $.ajax({
-                    url: apiBaseUrl + 'Wallet/' + itemId,
-                    method: 'PUT',
-                    contentType: 'application/json',
-                    data: JSON.stringify({Id: itemId, Amount: amount}),
-                    beforeSend: function (xhr) {
-                        if (jwtToken) {
-                            xhr.setRequestHeader("Authorization", "Bearer " + jwtToken);
-                        }
-                    },
-                    success: function () {
-                        alert("Wallet updated for currency ID " + itemId);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error updating wallet:", status, error, xhr.responseText);
-                        alert("Error updating wallet: " + xhr.responseText);
-                    }
-                });
-            });
-        });
+        (function () {
+            // Read the active tab value from TempData.
+            var activeTab = '@(TempData["activeTab"] ?? "")';
+            if (activeTab !== "") {
+                // Construct the tab button's id (e.g., "wallet-tab", "general-tab", "credentials-tab")
+                var tabButtonId = activeTab + "-tab";
+                var tabButton = document.getElementById(tabButtonId);
+                if (tabButton) {
+                    var tabInstance = new bootstrap.Tab(tabButton);
+                    tabInstance.show();
+                }
+            }
+        })();
     </script>
+
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

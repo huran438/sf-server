@@ -47,7 +47,7 @@
     container_name: ui
     build:
       context: ..
-      dockerfile: ./SFServer.UI/Dockerfile
+      dockerfile: ./SFServer.UI/Dockerfile_Dev
     restart: unless-stopped
     volumes:
       - datakeys:/var/app-keys

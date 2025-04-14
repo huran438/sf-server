@@ -11,7 +11,7 @@ using SFServer.API.Data;
 
 namespace SFServer.API.Migrations
 {
-    [DbContext(typeof(UserProfilesDbContext))]
+    [DbContext(typeof(DatabseContext))]
     [Migration("20250403215552_UpdatedLoginResponse#1")]
     partial class UpdatedLoginResponse1
     {

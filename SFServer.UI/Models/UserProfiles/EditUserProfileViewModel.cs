@@ -35,4 +35,6 @@ public class EditUserProfileViewModel
     public bool DebugMode { get; set; }
     
     public string[] DeviceIds { get; set; } = [];
+
+    public UserDevice[] UserDevices { get; set; }
 }

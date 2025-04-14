@@ -40,7 +40,7 @@ builder.Services.AddControllers()
     });
 
 
-builder.Services.AddDbContext<UserProfilesDbContext>(options =>
+builder.Services.AddDbContext<DatabseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/var/app-keys"))
@@ -119,7 +119,7 @@ if (app.Environment.IsDevelopment())
 // Apply migrations & seed admin
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<UserProfilesDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<DatabseContext>();
     context.Database.Migrate(); // apply migrations
 
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
@@ -135,6 +135,7 @@ using (var scope = app.Services.CreateScope())
 
         var adminUser = new UserProfile
         {
+            Id = Guid.CreateVersion7(),
             Username = adminUsername,
             Email = adminEmail,
             Role = Enum.TryParse<UserRole>(adminRole, out var role) ? role : UserRole.Admin,

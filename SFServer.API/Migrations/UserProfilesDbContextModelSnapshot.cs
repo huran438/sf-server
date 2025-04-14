@@ -11,24 +11,91 @@ using SFServer.API.Data;
 
 namespace SFServer.API.Migrations
 {
-    [DbContext(typeof(UserProfilesDbContext))]
+    [DbContext(typeof(DatabseContext))]
     partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SFServer.Shared.Models.UserProfile.UserProfile", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserDevice", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceModel")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceType")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("FullScreen")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("GraphicsDeviceName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GraphicsDeviceType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GraphicsDeviceVendor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GraphicsDeviceVersion")
+                        .HasColumnType("text");
+
+                    b.Property<int>("GraphicsMemorySize")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GraphicsShaderLevel")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProcessorCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProcessorType")
+                        .HasColumnType("text");
+
+                    b.Property<float>("ScreenDpi")
+                        .HasColumnType("real");
+
+                    b.Property<int>("ScreenHeight")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ScreenWidth")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SystemMemorySize")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserDevices");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<int?>("Age")
                         .HasColumnType("integer");
@@ -72,7 +139,7 @@ namespace SFServer.API.Migrations
                     b.ToTable("UserProfiles");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Models.Wallet.Currency", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.Wallet.Currency", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +171,7 @@ namespace SFServer.API.Migrations
                     b.ToTable("Currencies");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Models.Wallet.WalletItem", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -126,9 +193,9 @@ namespace SFServer.API.Migrations
                     b.ToTable("WalletItems");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Models.Wallet.WalletItem", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
-                    b.HasOne("SFServer.Shared.Models.Wallet.Currency", "Currency")
+                    b.HasOne("SFServer.Shared.Server.Wallet.Currency", "Currency")
                         .WithMany()
                         .HasForeignKey("CurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)

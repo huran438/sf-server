@@ -12,9 +12,9 @@ namespace SFServer.API.Controllers;
 [Route("[controller]")]
 public class ConnectionController : ControllerBase
 {
-    private readonly UserProfilesDbContext _db;
+    private readonly DatabseContext _db;
 
-    public ConnectionController(UserProfilesDbContext db)
+    public ConnectionController(DatabseContext db)
     {
         _db = db;
     }

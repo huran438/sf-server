@@ -13,7 +13,7 @@ namespace SFServer.UI.Controllers
         {
             _configuration = configuration;
         }
-        
+
         private HttpClient GetAuthenticatedHttpClient()
         {
             var client = new HttpClient { BaseAddress = new Uri(_configuration["API_BASE_URL"]) };
@@ -27,35 +27,38 @@ namespace SFServer.UI.Controllers
             {
                 Console.WriteLine("JWT token not found in user claims.");
             }
+
             return client;
         }
-        
+
         public async Task<IActionResult> Index()
         {
             // Use Guid for user ID.
-            Guid userId = Guid.Parse(User.FindFirst("UserId")?.Value);
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            var userId = string.IsNullOrEmpty(userIdClaim) ? Guid.Empty : Guid.Parse(userIdClaim);
             using var client = GetAuthenticatedHttpClient();
-            
+
             // Retrieve wallet items using MessagePack.
             var walletItems = await client.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{userId}");
             return View(walletItems);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateWalletItem(Guid walletItemId, decimal amount)
         {
             using var client = GetAuthenticatedHttpClient();
-            
+
             // Build a minimal object with the ID and new amount.
-            var updatePayload = new { Id = walletItemId, Amount = amount };
-            
+            var updatePayload = new WalletUpdateDto { Id = walletItemId, Amount = amount };
+
             // Update the wallet item using MessagePack.
             var response = await client.PutAsMessagePackAsync($"Wallet/{walletItemId}", updatePayload);
             if (!response.IsSuccessStatusCode)
             {
-                TempData["Error"] = "Failed to update wallet item.";
+                TempData["Error"] = $"Failed to update wallet item: {response}";
             }
+
             return RedirectToAction("Index");
         }
     }

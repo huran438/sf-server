@@ -105,6 +105,7 @@ namespace SFServer.UI.Controllers
             // Map view model to UserProfile entity.
             var newUser = new UserProfile
             {
+                Id = Guid.CreateVersion7(),
                 Username = model.Username,
                 Email = model.Email,
                 Role = model.Role,
@@ -132,14 +133,13 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
-            // Get the user profile using MessagePack.
+
             var profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
             if (profile == null)
             {
                 return NotFound();
             }
-
-            // Map UserProfile to EditUserProfileViewModel.
+            
             var viewModel = new EditUserProfileViewModel
             {
                 Id = profile.Id,
@@ -155,7 +155,15 @@ namespace SFServer.UI.Controllers
                 viewModel.DeviceIds = profile.DeviceIds.ToArray();
             }
 
-            // Retrieve wallet items (also using MessagePack).
+            viewModel.UserDevices = new UserDevice[viewModel.DeviceIds.Length];
+
+            for (var i = 0; i < viewModel.DeviceIds.Length; i++)
+            {
+                var deviceId  = viewModel.DeviceIds[i];
+                var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{deviceId}");
+                viewModel.UserDevices[i] = device;
+            }
+            
             var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
 
             viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
@@ -229,7 +237,46 @@ namespace SFServer.UI.Controllers
             {
                 TempData["Error"] = "Failed to delete user.";
             }
+
             return RedirectToAction("Index");
+        }
+        
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateWallet(WalletUpdateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid wallet data.";
+                // Set the active tab to "wallet"
+                TempData["activeTab"] = "wallet";
+                return RedirectToAction("Edit", new { id = model.UserId });
+            }
+
+            using var client = GetAuthenticatedHttpClient();
+
+            foreach (var item in model.WalletItems)
+            {
+                var updateDto = new WalletUpdateDto
+                {
+                    Id = item.WalletItemId,
+                    Amount = item.Amount
+                };
+
+                var response = await client.PutAsMessagePackAsync($"Wallet/{item.WalletItemId}", updateDto);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorMsg = await response.Content.ReadAsStringAsync();
+                    TempData["Error"] = $"Failed to update wallet item {item.WalletItemId}: {errorMsg}";
+                    // You may choose to stop processing or continue.
+                }
+            }
+
+            TempData["Success"] = "Wallet updated successfully.";
+            // Set the active tab to "wallet"
+            TempData["activeTab"] = "wallet";
+            return RedirectToAction("Edit", new { id = model.UserId });
         }
     }
 }

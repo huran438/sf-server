@@ -11,18 +11,18 @@ namespace SFServer.API.Controllers
     [Authorize(Roles = "Admin,Developer")]
     public class UserProfilesController : ControllerBase
     {
-        private readonly UserProfilesDbContext _context;
+        private readonly DatabseContext _db;
 
-        public UserProfilesController(UserProfilesDbContext context)
+        public UserProfilesController(DatabseContext db)
         {
-            _context = context;
+            _db = db;
         }
 
         // GET: api/UserProfiles
         [HttpGet]
         public async Task<IActionResult> GetUserProfiles()
         {
-            var profiles = await _context.UserProfiles.ToListAsync();
+            var profiles = await _db.UserProfiles.ToListAsync();
             return Ok(profiles);
         }
 
@@ -34,54 +34,68 @@ namespace SFServer.API.Controllers
             {
                 return BadRequest("Profile cannot be null.");
             }
-    
+
             // Check if username exists (case-insensitive)
-            if (await _context.UserProfiles.AnyAsync(u => u.Username.ToLower() == profile.Username.ToLower()))
+            if (await _db.UserProfiles.AnyAsync(u => u.Username.ToLower() == profile.Username.ToLower()))
             {
                 return BadRequest("Username already exists.");
             }
-    
+
             // Check if email exists (case-insensitive)
-            if (await _context.UserProfiles.AnyAsync(u => profile.Email != null && u.Email.ToLower() == profile.Email.ToLower()))
+            if (await _db.UserProfiles.AnyAsync(u => profile.Email != null && u.Email.ToLower() == profile.Email.ToLower()))
             {
                 return BadRequest("Email already exists.");
             }
-    
+
             profile.CreatedAt = DateTime.UtcNow;
-            _context.UserProfiles.Add(profile);
-            await _context.SaveChangesAsync();
-    
+            _db.UserProfiles.Add(profile);
+            await _db.SaveChangesAsync();
+
             // Optionally, return the newly created user using GetById endpoint.
             return CreatedAtAction(nameof(GetById), new { id = profile.Id }, profile);
         }
 
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var profile = await _context.UserProfiles.FindAsync(id);
+            var profile = await _db.UserProfiles.FindAsync(id);
             if (profile == null)
                 return NotFound();
 
             if (profile.Role == UserRole.Admin)
                 return Forbid("Cannot delete admin users.");
 
-            _context.UserProfiles.Remove(profile);
-            await _context.SaveChangesAsync();
+            // Delete Devices
+            _db.UserDevices.RemoveRange(_db.UserDevices.Where(d => d.UserId == profile.Id));
+            
+            // Wallet
+            _db.WalletItems.RemoveRange(_db.WalletItems.Where(d => d.UserId == profile.Id));
+            
+            _db.UserProfiles.Remove(profile);
+            await _db.SaveChangesAsync();
             return NoContent();
         }
-        
+
         // GET: api/UserProfiles/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var user = await _context.UserProfiles.FindAsync(id);
+            var user = await _db.UserProfiles.FindAsync(id);
             if (user == null) return NotFound();
             return Ok(user);
         }
 
-        [HttpPut("{id}")]
+        // GET: api/UserProfiles/{userId}/device/{deviceId}
+        [HttpGet("{userId:guid}/device/{deviceId}")]
+        public async Task<IActionResult> GetDeviceById(Guid userId, string deviceId)
+        {
+            var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId);
+            return Ok(userDevice);
+        }
+
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateUserProfile(Guid id, [FromBody] UserProfile updated)
         {
             if (id != updated.Id)
@@ -89,7 +103,7 @@ namespace SFServer.API.Controllers
                 return BadRequest("ID mismatch.");
             }
 
-            var existing = await _context.UserProfiles.FindAsync(id);
+            var existing = await _db.UserProfiles.FindAsync(id);
             if (existing == null)
             {
                 return NotFound("User not found.");
@@ -100,7 +114,7 @@ namespace SFServer.API.Controllers
             {
                 return Forbid("Developers cannot edit Admin accounts.");
             }
-            
+
             // Prevent changing role of an admin user
             if (existing.Role == UserRole.Admin && updated.Role != UserRole.Admin)
             {
@@ -116,7 +130,7 @@ namespace SFServer.API.Controllers
             existing.Role = updated.Role;
             existing.LastEditAt = DateTime.UtcNow;
             existing.DebugMode = updated.DebugMode;
-            
+
             // Determine if current user is trying to change someone else's password
             bool isSelf = User.FindFirst("UserId")?.Value == existing.Id.ToString();
             bool isAdmin = User.IsInRole("Admin");
@@ -131,10 +145,10 @@ namespace SFServer.API.Controllers
                 // Only allow Admin or self to update password
                 existing.PasswordHash = updated.PasswordHash;
             }
-            
+
             try
             {
-                await _context.SaveChangesAsync();
+                await _db.SaveChangesAsync();
             }
             catch (Exception ex)
             {

@@ -11,8 +11,8 @@ namespace SFServer.API.Controllers
     [Authorize] // Requires authentication.
     public class WalletController : ControllerBase
     {
-        private readonly UserProfilesDbContext _context;
-        public WalletController(UserProfilesDbContext context)
+        private readonly DatabseContext _context;
+        public WalletController(DatabseContext context)
         {
             _context = context;
         }
@@ -52,17 +52,53 @@ namespace SFServer.API.Controllers
         }
         
         // PUT /Wallet/{walletItemId}
-        [HttpPut("{walletItemId}")]
+        [HttpPut("{walletItemId:guid}")]
         public async Task<IActionResult> UpdateWalletItem(Guid walletItemId, [FromBody] WalletUpdateDto updateDto)
         {
             if (walletItemId != updateDto.Id)
+            {
+                Console.WriteLine("ID mismatch.");
                 return BadRequest("ID mismatch.");
+            }
+               
 
             var existingItem = await _context.WalletItems.FindAsync(walletItemId);
             if (existingItem == null)
+            {
+                Console.WriteLine("Wallet item not found.");
                 return NotFound("Wallet item not found.");
+            }
+               
 
             existingItem.Amount = updateDto.Amount;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+        
+        // PUT /Wallet/batch
+        [HttpPut("batch")]
+        public async Task<IActionResult> UpdateWalletItems([FromBody] List<WalletUpdateDto> updateDtos)
+        {
+            if (updateDtos == null || updateDtos.Count == 0)
+            {
+                return BadRequest("No wallet items provided for update.");
+            }
+
+            foreach (var updateDto in updateDtos)
+            {
+                // Retrieve the existing item by its ID (from the update DTO).
+                var existingItem = await _context.WalletItems.FindAsync(updateDto.Id);
+                if (existingItem == null)
+                {
+                    Console.WriteLine($"Wallet item not found for ID: {updateDto.Id}");
+                    return NotFound($"Wallet item not found for ID: {updateDto.Id}");
+                }
+
+                // Update the amount.
+                existingItem.Amount = updateDto.Amount;
+            }
+
+            // Save changes once all items have been updated.
             await _context.SaveChangesAsync();
             return NoContent();
         }

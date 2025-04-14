@@ -24,9 +24,9 @@ namespace SFServer.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly UserProfilesDbContext _db;
+    private readonly DatabseContext _db;
 
-    public AuthController(IConfiguration config, UserProfilesDbContext db)
+    public AuthController(IConfiguration config, DatabseContext db)
     {
         _config = config;
         _db = db;
@@ -150,7 +150,7 @@ public class AuthController : ControllerBase
         
         if (user == null)
         {
-            return await AnonymousLogin(request.DeviceId);
+            return await AnonymousLogin(request);
         }
 
 
@@ -182,6 +182,20 @@ public class AuthController : ControllerBase
             user.DeviceIds.Add(request.DeviceId);
         }
         
+        var device = await _db.UserDevices.FirstOrDefaultAsync(x => x.DeviceId == request.DeviceId);
+            
+        if (device == null)
+        {
+            var userDevice = new UserDevice
+            {
+                Id = Guid.CreateVersion7(),
+                DeviceId = request.DeviceId,
+                UserId = user.Id
+            };
+            userDevice.SetInfo(request.DeviceInfo);
+            await _db.UserDevices.AddAsync(userDevice);
+        }
+        
         await _db.SaveChangesAsync();
 
         var response = new LoginResponse
@@ -206,10 +220,11 @@ public class AuthController : ControllerBase
         return $"Guest{ShortId.Generate(new GenerationOptions(length: 8, useSpecialCharacters: false, useNumbers: true)).ToUpper()}";
     }
 
-    private async Task<IActionResult> AnonymousLogin(string deviceId = null)
+    private async Task<IActionResult> AnonymousLogin(LoginRequestBase loginRequestBase = null)
     {
         var user = new UserProfile
         {
+            Id = Guid.CreateVersion7(),
             Username = GenerateUsername(),
             Email = string.Empty, // Email not required
             Role = UserRole.Guest, // Regular user role
@@ -218,10 +233,28 @@ public class AuthController : ControllerBase
             LastLoginAt = DateTime.UtcNow
         };
 
-        if (!string.IsNullOrWhiteSpace(deviceId))
+        if (loginRequestBase != null)
         {
-            user.DeviceIds.Add(deviceId);
+            var deviceId = loginRequestBase.DeviceId;
+            
+            if (!string.IsNullOrWhiteSpace(deviceId))
+            {
+                user.DeviceIds.Add(deviceId);
+            }
+        
+            var device = await _db.UserDevices.FirstOrDefaultAsync(x => x.DeviceId == deviceId);
+            
+            if (device == null)
+            {
+                var userDevice = new UserDevice();
+                userDevice.DeviceId = deviceId;
+                userDevice.UserId = user.Id;
+                userDevice.SetInfo(loginRequestBase.DeviceInfo);
+                await _db.UserDevices.AddAsync(userDevice);
+            }
         }
+        
+  
         
         _db.UserProfiles.Add(user);
         await _db.SaveChangesAsync();
@@ -346,6 +379,7 @@ public class AuthController : ControllerBase
         {
             user = new UserProfile
             {
+                Id = Guid.CreateVersion7(),
                 Username = playerInfo == null ? GenerateUsername() : playerInfo.DisplayName,
                 Role = UserRole.User,
                 CreatedAt = DateTime.UtcNow,
@@ -419,10 +453,9 @@ public class AuthController : ControllerBase
             return BadRequest("Missing PlayerId or AuthCode");
 
         // Проверяем AuthCode через Google
-        TokenResponse token;
         try
         {
-            token = await ExchangeCodeForToken(request.AuthCode);
+            await ExchangeCodeForToken(request.AuthCode);
         }
         catch (Exception ex)
         {
