@@ -10,6 +10,7 @@ namespace SFServer.Shared.Client.Auth
         [Key(5)]
         public string AuthCode { get; set; }
 
+        [IgnoreMember]
         public override string Endpoint => "Auth/GooglePlayLogin";
     }
 }

@@ -10,6 +10,8 @@ namespace SFServer.Shared.Client.Connection
         public string Credential { get; set; }
         [Key(1)]
         public string DeviceId { get; set; }
+        
+        [IgnoreMember]
         public override string Endpoint => "Connection/check";
     }
 }
