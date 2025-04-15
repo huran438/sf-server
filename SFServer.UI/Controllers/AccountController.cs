@@ -32,7 +32,11 @@ public class AccountController : Controller
 
         try
         {
-            var loginResponse = await httpClient.PostAsMessagePackAsync<LoginViewModel, DashboardLoginResponse>("Auth/login-dashboard", model);
+            var loginResponse = await httpClient.PostAsMessagePackAsync<LoginDashboardRequest, DashboardLoginResponse>("Auth/login-dashboard", new LoginDashboardRequest
+            {
+                Credential = model.Credential,
+                Password = model.Password
+            });
 
             var claims = new List<Claim>
             {

@@ -258,13 +258,13 @@ namespace SFServer.UI.Controllers
 
             foreach (var item in model.WalletItems)
             {
-                var updateDto = new WalletUpdateDto
+                var response = await client.PutAsMessagePackAsync($"Wallet/{item.WalletItemId}", new WalletUpdateDto
                 {
                     Id = item.WalletItemId,
                     Amount = item.Amount
-                };
-
-                var response = await client.PutAsMessagePackAsync($"Wallet/{item.WalletItemId}", updateDto);
+                });
+                
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorMsg = await response.Content.ReadAsStringAsync();

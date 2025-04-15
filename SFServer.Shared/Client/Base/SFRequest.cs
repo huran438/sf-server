@@ -1,10 +1,10 @@
-﻿using MessagePack;
+﻿using MemoryPack;
 
 namespace SFServer.Shared.Client.Base
 {
-    public abstract class SFRequest : ISFRequest
+    public abstract partial class SFRequest : ISFRequest
     {
-        [IgnoreMember]
+        [MemoryPackIgnore]
         public abstract string Endpoint { get; }
     }
 }

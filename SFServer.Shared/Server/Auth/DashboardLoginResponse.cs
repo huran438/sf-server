@@ -1,9 +1,11 @@
 ﻿using System;
+using MemoryPack;
 using SFServer.Shared.Server.UserProfile;
 
 namespace SFServer.Shared.Server.Auth
 {
-    public class DashboardLoginResponse
+    [MemoryPackable]
+    public partial class DashboardLoginResponse
     {
         public Guid UserId { get; set; }
         public string Username { get; set; }

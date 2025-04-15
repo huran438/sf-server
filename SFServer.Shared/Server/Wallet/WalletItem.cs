@@ -1,8 +1,10 @@
 ﻿using System;
+using MemoryPack;
 
 namespace SFServer.Shared.Server.Wallet
 {
-    public class WalletItem
+    [MemoryPackable]
+    public partial class WalletItem
     {
         public Guid Id { get; set; }
 

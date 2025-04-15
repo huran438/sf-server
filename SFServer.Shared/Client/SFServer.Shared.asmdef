@@ -5,10 +5,10 @@
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": true,
+    "overrideReferences": false,
     "precompiledReferences": [
         "MemoryPack.Core.dll",
-        "MessagePack.Annotations.dll"
+        ""
     ],
     "autoReferenced": true,
     "defineConstraints": [],

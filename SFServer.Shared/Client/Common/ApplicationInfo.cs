@@ -1,18 +1,13 @@
-﻿
-using MessagePack;
+﻿using MemoryPack;
 
 namespace SFServer.Shared.Client.Common
 {
-    [MessagePackObject]
-    public class ApplicationInfo
+    [MemoryPackable]
+    public partial class ApplicationInfo
     {
-        [Key(0)]
-        public string appIdentifier;
-        [Key(1)]
-        public string appVersion;
-        [Key(2)]
-        public string unityVersion;
-        [Key(3)]
-        public string platform;
+        public string AppIdentifier { get; set; }
+        public string AppVersion { get; set; }
+        public string UnityVersion { get; set; }
+        public string Platform { get; set; }
     }
 }

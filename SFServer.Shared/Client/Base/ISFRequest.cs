@@ -1,10 +1,7 @@
-﻿using MessagePack;
-
-namespace SFServer.Shared.Client.Base
+﻿namespace SFServer.Shared.Client.Base
 {
-    public interface ISFRequest
+    public partial interface ISFRequest
     {
-        [IgnoreMember]
         public string Endpoint { get; }
     }
 }

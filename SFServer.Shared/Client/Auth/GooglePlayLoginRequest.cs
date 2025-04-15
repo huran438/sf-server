@@ -1,16 +1,13 @@
-﻿using MessagePack;
+﻿using MemoryPack;
+
 
 namespace SFServer.Shared.Client.Auth
 {
-    [MessagePackObject]
-    public class GooglePlayLoginRequest : LoginRequestBase
+    [MemoryPackable]
+    public partial class GooglePlayLoginRequest : LoginRequestBase
     {
-        [Key(4)]
         public string GoogleClientId { get; set; }
-        [Key(5)]
         public string AuthCode { get; set; }
-
-        [IgnoreMember]
         public override string Endpoint => "Auth/GooglePlayLogin";
     }
 }

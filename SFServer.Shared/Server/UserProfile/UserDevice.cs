@@ -1,9 +1,11 @@
 ﻿using System;
+using MemoryPack;
 using SFServer.Shared.Client.Common;
 
 namespace SFServer.Shared.Server.UserProfile
 {
-    public class UserDevice
+    [MemoryPackable]
+    public partial class UserDevice
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }

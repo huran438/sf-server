@@ -1,6 +1,9 @@
-﻿namespace SFServer.Shared.Server.Google
+﻿using MemoryPack;
+
+namespace SFServer.Shared.Server.Google
 {
-    public class GooglePlayerInfo
+    [MemoryPackable]
+    public partial class GooglePlayerInfo
     {
         public string Kind { get; set; }
         public string PlayerId { get; set; }

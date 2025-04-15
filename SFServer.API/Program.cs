@@ -1,7 +1,4 @@
 using System.Text;
-using MessagePack;
-using MessagePack.AspNetCoreMvcFormatter;
-using MessagePack.Resolvers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SFServer.API;
 using SFServer.API.Data;
+using SFServer.API.Utils;
 using SFServer.Shared.Server.UserProfile;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,14 +27,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
 
-var msgpackOptions = MessagePackSerializerOptions.Standard.WithResolver(ContractlessStandardResolver.Instance);
-
 builder.Services.AddControllers()
     .AddMvcOptions(options =>
     {
-        options.InputFormatters.Insert(0, new MessagePackInputFormatter(msgpackOptions));
-        options.OutputFormatters.Insert(0, new MessagePackOutputFormatter(msgpackOptions));
-        options.Conventions.Add(new GlobalMessagePackConvention("application/x-msgpack"));
+        options.InputFormatters.Insert(0, new MemoryPackInputFormatter());
+        options.OutputFormatters.Insert(0, new MemoryPackOutputFormatter());
+        options.Conventions.Add(new GlobalMessagePackConvention("application/x-memorypack"));
     });
 
 

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MemoryPack;
 
 namespace SFServer.Shared.Server.UserProfile
 {
-    public class UserProfile
+    [MemoryPackable]
+    public partial class UserProfile
     {
         public Guid Id { get; set; }
         public string Username { get; set; }

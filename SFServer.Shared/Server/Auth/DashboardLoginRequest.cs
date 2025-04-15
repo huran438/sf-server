@@ -1,6 +1,9 @@
-﻿namespace SFServer.Shared.Server.Auth
+﻿using MemoryPack;
+
+namespace SFServer.Shared.Server.Auth
 {
-    public class LoginDashboardRequest
+    [MemoryPackable]
+    public partial class LoginDashboardRequest
     {
         public string Credential { get; set; }
         

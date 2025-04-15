@@ -1,8 +1,10 @@
 ﻿using System;
+using MemoryPack;
 
 namespace SFServer.Shared.Server.Wallet
 {
-    public class WalletUpdateDto
+    [MemoryPackable]
+    public partial class WalletUpdateDto
     {
         public Guid Id { get; set; }
         public decimal Amount { get; set; }
