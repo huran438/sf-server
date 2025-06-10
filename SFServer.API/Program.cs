@@ -9,6 +9,9 @@ using SFServer.API;
 using SFServer.API.Data;
 using SFServer.API.Utils;
 using SFServer.Shared.Server.UserProfile;
+using SFServer.API.Services;
+using Amazon.S3;
+using Amazon.Extensions.NETCore.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +29,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddSingleton<S3Service>();
 
 builder.Services.AddControllers()
     .AddMvcOptions(options =>

@@ -2,6 +2,7 @@
 using SFServer.Shared.Client.Common;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
+using SFServer.Shared.Server.Configs;
 
 namespace SFServer.API.Data
 {
@@ -14,8 +15,10 @@ namespace SFServer.API.Data
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<WalletItem> WalletItems { get; set; }
         public DbSet<Currency> Currencies { get; set; }
-        
+
         public DbSet<UserDevice> UserDevices { get; set; }
+
+        public DbSet<ConfigMetadata> Configs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,6 +26,12 @@ namespace SFServer.API.Data
             modelBuilder.Entity<UserProfile>(entity =>
             {
                 entity.Property(p => p.Role)
+                    .HasConversion<string>();
+            });
+
+            modelBuilder.Entity<ConfigMetadata>(entity =>
+            {
+                entity.Property(p => p.Environment)
                     .HasConversion<string>();
             });
             
