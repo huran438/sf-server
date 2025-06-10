@@ -1,0 +1,67 @@
+@model SFServer.UI.Models.ConfigsViewModel
+@using SFServer.Shared.Server.Configs
+@{
+    ViewData["Title"] = "Configs";
+}
+
+<h1>Configs</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table mt-3">
+    <thead>
+    <tr>
+        <th>Version</th>
+        <th>Environment</th>
+        <th>Uploaded</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var cfg in Model.Configs)
+    {
+        <tr>
+            <td>@cfg.Version</td>
+            <td>@cfg.Environment</td>
+            <td>@cfg.UploadedAt.ToString("u")</td>
+            <td>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="version" value="@cfg.Version" />
+                    <input type="hidden" name="environment" value="@cfg.Environment" />
+                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<hr />
+<h5>Upload Config</h5>
+<form asp-action="Upload" method="post">
+    <div class="mb-3">
+        <label class="form-label" for="Version">Version</label>
+        <input class="form-control" id="Version" name="Version" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="Environment">Environment</label>
+        <select class="form-select" id="Environment" name="Environment">
+            @foreach (var env in Enum.GetValues<ConfigEnvironment>())
+            {
+                <option value="@env">@env</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="ConfigJson">Config JSON</label>
+        <textarea class="form-control" id="ConfigJson" name="ConfigJson" rows="5"></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">Upload</button>
+</form>

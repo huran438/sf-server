@@ -1,6 +1,27 @@
-﻿@{
+@model SFServer.UI.Models.ServerSettingsViewModel
+@{
     ViewData["Title"] = "Server Settings";
 }
 
 <h1>Server Settings</h1>
-<p>This page is under construction.</p>
+
+<form asp-action="UpdateS3" method="post" class="mt-4">
+    <h5>S3 Configuration</h5>
+    <div class="mb-3">
+        <label class="form-label" for="Bucket">Bucket</label>
+        <input class="form-control" id="Bucket" name="S3.Bucket" value="@Model.S3.Bucket" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="AccessKeyId">Access Key ID</label>
+        <input class="form-control" id="AccessKeyId" name="S3.AccessKeyId" value="@Model.S3.AccessKeyId" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="SecretAccessKey">Secret Access Key</label>
+        <input class="form-control" id="SecretAccessKey" name="S3.SecretAccessKey" value="@Model.S3.SecretAccessKey" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="Region">Region</label>
+        <input class="form-control" id="Region" name="S3.Region" value="@Model.S3.Region" />
+    </div>
+    <button class="btn btn-primary" type="submit">Save S3 Settings</button>
+</form>

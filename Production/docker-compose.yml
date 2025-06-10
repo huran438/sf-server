@@ -38,6 +38,10 @@
       SERVER_TITLE: ${SERVER_TITLE}
       API_BASE_URL: ${API_BASE_URL}
       JS_API_BASE_URL: ${JS_API_BASE_URL}
+      S3__Bucket: ${S3__Bucket}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
     volumes:
       - datakeys:/var/app-keys
     expose:
