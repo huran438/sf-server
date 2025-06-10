@@ -21,6 +21,7 @@
         <th>Version</th>
         <th>Environment</th>
         <th>Uploaded</th>
+        <th>Files</th>
         <th></th>
     </tr>
     </thead>
@@ -32,9 +33,16 @@
             <td>@cfg.Environment</td>
             <td>@cfg.UploadedAt.ToString("u")</td>
             <td>
+                <ul class="mb-0">
+                @foreach (var f in cfg.Files)
+                {
+                    <li>@f.FileName</li>
+                }
+                </ul>
+            </td>
+            <td>
                 <form asp-action="Delete" method="post" class="d-inline">
-                    <input type="hidden" name="version" value="@cfg.Version" />
-                    <input type="hidden" name="environment" value="@cfg.Environment" />
+                    <input type="hidden" name="id" value="@cfg.Id" />
                     <button class="btn btn-danger btn-sm" type="submit">Delete</button>
                 </form>
             </td>
@@ -45,7 +53,7 @@
 
 <hr />
 <h5>Upload Config</h5>
-<form asp-action="Upload" method="post">
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
     <div class="mb-3">
         <label class="form-label" for="Version">Version</label>
         <input class="form-control" id="Version" name="Version" />
@@ -60,8 +68,8 @@
         </select>
     </div>
     <div class="mb-3">
-        <label class="form-label" for="ConfigJson">Config JSON</label>
-        <textarea class="form-control" id="ConfigJson" name="ConfigJson" rows="5"></textarea>
+        <label class="form-label" for="Files">Config Files</label>
+        <input class="form-control" type="file" id="Files" name="Files" multiple />
     </div>
     <button class="btn btn-primary" type="submit">Upload</button>
 </form>

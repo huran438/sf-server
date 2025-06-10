@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MemoryPack;
 
 namespace SFServer.Shared.Server.Configs
@@ -10,6 +11,6 @@ namespace SFServer.Shared.Server.Configs
         public string Version { get; set; }
         public ConfigEnvironment Environment { get; set; }
         public DateTime UploadedAt { get; set; }
-        public string S3Key { get; set; }
+        public List<ConfigFile> Files { get; set; } = new();
     }
 }

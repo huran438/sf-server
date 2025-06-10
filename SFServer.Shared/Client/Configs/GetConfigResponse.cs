@@ -1,4 +1,5 @@
 using MemoryPack;
+using System.Collections.Generic;
 using SFServer.Shared.Server.Configs;
 
 namespace SFServer.Shared.Client.Configs
@@ -7,7 +8,6 @@ namespace SFServer.Shared.Client.Configs
     public partial class GetConfigResponse
     {
         public ConfigMetadata Metadata { get; set; }
-        // MemoryPack-serialized configuration data
-        public byte[] Config { get; set; }
+        public List<ConfigFileContent> Files { get; set; } = new();
     }
 }

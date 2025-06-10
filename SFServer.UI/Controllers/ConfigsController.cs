@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFServer.Shared.Server.Configs;
 using SFServer.Shared.Client.Configs;
 using SFServer.UI.Models;
+using System;
 
 namespace SFServer.UI.Controllers
 {
@@ -33,7 +34,7 @@ namespace SFServer.UI.Controllers
             var response = await client.GetFromMessagePackAsync<GetAllConfigsResponse>("Configs");
             var model = new ConfigsViewModel
             {
-                Configs = response?.Configs.Select(c => c.Metadata).ToList() ?? new List<ConfigMetadata>()
+                Configs = response?.Configs ?? new List<ConfigMetadata>()
             };
             return View(model);
         }
@@ -42,31 +43,32 @@ namespace SFServer.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upload(ConfigsViewModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.Version) || string.IsNullOrWhiteSpace(model.ConfigJson))
+            if (string.IsNullOrWhiteSpace(model.Version) || model.Files.Length == 0)
             {
-                TempData["Error"] = "Version and config JSON are required.";
+                TempData["Error"] = "Version and config files are required.";
                 return RedirectToAction("Index");
             }
 
-            var request = new UploadConfigRequest
-            {
-                Version = model.Version,
-                Environment = model.Environment,
-                Config = model.ConfigJson
-            };
-
             using var client = GetAuthenticatedHttpClient();
-            await client.PostAsMessagePackAsync<UploadConfigRequest, ConfigMetadata>("Configs", request);
+            using var content = new MultipartFormDataContent();
+            content.Add(new StringContent(model.Version), "Version");
+            content.Add(new StringContent(model.Environment.ToString()), "Environment");
+            foreach (var file in model.Files)
+            {
+                content.Add(new StreamContent(file.OpenReadStream()), "Files", file.FileName);
+            }
+
+            await client.PostAsync("Configs", content);
             TempData["Success"] = "Config uploaded.";
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(string version, ConfigEnvironment environment)
+        public async Task<IActionResult> Delete(Guid id)
         {
             using var client = GetAuthenticatedHttpClient();
-            await client.DeleteAsync($"Configs/{version}/{environment}");
+            await client.DeleteAsync($"Configs/{id}");
             TempData["Success"] = "Config deleted.";
             return RedirectToAction("Index");
         }

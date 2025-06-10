@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon;
 using Amazon.Runtime;
+using System.IO;
 
 namespace SFServer.API.Services
 {
@@ -49,6 +50,19 @@ namespace SFServer.API.Services
                 Key = key,
                 ContentBody = json,
                 ContentType = "application/json"
+            };
+            await client.PutObjectAsync(request);
+        }
+
+        public async Task UploadStreamAsync(string key, Stream stream, string contentType)
+        {
+            using var client = CreateClient();
+            var request = new PutObjectRequest
+            {
+                BucketName = GetBucket(),
+                Key = key,
+                InputStream = stream,
+                ContentType = contentType
             };
             await client.PutObjectAsync(request);
         }

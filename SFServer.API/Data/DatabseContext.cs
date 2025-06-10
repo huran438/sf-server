@@ -20,6 +20,7 @@ namespace SFServer.API.Data
         public DbSet<UserDevice> UserDevices { get; set; }
 
         public DbSet<ConfigMetadata> Configs { get; set; }
+        public DbSet<ConfigFile> ConfigFiles { get; set; }
 
         public DbSet<ServerSettings> ServerSettings { get; set; }
 
@@ -36,6 +37,9 @@ namespace SFServer.API.Data
             {
                 entity.Property(p => p.Environment)
                     .HasConversion<string>();
+                entity.HasMany(p => p.Files)
+                    .WithOne()
+                    .HasForeignKey(f => f.ConfigMetadataId);
             });
             
             modelBuilder

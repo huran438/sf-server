@@ -1,4 +1,6 @@
 using SFServer.Shared.Server.Configs;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace SFServer.UI.Models
 {
@@ -7,6 +9,6 @@ namespace SFServer.UI.Models
         public List<ConfigMetadata> Configs { get; set; } = new();
         public string Version { get; set; } = string.Empty;
         public ConfigEnvironment Environment { get; set; }
-        public string ConfigJson { get; set; } = string.Empty;
+        public IFormFile[] Files { get; set; } = Array.Empty<IFormFile>();
     }
 }
