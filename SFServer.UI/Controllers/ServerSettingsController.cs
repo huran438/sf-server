@@ -29,18 +29,18 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Index()
         {
             using var client = GetAuthenticatedHttpClient();
-            var s3 = await client.GetFromMessagePackAsync<S3SettingsDto>("ServerSettings/s3");
-            var model = new ServerSettingsViewModel { S3 = s3 ?? new S3SettingsDto() };
+            var settings = await client.GetFromMessagePackAsync<ServerSettingsDto>("ServerSettings");
+            var model = new ServerSettingsViewModel { Settings = settings ?? new ServerSettingsDto() };
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateS3(ServerSettingsViewModel model)
+        public async Task<IActionResult> Update(ServerSettingsViewModel model)
         {
             using var client = GetAuthenticatedHttpClient();
-            await client.PostMessagePackAsync("ServerSettings/s3", model.S3);
-            TempData["Success"] = "S3 settings updated.";
+            await client.PostMessagePackAsync("ServerSettings", model.Settings);
+            TempData["Success"] = "Server settings updated.";
             return RedirectToAction("Index");
         }
     }

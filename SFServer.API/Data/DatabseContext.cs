@@ -21,7 +21,7 @@ namespace SFServer.API.Data
 
         public DbSet<ConfigMetadata> Configs { get; set; }
 
-        public DbSet<S3Settings> S3Settings { get; set; }
+        public DbSet<ServerSettings> ServerSettings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
