@@ -156,6 +156,15 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"ℹ️ Admin user '{adminUsername}' already exists.");
     }
+
+    var s3 = context.S3Settings.FirstOrDefault();
+    if (s3 != null)
+    {
+        Environment.SetEnvironmentVariable("S3__Bucket", s3.Bucket);
+        Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", s3.AccessKeyId);
+        Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", s3.SecretAccessKey);
+        Environment.SetEnvironmentVariable("AWS_REGION", s3.Region);
+    }
 }
 
 app.UseCors("AllowAll");
