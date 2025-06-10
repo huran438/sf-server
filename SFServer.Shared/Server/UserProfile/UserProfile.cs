@@ -9,6 +9,7 @@ namespace SFServer.Shared.Server.UserProfile
     public partial class UserProfile
     {
         public Guid Id { get; set; }
+        public int Index { get; private set; }
         public string Username { get; set; }
         public string FullName { get; set; }
         public int? Age { get; set; }

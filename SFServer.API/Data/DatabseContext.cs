@@ -26,9 +26,14 @@ namespace SFServer.API.Data
                     .HasConversion<string>();
             });
             
-            modelBuilder.Entity<UserDevice>(entity =>
-            {
-            });
+            modelBuilder
+                .HasSequence<int>("UserProfileIndex", schema: "dbo")
+                .StartsAt(1)
+                .IncrementsBy(1);
+            
+            modelBuilder.Entity<UserProfile>()
+                .Property(u => u.Index)
+                .UseIdentityColumn(); 
 
             base.OnModelCreating(modelBuilder);
         }
