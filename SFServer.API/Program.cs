@@ -164,6 +164,7 @@ using (var scope = app.Services.CreateScope())
         Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", s3.AccessKeyId);
         Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", s3.SecretAccessKey);
         Environment.SetEnvironmentVariable("AWS_REGION", s3.Region);
+        Environment.SetEnvironmentVariable("S3__Url", s3.Url);
     }
 }
 

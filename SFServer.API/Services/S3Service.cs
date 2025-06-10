@@ -16,14 +16,26 @@ namespace SFServer.API.Services
             var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1";
             var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var secret = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            var url = Environment.GetEnvironmentVariable("S3__Url");
+
+            var config = new AmazonS3Config
+            {
+                RegionEndpoint = RegionEndpoint.GetBySystemName(region)
+            };
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                config.ServiceURL = url;
+                config.ForcePathStyle = true;
+            }
 
             if (!string.IsNullOrEmpty(accessKey) && !string.IsNullOrEmpty(secret))
             {
                 var creds = new BasicAWSCredentials(accessKey, secret);
-                return new AmazonS3Client(creds, RegionEndpoint.GetBySystemName(region));
+                return new AmazonS3Client(creds, config);
             }
 
-            return new AmazonS3Client(RegionEndpoint.GetBySystemName(region));
+            return new AmazonS3Client(config);
         }
 
         private string GetBucket() => Environment.GetEnvironmentVariable("S3__Bucket") ?? string.Empty;

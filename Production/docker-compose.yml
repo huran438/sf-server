@@ -19,6 +19,7 @@
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
+      S3__Url: ${S3__Url}
     volumes:
       - datakeys:/var/app-keys
     expose:
@@ -42,6 +43,7 @@
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
+      S3__Url: ${S3__Url}
     volumes:
       - datakeys:/var/app-keys
     expose:

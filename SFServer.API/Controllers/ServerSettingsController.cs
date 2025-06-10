@@ -31,7 +31,8 @@ namespace SFServer.API.Controllers
                 Bucket = entity?.Bucket ?? _config["S3:Bucket"] ?? string.Empty,
                 AccessKeyId = entity?.AccessKeyId ?? _config["AWS_ACCESS_KEY_ID"] ?? string.Empty,
                 SecretAccessKey = entity?.SecretAccessKey ?? _config["AWS_SECRET_ACCESS_KEY"] ?? string.Empty,
-                Region = entity?.Region ?? _config["AWS_REGION"] ?? string.Empty
+                Region = entity?.Region ?? _config["AWS_REGION"] ?? string.Empty,
+                Url = entity?.Url ?? _config["S3:Url"] ?? string.Empty
             };
             return Ok(dto);
         }
@@ -50,12 +51,14 @@ namespace SFServer.API.Controllers
             entity.AccessKeyId = dto.AccessKeyId;
             entity.SecretAccessKey = dto.SecretAccessKey;
             entity.Region = dto.Region;
+            entity.Url = dto.Url;
             await _db.SaveChangesAsync();
 
             Environment.SetEnvironmentVariable("S3__Bucket", dto.Bucket);
             Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", dto.AccessKeyId);
             Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", dto.SecretAccessKey);
             Environment.SetEnvironmentVariable("AWS_REGION", dto.Region);
+            Environment.SetEnvironmentVariable("S3__Url", dto.Url);
             return NoContent();
         }
     }
