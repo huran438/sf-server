@@ -28,25 +28,25 @@ namespace SFServer.Shared.Server.UserProfile
         public float ScreenDpi { get; set; }
         public bool FullScreen { get; set; }
 
-        public void SetInfo(UserDeviceInfo userDeviceInfo)
+        public void SetInfo(DeviceInfo deviceInfo)
         {
-            DeviceModel = userDeviceInfo.DeviceModel;
-            DeviceName = userDeviceInfo.DeviceName;
-            DeviceType = userDeviceInfo.DeviceType;
-            OperatingSystem = userDeviceInfo.OperatingSystem;
-            ProcessorType = userDeviceInfo.ProcessorType;
-            ProcessorCount = userDeviceInfo.ProcessorCount;
-            SystemMemorySize = userDeviceInfo.SystemMemorySize;
-            GraphicsDeviceName = userDeviceInfo.GraphicsDeviceName;
-            GraphicsDeviceVendor = userDeviceInfo.GraphicsDeviceVendor;
-            GraphicsMemorySize = userDeviceInfo.GraphicsMemorySize;
-            GraphicsDeviceVersion = userDeviceInfo.GraphicsDeviceVersion;
-            GraphicsDeviceType = userDeviceInfo.GraphicsDeviceType;
-            GraphicsShaderLevel = userDeviceInfo.GraphicsShaderLevel;
-            ScreenWidth = userDeviceInfo.ScreenWidth;
-            ScreenHeight = userDeviceInfo.ScreenHeight;
-            ScreenDpi = userDeviceInfo.ScreenDpi;
-            FullScreen = userDeviceInfo.FullScreen;
+            DeviceModel = deviceInfo.DeviceModel;
+            DeviceName = deviceInfo.DeviceName;
+            DeviceType = deviceInfo.DeviceType;
+            OperatingSystem = deviceInfo.OperatingSystem;
+            ProcessorType = deviceInfo.ProcessorType;
+            ProcessorCount = deviceInfo.ProcessorCount;
+            SystemMemorySize = deviceInfo.SystemMemorySize;
+            GraphicsDeviceName = deviceInfo.GraphicsDeviceName;
+            GraphicsDeviceVendor = deviceInfo.GraphicsDeviceVendor;
+            GraphicsMemorySize = deviceInfo.GraphicsMemorySize;
+            GraphicsDeviceVersion = deviceInfo.GraphicsDeviceVersion;
+            GraphicsDeviceType = deviceInfo.GraphicsDeviceType;
+            GraphicsShaderLevel = deviceInfo.GraphicsShaderLevel;
+            ScreenWidth = deviceInfo.ScreenWidth;
+            ScreenHeight = deviceInfo.ScreenHeight;
+            ScreenDpi = deviceInfo.ScreenDpi;
+            FullScreen = deviceInfo.FullScreen;
         }
     }
 }
