@@ -9,20 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.AndroidPublisher.v3" Version="1.69.0.3729" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+    <PackageReference Include="Google.Apis.AndroidPublisher.v3" Version="1.69.0.3805" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
     <PackageReference Include="Google.Apis.GameServices.v1" Version="1.61.0.3030" />
     <PackageReference Include="MemoryPack" Version="1.21.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="shortid" Version="4.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.0" />
+    <PackageReference Include="ZLinq" Version="1.4.10" />
   </ItemGroup>
 
   <ItemGroup>

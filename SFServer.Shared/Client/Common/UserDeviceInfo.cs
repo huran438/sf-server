@@ -3,7 +3,7 @@
 namespace SFServer.Shared.Client.Common
 {
     [MemoryPackable]
-    public partial class DeviceInfo
+    public partial class UserDeviceInfo
     {
         public string DeviceModel { get; set; }
         public string DeviceName { get; set; }

@@ -28,7 +28,7 @@ namespace SFServer.Shared.Server.UserProfile
         public float ScreenDpi { get; set; }
         public bool FullScreen { get; set; }
 
-        public void SetInfo(DeviceInfo deviceInfo)
+        public void SetInfo(UserDeviceInfo deviceInfo)
         {
             DeviceModel = deviceInfo.DeviceModel;
             DeviceName = deviceInfo.DeviceName;
