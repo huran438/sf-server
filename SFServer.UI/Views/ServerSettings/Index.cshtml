@@ -8,6 +8,10 @@
 <form asp-action="Update" method="post" class="mt-4">
     <h5>S3 Configuration</h5>
     <div class="mb-3">
+        <label class="form-label" for="Url">Custom URL</label>
+        <input class="form-control" id="Url" name="Settings.Url" value="@Model.Settings.Url" />
+    </div>
+    <div class="mb-3">
         <label class="form-label" for="Bucket">Bucket</label>
         <input class="form-control" id="Bucket" name="Settings.Bucket" value="@Model.Settings.Bucket" />
     </div>
@@ -17,15 +21,11 @@
     </div>
     <div class="mb-3">
         <label class="form-label" for="SecretAccessKey">Secret Access Key</label>
-        <input class="form-control" id="SecretAccessKey" name="Settings.SecretAccessKey" value="@Model.Settings.SecretAccessKey" />
+        <input type="password" class="form-control" id="SecretAccessKey" name="Settings.SecretAccessKey" value="@Model.Settings.SecretAccessKey" />
     </div>
     <div class="mb-3">
         <label class="form-label" for="Region">Region</label>
         <input class="form-control" id="Region" name="Settings.Region" value="@Model.Settings.Region" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="Url">Custom URL</label>
-        <input class="form-control" id="Url" name="Settings.Url" value="@Model.Settings.Url" />
     </div>
     <h5 class="mt-4">Google OAuth</h5>
     <div class="mb-3">
@@ -34,7 +34,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label" for="GoogleClientSecret">Client Secret</label>
-        <input class="form-control" id="GoogleClientSecret" name="Settings.GoogleClientSecret" value="@Model.Settings.GoogleClientSecret" />
+        <input type="password" class="form-control" id="GoogleClientSecret" name="Settings.GoogleClientSecret" value="@Model.Settings.GoogleClientSecret" />
     </div>
     <button class="btn btn-primary" type="submit">Save Settings</button>
 </form>
