@@ -200,6 +200,7 @@ public class AuthController : ControllerBase
 
         var response = new LoginResponse
         {
+            Index = user.Index,
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
@@ -280,6 +281,7 @@ public class AuthController : ControllerBase
 
         var response = new LoginResponse
         {
+            Index = user.Index,
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
@@ -436,6 +438,7 @@ public class AuthController : ControllerBase
 
         return Ok(new LoginResponse
         {
+            Index = user.Index,
             UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
