@@ -192,7 +192,7 @@ public class AuthController : ControllerBase
                 DeviceId = request.DeviceId,
                 UserId = user.Id
             };
-            userDevice.SetInfo(request.DeviceInfo);
+            userDevice.SetInfo(request.UserDeviceInfo);
             await _db.UserDevices.AddAsync(userDevice);
         }
         
@@ -250,7 +250,7 @@ public class AuthController : ControllerBase
                 var userDevice = new UserDevice();
                 userDevice.DeviceId = deviceId;
                 userDevice.UserId = user.Id;
-                userDevice.SetInfo(loginRequestBase.DeviceInfo);
+                userDevice.SetInfo(loginRequestBase.UserDeviceInfo);
                 await _db.UserDevices.AddAsync(userDevice);
             }
         }
