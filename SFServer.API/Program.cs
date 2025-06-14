@@ -9,6 +9,9 @@ using SFServer.API;
 using SFServer.API.Data;
 using SFServer.API.Utils;
 using SFServer.Shared.Server.UserProfile;
+using SFServer.API.Services;
+using Amazon.S3;
+using Amazon.Extensions.NETCore.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +29,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddSingleton<S3Service>();
 
 builder.Services.AddControllers()
     .AddMvcOptions(options =>
@@ -149,6 +155,18 @@ using (var scope = app.Services.CreateScope())
     else
     {
         Console.WriteLine($"ℹ️ Admin user '{adminUsername}' already exists.");
+    }
+
+    var settings = context.ServerSettings.FirstOrDefault();
+    if (settings != null)
+    {
+        Environment.SetEnvironmentVariable("S3__Bucket", settings.Bucket);
+        Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", settings.AccessKeyId);
+        Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", settings.SecretAccessKey);
+        Environment.SetEnvironmentVariable("AWS_REGION", settings.Region);
+        Environment.SetEnvironmentVariable("S3__Url", settings.Url);
+        Environment.SetEnvironmentVariable("GOOGLE_CLIENT_ID", settings.GoogleClientId);
+        Environment.SetEnvironmentVariable("GOOGLE_CLIENT_SECRET", settings.GoogleClientSecret);
     }
 }
 

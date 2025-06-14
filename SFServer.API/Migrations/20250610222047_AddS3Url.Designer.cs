@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SFServer.API.Data;
@@ -12,9 +13,11 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250610222047_AddS3Url")]
+    partial class AddS3Url
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,28 +28,6 @@ namespace SFServer.API.Migrations
 
             modelBuilder.HasSequence<int>("UserProfileIndex", "dbo");
 
-            modelBuilder.Entity("SFServer.Shared.Server.Configs.ConfigFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ConfigMetadataId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("S3Key")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConfigMetadataId");
-
-                    b.ToTable("ConfigFiles");
-                });
-
             modelBuilder.Entity("SFServer.Shared.Server.Configs.ConfigMetadata", b =>
                 {
                     b.Property<Guid>("Id")
@@ -55,6 +36,9 @@ namespace SFServer.API.Migrations
 
                     b.Property<string>("Environment")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("S3Key")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UploadedAt")
@@ -68,7 +52,7 @@ namespace SFServer.API.Migrations
                     b.ToTable("Configs");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Server.Settings.ServerSettings", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.Settings.S3Settings", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,12 +62,6 @@ namespace SFServer.API.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Bucket")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GoogleClientId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GoogleClientSecret")
                         .HasColumnType("text");
 
                     b.Property<string>("Region")
@@ -97,7 +75,7 @@ namespace SFServer.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerSettings");
+                    b.ToTable("S3Settings");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserDevice", b =>
@@ -276,15 +254,6 @@ namespace SFServer.API.Migrations
                     b.ToTable("WalletItems");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Server.Configs.ConfigFile", b =>
-                {
-                    b.HasOne("SFServer.Shared.Server.Configs.ConfigMetadata", null)
-                        .WithMany("Files")
-                        .HasForeignKey("ConfigMetadataId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.HasOne("SFServer.Shared.Server.Wallet.Currency", "Currency")
@@ -294,11 +263,6 @@ namespace SFServer.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.Configs.ConfigMetadata", b =>
-                {
-                    b.Navigation("Files");
                 });
 #pragma warning restore 612, 618
         }

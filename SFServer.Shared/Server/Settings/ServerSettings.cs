@@ -1,0 +1,18 @@
+using System;
+using MemoryPack;
+
+namespace SFServer.Shared.Server.Settings
+{
+    [MemoryPackable]
+    public partial class ServerSettings
+    {
+        public Guid Id { get; set; }
+        public string Bucket { get; set; } = string.Empty;
+        public string AccessKeyId { get; set; } = string.Empty;
+        public string SecretAccessKey { get; set; } = string.Empty;
+        public string Region { get; set; } = "us-east-1";
+        public string Url { get; set; } = string.Empty;
+        public string GoogleClientId { get; set; } = string.Empty;
+        public string GoogleClientSecret { get; set; } = string.Empty;
+    }
+}

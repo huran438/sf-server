@@ -35,6 +35,11 @@
       JWT_TIMEOUT_HOURS: ${JWT_TIMEOUT_HOURS}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      S3__Bucket: ${S3__Bucket}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      S3__Url: ${S3__Url}
     volumes:
       - datakeys:/var/app-keys
     ports:
@@ -59,6 +64,11 @@
       SERVER_TITLE: ${SERVER_TITLE}
       API_BASE_URL: ${API_BASE_URL}
       JS_API_BASE_URL: ${JS_API_BASE_URL}
+      S3__Bucket: ${S3__Bucket}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      S3__Url: ${S3__Url}
     depends_on:
       db:
         condition: service_healthy
