@@ -170,20 +170,30 @@ namespace SFServer.UI.Controllers
 
             for (var i = 0; i < viewModel.DeviceIds.Length; i++)
             {
-                var deviceId  = viewModel.DeviceIds[i];
+                var deviceId = viewModel.DeviceIds[i];
                 var encodedId = Uri.EscapeDataString(deviceId);
                 var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{encodedId}");
+                if (device == null) continue;
                 viewModel.UserDevices[i] = device;
             }
             
             var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
 
-            viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
+            if (walletItems != null)
             {
-                Id = w.Id,
-                Currency = w.Currency.Title,
-                Amount = w.Amount
-            }).ToList();
+                viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
+                {
+                    Id = w.Id,
+                    Currency = w.Currency.Title,
+                    Amount = w.Amount
+                }).ToList();
+
+            }
+            else
+            {
+                viewModel.WalletItems = [];
+            }
+            
 
             return View(viewModel);
         }
