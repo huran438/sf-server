@@ -21,9 +21,7 @@ public class MemoryPackOutputFormatter : OutputFormatter
     {
         var httpContext = context.HttpContext;
         httpContext.Response.ContentType = "application/x-memorypack";
-        if (context.Object is null) return;
-        var objectType = context.ObjectType ?? context.Object.GetType() ?? typeof(object);
-        var buffer = MemoryPackSerializer.Serialize(objectType, context.Object);
+        var buffer = MemoryPackSerializer.Serialize(context.ObjectType!, context.Object);
         await using var brotliStream = new BrotliStream(httpContext.Response.Body, CompressionMode.Compress, leaveOpen: true);
         await brotliStream.WriteAsync(buffer);
     }
