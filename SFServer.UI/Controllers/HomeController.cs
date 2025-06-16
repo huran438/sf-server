@@ -8,5 +8,10 @@ namespace SFServer.UI.Controllers
         {
             return View();
         }
+
+        public IActionResult Error()
+        {
+            return View();
+        }
     }
 }
