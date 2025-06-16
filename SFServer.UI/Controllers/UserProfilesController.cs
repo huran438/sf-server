@@ -153,7 +153,7 @@ namespace SFServer.UI.Controllers
             {
                 return NotFound();
             }
-
+            
             var viewModel = new EditUserProfileViewModel
             {
                 Id = profile.Id,
@@ -164,21 +164,19 @@ namespace SFServer.UI.Controllers
                 DebugMode = profile.DebugMode
             };
 
-            if (profile.DeviceIds != null)
-            {
-                viewModel.DeviceIds = profile.DeviceIds.ToArray();
-            }
+            viewModel.DeviceIds = profile.DeviceIds?.ToArray() ?? Array.Empty<string>();
 
             viewModel.UserDevices = new UserDevice[viewModel.DeviceIds.Length];
 
             for (var i = 0; i < viewModel.DeviceIds.Length; i++)
             {
                 var deviceId = viewModel.DeviceIds[i];
-                var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{deviceId}");
+                var encodedId = Uri.EscapeDataString(deviceId);
+                var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{encodedId}");
                 if (device == null) continue;
                 viewModel.UserDevices[i] = device;
             }
-
+            
             var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
 
             if (walletItems != null)
@@ -278,8 +276,8 @@ namespace SFServer.UI.Controllers
 
             return RedirectToAction("Index");
         }
-
-
+        
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateWallet(WalletUpdateViewModel model)
@@ -301,8 +299,8 @@ namespace SFServer.UI.Controllers
                     Id = item.WalletItemId,
                     Amount = item.Amount
                 });
-
-
+                
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorMsg = await response.Content.ReadAsStringAsync();
