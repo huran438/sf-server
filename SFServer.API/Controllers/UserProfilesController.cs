@@ -94,9 +94,10 @@ namespace SFServer.API.Controllers
             var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId);
             if (userDevice == null)
             {
-                Console.WriteLine($"User device not found for userId={userId}, deviceId={deviceId}");
+                Console.WriteLine($"Device {deviceId} for user {userId} not found");
                 return NotFound();
             }
+
             return Ok(userDevice);
         }
 

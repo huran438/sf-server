@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using System.Net;
 using MemoryPack;
 using MemoryPack.Compression;
 
@@ -56,7 +57,11 @@ namespace SFServer.UI
 
 
             using var response = await httpClient.PostAsync(requestUri, content, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                throw new ApiRequestException(requestUri, response.StatusCode, body);
+            }
 
             var stream = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             using var decompressor = new BrotliDecompressor();

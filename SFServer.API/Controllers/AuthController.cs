@@ -415,6 +415,23 @@ public class AuthController : ControllerBase
             user.LastLoginAt = DateTime.UtcNow;
         }
 
+        if (string.IsNullOrWhiteSpace(request.DeviceId) == false)
+        {
+            var device = await _db.UserDevices.FirstOrDefaultAsync(x => x.DeviceId == request.DeviceId);
+
+            if (device == null)
+            {
+                var userDevice = new UserDevice
+                {
+                    Id = Guid.CreateVersion7(),
+                    DeviceId = request.DeviceId,
+                    UserId = user.Id
+                };
+                userDevice.SetInfo(request.DeviceInfo);
+                await _db.UserDevices.AddAsync(userDevice);
+            }
+        }
+
         await _db.SaveChangesAsync();
 
         var claims = new List<Claim>
