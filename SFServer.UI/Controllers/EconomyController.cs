@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SFServer.Shared.Server.Wallet;
 using SFServer.UI.Models;
+using SFServer.UI;
 
 namespace SFServer.UI.Controllers
 {
@@ -78,7 +79,21 @@ namespace SFServer.UI.Controllers
         {
             using var httpClient = GetAuthenticatedHttpClient();
             // Retrieve the currency using MessagePack.
-            var currency = await httpClient.GetFromMessagePackAsync<Currency>($"Currency/{id}");
+            Currency? currency;
+            try
+            {
+                currency = await httpClient.GetFromMessagePackAsync<Currency>($"Currency/{id}");
+            }
+            catch (ApiRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+            catch (ApiRequestException ex)
+            {
+                TempData["Error"] = $"Failed to load currency: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+
             if (currency == null)
                 return NotFound();
 
