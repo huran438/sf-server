@@ -132,48 +132,69 @@ namespace SFServer.UI.Controllers
         // GET: /UserProfiles/Edit/{id}
         public async Task<IActionResult> Edit(Guid id)
         {
+            Console.WriteLine($"[Edit GET] Requested for user {id}");
             using var httpClient = GetAuthenticatedHttpClient();
 
-            var profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
-            if (profile == null)
+            try
             {
-                return NotFound();
+                Console.WriteLine($"[Edit GET] Fetching profile {id}");
+                var profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+                Console.WriteLine(profile == null
+                    ? $"[Edit GET] Profile {id} not found"
+                    : $"[Edit GET] Profile {id} retrieved");
+
+                if (profile == null)
+                {
+                    return NotFound();
+                }
+
+                var viewModel = new EditUserProfileViewModel
+                {
+                    Id = profile.Id,
+                    Username = profile.Username,
+                    Email = profile.Email,
+                    Role = profile.Role,
+                    GoogleId = profile.GooglePlayId,
+                    DebugMode = profile.DebugMode
+                };
+
+                if (profile.DeviceIds != null)
+                {
+                    viewModel.DeviceIds = profile.DeviceIds.ToArray();
+                }
+                else
+                {
+                    viewModel.DeviceIds = Array.Empty<string>();
+                }
+
+                viewModel.UserDevices = new UserDevice[viewModel.DeviceIds.Length];
+
+                for (var i = 0; i < viewModel.DeviceIds.Length; i++)
+                {
+                    var deviceId = viewModel.DeviceIds[i];
+                    Console.WriteLine($"[Edit GET] Fetching device {deviceId} for user {id}");
+                    var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{deviceId}");
+                    viewModel.UserDevices[i] = device;
+                }
+
+                Console.WriteLine($"[Edit GET] Fetching wallet items for user {profile.Id}");
+                var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
+                Console.WriteLine($"[Edit GET] Retrieved {walletItems?.Count ?? 0} wallet items");
+
+                viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
+                {
+                    Id = w.Id,
+                    Currency = w.Currency.Title,
+                    Amount = w.Amount
+                }).ToList();
+
+                return View(viewModel);
             }
-            
-            var viewModel = new EditUserProfileViewModel
+            catch (Exception ex)
             {
-                Id = profile.Id,
-                Username = profile.Username,
-                Email = profile.Email,
-                Role = profile.Role,
-                GoogleId = profile.GooglePlayId,
-                DebugMode = profile.DebugMode
-            };
-
-            if (profile.DeviceIds != null)
-            {
-                viewModel.DeviceIds = profile.DeviceIds.ToArray();
+                Console.WriteLine($"[Edit GET] Error while loading user {id}: {ex}");
+                throw;
             }
-
-            viewModel.UserDevices = new UserDevice[viewModel.DeviceIds.Length];
-
-            for (var i = 0; i < viewModel.DeviceIds.Length; i++)
-            {
-                var deviceId  = viewModel.DeviceIds[i];
-                var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{deviceId}");
-                viewModel.UserDevices[i] = device;
-            }
-            
-            var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
-
-            viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
-            {
-                Id = w.Id,
-                Currency = w.Currency.Title,
-                Amount = w.Amount
-            }).ToList();
-
-            return View(viewModel);
         }
 
         // POST: /UserProfiles/Edit/{id}
