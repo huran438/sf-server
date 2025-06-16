@@ -67,16 +67,12 @@ namespace SFServer.UI
         /// <summary>
         /// Sends a GET request and deserializes the MessagePack response.
         /// </summary>
-        public static async Task<T?> GetFromMessagePackAsync<T>(
-            this HttpClient httpClient,
-            string requestUri,
-            MemoryPackSerializerOptions? options = null,
-            CancellationToken cancellationToken = default)
+        public static async Task<T?> GetFromMessagePackAsync<T>(this HttpClient httpClient, string requestUri, MemoryPackSerializerOptions? options = null, CancellationToken cancellationToken = default)
         {
             options ??= DefaultOptions;
             using var response = await httpClient.GetAsync(requestUri, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
+            
+            if (response.IsSuccessStatusCode == false)
             {
                 string? body = null;
                 try
@@ -93,11 +89,15 @@ namespace SFServer.UI
                 {
                     Console.WriteLine(body);
                 }
-
-                throw new ApiRequestException(
+                
+                Console.WriteLine(new ApiRequestException(
                     $"Request to '{requestUri}' failed with status code {(int)response.StatusCode}",
                     response.StatusCode,
-                    body);
+                    body).ToString());
+                
+                return default;
+
+          
             }
 
             var stream = await response.Content.ReadAsByteArrayAsync(cancellationToken);
