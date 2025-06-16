@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.UI.Models.UserProfiles;
+using SFServer.UI;
 
 namespace SFServer.UI.Controllers
 {
@@ -133,8 +134,21 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
+            UserProfile? profile;
+            try
+            {
+                profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+            }
+            catch (ApiRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+            catch (ApiRequestException ex)
+            {
+                TempData["Error"] = $"Failed to load user profile: {ex.Message}";
+                return RedirectToAction("Index");
+            }
 
-            var profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
             if (profile == null)
             {
                 return NotFound();
@@ -194,7 +208,21 @@ namespace SFServer.UI.Controllers
 
             using var httpClient = GetAuthenticatedHttpClient();
             // Retrieve the existing user using MessagePack.
-            var existingProfile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+            UserProfile? existingProfile;
+            try
+            {
+                existingProfile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+            }
+            catch (ApiRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+            catch (ApiRequestException ex)
+            {
+                TempData["Error"] = $"Failed to load user profile: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+
             if (existingProfile == null)
             {
                 return NotFound();
