@@ -13,7 +13,6 @@ namespace SFServer.Shared.Client.Auth
         public string Credential { get; set; }
         public string DeviceId { get; set; }
         public DeviceInfo DeviceInfo { get; set; }
-        
         public ApplicationInfo ApplicationInfo { get; set; }
     }
 }

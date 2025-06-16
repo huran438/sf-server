@@ -6,6 +6,7 @@ namespace SFServer.UI.Models.UserProfiles;
 public class EditUserProfileViewModel
 {
     public Guid Id { get; set; }
+    
     [Required]
     public string Username { get; set; }
     
@@ -36,5 +37,6 @@ public class EditUserProfileViewModel
     
     public string[] DeviceIds { get; set; } = [];
 
-    public UserDevice[] UserDevices { get; set; }
+    [Required]
+    public UserDevice[] UserDevices { get; set; } = [];
 }

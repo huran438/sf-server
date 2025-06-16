@@ -37,6 +37,7 @@
     <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
         <form asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger"></div>
             <input type="hidden" asp-for="Id"/>
             <div class="form-group mb-3">
                 <label>Id</label>
@@ -224,6 +225,7 @@
                 <div class="card-body">
                     <form asp-action="UpdateWallet" method="post">
                         @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="text-danger"></div>
                         <input type="hidden" name="UserId" value="@Model.Id"/>
 
                         <table class="table table-hover table-bordered">

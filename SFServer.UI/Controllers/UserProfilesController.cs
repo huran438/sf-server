@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.UI.Models.UserProfiles;
+using SFServer.UI;
 
 namespace SFServer.UI.Controllers
 {
@@ -133,13 +134,26 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
+            UserProfile? profile;
+            try
+            {
+                profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+            }
+            catch (ApiRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+            catch (ApiRequestException ex)
+            {
+                TempData["Error"] = $"Failed to load user profile: {ex.Message}";
+                return RedirectToAction("Index");
+            }
 
-            var profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
             if (profile == null)
             {
                 return NotFound();
             }
-            
+
             var viewModel = new EditUserProfileViewModel
             {
                 Id = profile.Id,
@@ -159,19 +173,29 @@ namespace SFServer.UI.Controllers
 
             for (var i = 0; i < viewModel.DeviceIds.Length; i++)
             {
-                var deviceId  = viewModel.DeviceIds[i];
+                var deviceId = viewModel.DeviceIds[i];
                 var device = await httpClient.GetFromMessagePackAsync<UserDevice>($"UserProfiles/{id}/device/{deviceId}");
+                if (device == null) continue;
                 viewModel.UserDevices[i] = device;
             }
-            
+
             var walletItems = await httpClient.GetFromMessagePackAsync<List<WalletItem>>($"Wallet/{profile.Id}");
 
-            viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
+            if (walletItems != null)
             {
-                Id = w.Id,
-                Currency = w.Currency.Title,
-                Amount = w.Amount
-            }).ToList();
+                viewModel.WalletItems = walletItems.Select(w => new WalletItemViewModel
+                {
+                    Id = w.Id,
+                    Currency = w.Currency.Title,
+                    Amount = w.Amount
+                }).ToList();
+
+            }
+            else
+            {
+                viewModel.WalletItems = [];
+            }
+            
 
             return View(viewModel);
         }
@@ -194,7 +218,21 @@ namespace SFServer.UI.Controllers
 
             using var httpClient = GetAuthenticatedHttpClient();
             // Retrieve the existing user using MessagePack.
-            var existingProfile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+            UserProfile? existingProfile;
+            try
+            {
+                existingProfile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
+            }
+            catch (ApiRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+            catch (ApiRequestException ex)
+            {
+                TempData["Error"] = $"Failed to load user profile: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+
             if (existingProfile == null)
             {
                 return NotFound();
@@ -240,8 +278,8 @@ namespace SFServer.UI.Controllers
 
             return RedirectToAction("Index");
         }
-        
-        
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateWallet(WalletUpdateViewModel model)
@@ -263,8 +301,8 @@ namespace SFServer.UI.Controllers
                     Id = item.WalletItemId,
                     Amount = item.Amount
                 });
-                
-                
+
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorMsg = await response.Content.ReadAsStringAsync();

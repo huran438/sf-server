@@ -67,19 +67,43 @@ namespace SFServer.UI
         /// <summary>
         /// Sends a GET request and deserializes the MessagePack response.
         /// </summary>
-        public static async Task<T> GetFromMessagePackAsync<T>(
-            this HttpClient httpClient,
-            string requestUri,
-            MemoryPackSerializerOptions? options = null,
-            CancellationToken cancellationToken = default)
+        public static async Task<T?> GetFromMessagePackAsync<T>(this HttpClient httpClient, string requestUri, MemoryPackSerializerOptions? options = null, CancellationToken cancellationToken = default)
         {
             options ??= DefaultOptions;
             using var response = await httpClient.GetAsync(requestUri, cancellationToken);
-            response.EnsureSuccessStatusCode();
+            
+            if (response.IsSuccessStatusCode == false)
+            {
+                string? body = null;
+                try
+                {
+                    body = await response.Content.ReadAsStringAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to read error body: {ex.Message}");
+                }
+
+                Console.WriteLine($"GET {requestUri} failed with {(int)response.StatusCode} {response.StatusCode}");
+                if (!string.IsNullOrWhiteSpace(body))
+                {
+                    Console.WriteLine(body);
+                }
+                
+                Console.WriteLine(new ApiRequestException(
+                    $"Request to '{requestUri}' failed with status code {(int)response.StatusCode}",
+                    response.StatusCode,
+                    body).ToString());
+                
+                return default;
+
+          
+            }
+
             var stream = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             using var decompressor = new BrotliDecompressor();
             var decompressedBuffer = decompressor.Decompress(stream);
-            return MemoryPackSerializer.Deserialize<T>(decompressedBuffer, options) ?? throw new InvalidOperationException();
+            return MemoryPackSerializer.Deserialize<T>(decompressedBuffer, options);
         }
 
         /// <summary>
