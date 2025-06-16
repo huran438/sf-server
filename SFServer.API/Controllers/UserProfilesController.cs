@@ -92,6 +92,11 @@ namespace SFServer.API.Controllers
         public async Task<IActionResult> GetDeviceById(Guid userId, string deviceId)
         {
             var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId);
+            if (userDevice == null)
+            {
+                Console.WriteLine($"User device not found for userId={userId}, deviceId={deviceId}");
+                return NotFound();
+            }
             return Ok(userDevice);
         }
 
