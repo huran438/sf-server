@@ -240,6 +240,19 @@ namespace SFServer.API.Migrations
                     b.ToTable("Currencies");
                 });
 
+                    b.HasIndex("UserId");
+
+
+                    b.HasOne("SFServer.Shared.Server.UserProfile.UserProfile", null)
+                        .WithMany("PlayerInventory")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserProfile", b =>
+                {
+                    b.Navigation("PlayerInventory");
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.Property<Guid>("Id")

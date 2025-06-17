@@ -45,12 +45,23 @@ namespace SFServer.API.Migrations
                         principalTable: "InventoryItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PlayerInventoryItems_UserProfiles_UserId",
+                        column: x => x.UserId,
+                        principalTable: "UserProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_PlayerInventoryItems_ItemId",
                 table: "PlayerInventoryItems",
                 column: "ItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlayerInventoryItems_UserId",
+                table: "PlayerInventoryItems",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

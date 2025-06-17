@@ -44,6 +44,11 @@ namespace SFServer.API.Data
                     .WithMany()
                     .HasForeignKey(p => p.ItemId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<UserProfile>()
+                    .WithMany(u => u.PlayerInventory)
+                    .HasForeignKey(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
             
             modelBuilder
