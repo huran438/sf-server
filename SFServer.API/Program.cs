@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using SFServer.API;
 using SFServer.API.Data;
 using SFServer.API.Utils;
+using SFServer.API.Services;
 using SFServer.Shared.Server.UserProfile;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
+builder.Services.AddScoped<SFServer.API.Services.InventoryService>();
 
 builder.Services.AddControllers()
     .AddMvcOptions(options =>

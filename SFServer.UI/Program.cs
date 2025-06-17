@@ -24,6 +24,7 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
 });
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -45,5 +46,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
 
 app.Run();
