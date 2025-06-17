@@ -24,6 +24,14 @@ public class InventoryController : ControllerBase
         return Ok(items);
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetItem(Guid id)
+    {
+        var item = await _service.GetItemAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateItem([FromBody] InventoryItem item)
     {

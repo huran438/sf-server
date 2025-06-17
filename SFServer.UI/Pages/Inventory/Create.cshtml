@@ -1,0 +1,18 @@
+@page
+@model SFServer.UI.Pages.Inventory.CreateInventoryItemModel
+@{
+    ViewData["Title"] = "Create Inventory Item";
+}
+
+<h1>Create Item</h1>
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="Item.Title" class="form-label"></label>
+        <input asp-for="Item.Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Item.Price" class="form-label"></label>
+        <input asp-for="Item.Price" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

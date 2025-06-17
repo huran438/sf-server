@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
+using SFServer.Shared.Server.Inventory;
 using SFServer.UI.Models.UserProfiles;
 using SFServer.UI;
 
@@ -187,13 +188,30 @@ namespace SFServer.UI.Controllers
                     Currency = w.Currency.Title,
                     Amount = w.Amount
                 }).ToList();
-
             }
             else
             {
                 viewModel.WalletItems = [];
             }
-            
+
+            var playerItems = await httpClient.GetFromMessagePackAsync<List<PlayerInventoryItem>>($"player/{profile.Id}/inventory");
+            var allItems = await httpClient.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
+            if (playerItems != null && allItems != null)
+            {
+                viewModel.InventoryItems = playerItems.Join(allItems,
+                    p => p.ItemId,
+                    i => i.Id,
+                    (p, i) => new PlayerInventoryItemViewModel
+                    {
+                        ItemId = p.ItemId,
+                        Amount = p.Amount,
+                        Title = i.Title
+                    }).ToList();
+            }
+            else
+            {
+                viewModel.InventoryItems = [];
+            }
 
             return View(viewModel);
         }
