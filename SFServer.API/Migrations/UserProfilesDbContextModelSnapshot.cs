@@ -74,14 +74,11 @@ namespace SFServer.API.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("UserProfileId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("UserProfileId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("PlayerInventoryItems");
                 });
@@ -240,19 +237,6 @@ namespace SFServer.API.Migrations
                     b.ToTable("Currencies");
                 });
 
-                    b.HasIndex("UserId");
-
-
-                    b.HasOne("SFServer.Shared.Server.UserProfile.UserProfile", null)
-                        .WithMany("PlayerInventory")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserProfile", b =>
-                {
-                    b.Navigation("PlayerInventory");
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -285,7 +269,9 @@ namespace SFServer.API.Migrations
 
                     b.HasOne("SFServer.Shared.Server.UserProfile.UserProfile", null)
                         .WithMany("PlayerInventory")
-                        .HasForeignKey("UserProfileId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>

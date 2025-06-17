@@ -13,8 +13,8 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    [Migration("20250617225012_AddedInventory")]
-    partial class AddedInventory
+    [Migration("20250617230250_NewInventory")]
+    partial class NewInventory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,14 +77,11 @@ namespace SFServer.API.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("UserProfileId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("UserProfileId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("PlayerInventoryItems");
                 });
@@ -275,7 +272,9 @@ namespace SFServer.API.Migrations
 
                     b.HasOne("SFServer.Shared.Server.UserProfile.UserProfile", null)
                         .WithMany("PlayerInventory")
-                        .HasForeignKey("UserProfileId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
