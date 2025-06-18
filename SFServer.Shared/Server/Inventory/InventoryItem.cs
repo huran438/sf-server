@@ -8,7 +8,7 @@ namespace SFServer.Shared.Server.Inventory;
 public partial class InventoryItem
 {
     public Guid Id { get; set; }
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     public InventoryItemType Type { get; set; }
     public InventoryItemRarity Rarity { get; set; }
     // Mapping of currency ID to price amount
