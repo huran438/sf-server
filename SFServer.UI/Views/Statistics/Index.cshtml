@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SFServer.Shared.Server.Statistics.StatisticsDto
+@{
+    ViewData["Title"] = "Statistics";
+}
+
+<h1>Statistics</h1>
+
+@if (Model == null)
+{
+    <p>Failed to load statistics.</p>
+}
+else
+{
+    <table class="table table-bordered w-auto">
+        <tbody>
+        <tr>
+            <th>Total Users</th>
+            <td>@Model.TotalUserCount</td>
+        </tr>
+        <tr>
+            <th>Monthly Active Users</th>
+            <td>@Model.MonthlyActiveUsers</td>
+        </tr>
+        <tr>
+            <th>Daily Active Users</th>
+            <td>@Model.DailyActiveUsers</td>
+        </tr>
+        <tr>
+            <th>Retention Rate</th>
+            <td>@String.Format("{0:P2}", Model.RetentionRate)</td>
+        </tr>
+        </tbody>
+    </table>
+}

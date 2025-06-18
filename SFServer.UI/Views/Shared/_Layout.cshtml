@@ -59,6 +59,11 @@
                                 <i class="bi bi-box"></i> Inventory
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Statistics" asp-action="Index">
+                                <i class="bi bi-bar-chart"></i> Statistics
+                            </a>
+                        </li>
                     }
                 </ul>
                 @if (User.Identity?.IsAuthenticated == true)
