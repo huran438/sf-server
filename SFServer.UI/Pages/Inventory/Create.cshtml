@@ -12,7 +12,7 @@
                         <select name="PriceEntries[@i].CurrencyId" class="form-select">
                             @foreach (var c in Model.AllCurrencies)
                             {
-                                <option value="@c.Id" @(Model.PriceEntries[i].CurrencyId == c.Id ? "selected" : "")>@c.Title</option>
+                                <option value="@c.Id" selected="@(Model.PriceEntries[i].CurrencyId == c.Id)">@c.Title</option>
                             }
                         </select>
                     </td>
