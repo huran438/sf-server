@@ -14,7 +14,7 @@
         <th>Title</th>
         <th>Type</th>
         <th>Rarity</th>
-        <th>Price</th>
+        <th>Prices</th>
         <th></th>
     </tr>
     </thead>
@@ -25,7 +25,13 @@
             <td>@item.Title</td>
             <td>@item.Type</td>
             <td>@item.Rarity</td>
-            <td>@item.Price</td>
+            <td>
+                @foreach (var p in item.Prices)
+                {
+                    var currency = Model.Currencies.FirstOrDefault(c => c.Id == p.Key);
+                    <div>@(currency?.Title ?? p.Key.ToString()): @p.Value</div>
+                }
+            </td>
             <td>
                 <a class="btn btn-sm btn-secondary" asp-page="/Inventory/Edit" asp-route-id="@item.Id">Edit</a>
             </td>

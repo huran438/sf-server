@@ -15,6 +15,7 @@ public class InventoryPageModel : PageModel
     }
 
     public List<InventoryItem> Items { get; set; } = new();
+    public List<SFServer.Shared.Server.Wallet.Currency> Currencies { get; set; } = new();
 
     private HttpClient GetClient()
     {
@@ -29,5 +30,6 @@ public class InventoryPageModel : PageModel
     {
         using var http = GetClient();
         Items = await http.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
+        Currencies = await http.GetFromMessagePackAsync<List<SFServer.Shared.Server.Wallet.Currency>>("Currency");
     }
 }

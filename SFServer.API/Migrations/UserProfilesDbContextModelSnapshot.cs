@@ -200,8 +200,8 @@ namespace SFServer.API.Migrations
                     b.Property<string>("Username")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
-
+                    b.Property<string>("Prices")
+                        .HasColumnType("jsonb");
                     b.ToTable("UserProfiles");
                 });
 

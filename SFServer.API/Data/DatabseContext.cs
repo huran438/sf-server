@@ -36,6 +36,8 @@ namespace SFServer.API.Data
                     .HasConversion<string>();
                 entity.Property(p => p.Rarity)
                     .HasConversion<string>();
+                entity.Property(p => p.Prices)
+                    .HasColumnType("jsonb");
             });
 
             modelBuilder.Entity<PlayerInventoryItem>(entity =>

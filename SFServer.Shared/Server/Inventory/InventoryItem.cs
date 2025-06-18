@@ -11,7 +11,8 @@ public partial class InventoryItem
     public string Title { get; set; }
     public InventoryItemType Type { get; set; }
     public InventoryItemRarity Rarity { get; set; }
-    public decimal Price { get; set; }
+    // Mapping of currency ID to price amount
+    public Dictionary<Guid, decimal> Prices { get; set; } = new();
     public bool IsAvailableToBuy { get; set; }
     public bool IsAvailableToDrop { get; set; }
     public List<string> Tags { get; set; } = new();

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using SFServer.Shared.Server.Inventory;
 using System.Net.Http.Headers;
 using SFServer.UI;
+using SFServer.UI.Models.Inventory;
 
 namespace SFServer.UI.Pages.Inventory;
 
@@ -21,6 +22,11 @@ public class EditInventoryItemModel : PageModel
     [BindProperty]
     public string? Tags { get; set; }
 
+    [BindProperty]
+    public List<PriceEntry> PriceEntries { get; set; } = new();
+
+    public List<SFServer.Shared.Server.Wallet.Currency> AllCurrencies { get; set; } = new();
+
     private HttpClient GetClient()
     {
         var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
@@ -35,6 +41,8 @@ public class EditInventoryItemModel : PageModel
         using var http = GetClient();
         Item = await http.GetFromMessagePackAsync<InventoryItem>($"Inventory/{id}");
         Tags = Item.Tags != null && Item.Tags.Count > 0 ? string.Join(", ", Item.Tags) : string.Empty;
+        AllCurrencies = await http.GetFromMessagePackAsync<List<SFServer.Shared.Server.Wallet.Currency>>("Currency");
+        PriceEntries = Item.Prices.Select(p => new PriceEntry { CurrencyId = p.Key, Amount = p.Value }).ToList();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -51,6 +59,10 @@ public class EditInventoryItemModel : PageModel
         {
             Item.Tags = new List<string>();
         }
+
+        Item.Prices = PriceEntries
+            .Where(p => p.CurrencyId != Guid.Empty)
+            .ToDictionary(p => p.CurrencyId, p => p.Amount);
 
         await http.PutAsMessagePackAsync($"Inventory/{Item.Id}", Item);
         return RedirectToPage("/Inventory/Index");

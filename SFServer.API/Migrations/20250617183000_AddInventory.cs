@@ -17,7 +17,7 @@ namespace SFServer.API.Migrations
                     Title = table.Column<string>(type: "text", nullable: true),
                     Type = table.Column<string>(type: "text", nullable: false),
                     Rarity = table.Column<string>(type: "text", nullable: false),
-                    Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    Prices = table.Column<string>(type: "jsonb", nullable: true),
                     IsAvailableToBuy = table.Column<bool>(type: "boolean", nullable: false),
                     IsAvailableToDrop = table.Column<bool>(type: "boolean", nullable: false),
                     Tags = table.Column<string[]>(type: "text[]", nullable: true)
