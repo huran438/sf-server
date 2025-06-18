@@ -13,20 +13,78 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    [Migration("20250610190555_AddUserProfileIndex")]
-    partial class AddUserProfileIndex
+    [Migration("20250618182531_BasicInventorySystem")]
+    partial class BasicInventorySystem
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "9.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.HasSequence<int>("UserProfileIndex", "dbo");
+
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAvailableToBuy")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsAvailableToDrop")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Rarity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.PrimitiveCollection<List<string>>("Tags")
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InventoryItems");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.PlayerInventoryItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PlayerInventoryItems");
+                });
 
             modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserDevice", b =>
                 {
@@ -204,6 +262,21 @@ namespace SFServer.API.Migrations
                     b.ToTable("WalletItems");
                 });
 
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.PlayerInventoryItem", b =>
+                {
+                    b.HasOne("SFServer.Shared.Server.Inventory.InventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SFServer.Shared.Server.UserProfile.UserProfile", null)
+                        .WithMany("PlayerInventory")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.HasOne("SFServer.Shared.Server.Wallet.Currency", "Currency")
@@ -213,6 +286,11 @@ namespace SFServer.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserProfile", b =>
+                {
+                    b.Navigation("PlayerInventory");
                 });
 #pragma warning restore 612, 618
         }
