@@ -17,6 +17,9 @@ public class CreateInventoryItemModel : PageModel
     [BindProperty]
     public InventoryItem Item { get; set; } = new();
 
+    [BindProperty]
+    public string? Tags { get; set; }
+
     private HttpClient GetClient()
     {
         var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
@@ -33,6 +36,13 @@ public class CreateInventoryItemModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         using var http = GetClient();
+        if (!string.IsNullOrWhiteSpace(Tags))
+        {
+            Item.Tags = Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim())
+                .ToList();
+        }
+
         var response = await http.PostMessagePackAsync("Inventory", Item);
         if (!response.IsSuccessStatusCode)
         {

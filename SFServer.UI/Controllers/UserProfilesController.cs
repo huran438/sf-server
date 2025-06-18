@@ -212,6 +212,7 @@ namespace SFServer.UI.Controllers
             {
                 viewModel.InventoryItems = [];
             }
+            ViewData["AllInventoryItems"] = allItems ?? new List<InventoryItem>();
 
             return View(viewModel);
         }
@@ -330,6 +331,31 @@ namespace SFServer.UI.Controllers
             TempData["Success"] = "Wallet updated successfully.";
             // Set the active tab to "wallet"
             TempData["activeTab"] = "wallet";
+            return RedirectToAction("Edit", new { id = model.UserId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateInventory(InventoryUpdateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid inventory data.";
+                TempData["activeTab"] = "inventory";
+                return RedirectToAction("Edit", new { id = model.UserId });
+            }
+
+            using var client = GetAuthenticatedHttpClient();
+
+            var items = model.Items
+                .Where(i => i.ItemId != Guid.Empty && i.Amount > 0)
+                .Select(i => new PlayerInventoryItem { ItemId = i.ItemId, Amount = i.Amount })
+                .ToList();
+
+            await client.PutAsMessagePackAsync($"player/{model.UserId}/inventory", items);
+
+            TempData["Success"] = "Inventory updated successfully.";
+            TempData["activeTab"] = "inventory";
             return RedirectToAction("Edit", new { id = model.UserId });
         }
     }
