@@ -1,28 +1,8 @@
 ﻿services:
-  db:
-    container_name: db
-    image: postgres:17
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_EXTENSIONS: ${DB_EXTENSIONS}
-    ports:
-      - "${DB_PORT}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./init-extensions.sql:/docker-entrypoint-initdb.d/init-extensions.sql
-
   api:
     container_name: api
     build:
-      context: ..
+      context: ../..
       dockerfile: ./SFServer.API/Dockerfile
     restart: unless-stopped
     environment:
@@ -37,16 +17,15 @@
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     volumes:
       - datakeys:/var/app-keys
+    networks:
+      - shared-net
     ports:
       - "${API_PORT}:8080"
-    depends_on:
-      db:
-        condition: service_healthy
 
   ui:
     container_name: ui
     build:
-      context: ..
+      context: ../..
       dockerfile: ./SFServer.UI/Dockerfile_Dev
     restart: unless-stopped
     volumes:
@@ -59,12 +38,15 @@
       SERVER_TITLE: ${SERVER_TITLE}
       API_BASE_URL: ${API_BASE_URL}
       JS_API_BASE_URL: ${JS_API_BASE_URL}
+    networks:
+      - shared-net
     depends_on:
-      db:
-        condition: service_healthy
       api:
         condition: service_started
+
+networks:
+  shared-net:
+    external: true
       
 volumes:
-  postgres-data:
   datakeys:
