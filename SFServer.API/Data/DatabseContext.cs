@@ -4,6 +4,7 @@ using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
 using SFServer.Shared.Server.Session;
+using SFServer.Shared.Server.Settings;
 
 namespace SFServer.API.Data
 {
@@ -23,6 +24,8 @@ namespace SFServer.API.Data
         public DbSet<PlayerInventoryItem> PlayerInventoryItems { get; set; }
 
         public DbSet<UserSession> UserSessions { get; set; }
+
+        public DbSet<ServerSettings> ServerSettings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

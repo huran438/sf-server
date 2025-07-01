@@ -1,6 +1,7 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using SFServer.Shared.Server.UserProfile
 @inject IConfiguration Configuration
+@using SFServer.UI
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
@@ -120,9 +121,13 @@
     </main>
 </div>
 
+@inject ServerSettingsService SettingsService
+@{
+    var settings = await SettingsService.GetSettingsAsync();
+}
 <footer class="footer border-top text-body-secondary bg-body-tertiary">
     <div class="container d-flex justify-content-between align-items-center flex-wrap py-3">
-        <span>@Configuration["SERVER_COPYRIGHT"]</span>
+        <span>@settings?.ServerCopyright</span>
 
         @if (User.IsInRole("Admin"))
         {

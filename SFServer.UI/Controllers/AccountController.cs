@@ -21,7 +21,7 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult Login(string returnUrl = null)
     {
-        return View(new LoginViewModel { ReturnUrl = returnUrl });
+        return View(new LoginViewModel { ReturnUrl = returnUrl ?? string.Empty });
     }
 
     [HttpPost]
