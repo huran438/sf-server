@@ -15,7 +15,7 @@ public class InventoryService
 
     public Task<List<InventoryItem>> GetItemsAsync() => _db.InventoryItems.ToListAsync();
 
-    public Task<InventoryItem?> GetItemAsync(Guid id) => _db.InventoryItems.FindAsync(id).AsTask();
+    public Task<InventoryItem> GetItemAsync(Guid id) => _db.InventoryItems.FindAsync(id).AsTask();
 
     public async Task<InventoryItem> CreateItemAsync(InventoryItem item)
     {

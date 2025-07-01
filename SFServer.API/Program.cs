@@ -152,6 +152,21 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"ℹ️ Admin user '{adminUsername}' already exists.");
     }
+
+    // Seed server settings from environment variables if not present
+    if (!context.ServerSettings.Any())
+    {
+        var settings = new SFServer.Shared.Server.Settings.ServerSettings
+        {
+            Id = Guid.NewGuid(),
+            ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
+            GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
+            GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty
+        };
+        context.ServerSettings.Add(settings);
+        context.SaveChanges();
+        Console.WriteLine("✅ Server settings created from environment.");
+    }
 }
 
 app.UseCors("AllowAll");
