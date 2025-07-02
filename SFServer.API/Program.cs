@@ -28,6 +28,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
 builder.Services.AddScoped<SFServer.API.Services.InventoryService>();
+builder.Services.AddSingleton<IAnalyticsService>(sp => new ClickHouseAnalyticsService(builder.Configuration.GetConnectionString("ClickHouse")!));
 
 builder.Services.AddControllers()
     .AddMvcOptions(options =>
@@ -161,6 +162,7 @@ using (var scope = app.Services.CreateScope())
             Id = Guid.NewGuid(),
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
             GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
+            ClickHouseConnection = config["CLICKHOUSE_CONNECTION"] ?? string.Empty,
             GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty
         };
         context.ServerSettings.Add(settings);

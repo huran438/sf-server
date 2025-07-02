@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClickHouse.Client" Version="3.3.1" />
     <PackageReference Include="Google.Apis.AndroidPublisher.v3" Version="1.69.0.3805" />
     <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
     <PackageReference Include="Google.Apis.GameServices.v1" Version="1.61.0.3030" />

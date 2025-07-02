@@ -14,4 +14,6 @@ public class ServerSettingsViewModel
 
     [Display(Name = "Google Client Secret")]
     public string GoogleClientSecret { get; set; } = string.Empty;
+    [Display(Name = "ClickHouse Connection")]
+    public string ClickHouseConnection { get; set; } = string.Empty;
 }

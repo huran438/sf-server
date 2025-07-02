@@ -38,6 +38,7 @@ namespace SFServer.UI.Controllers
                 Id = settings.Id,
                 ServerCopyright = settings.ServerCopyright,
                 GoogleClientId = settings.GoogleClientId,
+                ClickHouseConnection = settings.ClickHouseConnection,
                 GoogleClientSecret = settings.GoogleClientSecret
             };
             return View(vm);
@@ -53,6 +54,7 @@ namespace SFServer.UI.Controllers
             using var client = GetAuthenticatedHttpClient();
             var payload = new ServerSettings
             {
+                ClickHouseConnection = model.ClickHouseConnection,
                 Id = model.Id,
                 ServerCopyright = model.ServerCopyright,
                 GoogleClientId = model.GoogleClientId,
