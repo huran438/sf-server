@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SFServer.API.Controllers;
-
-[ApiController]
-[Route("[controller]")]
-[AllowAnonymous]
-public class TimeController : ControllerBase
+namespace SFServer.API.Controllers
 {
-    [HttpGet("now")]
-    public IActionResult GetServerTime()
+    [ApiController]
+    [Route("[controller]")]
+    [AllowAnonymous]
+    public class TimeController : ControllerBase
     {
-        var now = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
-        return Ok(now);
+        [HttpGet("now")]
+        public IActionResult GetServerTime()
+        {
+            var now = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            return Ok(now);
+        }
     }
 }

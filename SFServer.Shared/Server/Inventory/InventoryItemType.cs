@@ -1,9 +1,11 @@
-namespace SFServer.Shared.Server.Inventory;
 
-public enum InventoryItemType
+namespace SFServer.Shared.Server.Inventory
 {
-    Weapon,
-    Armor,
-    Consumable,
-    Misc
+    public enum InventoryItemType
+    {
+        Weapon,
+        Armor,
+        Consumable,
+        Misc
+    }
 }

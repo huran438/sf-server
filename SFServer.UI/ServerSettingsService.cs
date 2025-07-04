@@ -1,30 +1,34 @@
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Settings;
 
-namespace SFServer.UI;
-
-public class ServerSettingsService
+namespace SFServer.UI
 {
-    private readonly IHttpClientFactory _factory;
-    private readonly IConfiguration _configuration;
-    private ServerSettings? _cached;
-
-    public ServerSettingsService(IHttpClientFactory factory, IConfiguration configuration)
+    public class ServerSettingsService
     {
-        _factory = factory;
-        _configuration = configuration;
-    }
+        private readonly IHttpClientFactory _factory;
+        private readonly IConfiguration _configuration;
+        private ServerSettings _cached;
 
-    public async Task<ServerSettings?> GetSettingsAsync()
-    {
-        if (_cached != null)
+        public ServerSettingsService(IHttpClientFactory factory, IConfiguration configuration)
+        {
+            _factory = factory;
+            _configuration = configuration;
+        }
+
+        public async Task<ServerSettings> GetSettingsAsync()
+        {
+            if (_cached != null)
+                return _cached;
+            var client = _factory.CreateClient("api");
+            _cached = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings");
             return _cached;
-        var client = _factory.CreateClient("api");
-        _cached = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings");
-        return _cached;
-    }
+        }
 
-    public void UpdateCache(ServerSettings settings)
-    {
-        _cached = settings;
+        public void UpdateCache(ServerSettings settings)
+        {
+            _cached = settings;
+        }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 
-namespace SFServer.API;
-
-public static class Extensions
+namespace SFServer.API
 {
-    public static string ToJson(this object obj, bool indented = false)
+    public static class Extensions
     {
-        return JsonConvert.SerializeObject(obj, indented ? Formatting.Indented : Formatting.None);
+        public static string ToJson(this object obj, bool indented = false)
+        {
+            return JsonConvert.SerializeObject(obj, indented ? Formatting.Indented : Formatting.None);
+        }
     }
 }

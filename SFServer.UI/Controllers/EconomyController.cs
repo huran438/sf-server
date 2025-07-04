@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Wallet;
 using SFServer.UI.Models;
 using SFServer.UI;
@@ -79,7 +85,7 @@ namespace SFServer.UI.Controllers
         {
             using var httpClient = GetAuthenticatedHttpClient();
             // Retrieve the currency using MessagePack.
-            Currency? currency;
+            Currency currency;
             try
             {
                 currency = await httpClient.GetFromMessagePackAsync<Currency>($"Currency/{id}");

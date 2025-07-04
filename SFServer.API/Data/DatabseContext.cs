@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SFServer.Shared.Client.Common;
+using SFServer.Shared.Client.Session;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
-using SFServer.Shared.Server.Session;
 using SFServer.Shared.Server.Settings;
 
 namespace SFServer.API.Data

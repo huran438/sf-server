@@ -1,5 +1,10 @@
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Settings;
 using SFServer.UI.Models;
 
@@ -38,6 +43,7 @@ namespace SFServer.UI.Controllers
                 Id = settings.Id,
                 ServerCopyright = settings.ServerCopyright,
                 GoogleClientId = settings.GoogleClientId,
+                ClickHouseConnection = settings.ClickHouseConnection,
                 GoogleClientSecret = settings.GoogleClientSecret
             };
             return View(vm);
@@ -56,7 +62,8 @@ namespace SFServer.UI.Controllers
                 Id = model.Id,
                 ServerCopyright = model.ServerCopyright,
                 GoogleClientId = model.GoogleClientId,
-                GoogleClientSecret = model.GoogleClientSecret
+                GoogleClientSecret = model.GoogleClientSecret,
+                ClickHouseConnection = model.ClickHouseConnection,
             };
             var response = await client.PutAsMessagePackAsync("ServerSettings", payload);
             if (!response.IsSuccessStatusCode)

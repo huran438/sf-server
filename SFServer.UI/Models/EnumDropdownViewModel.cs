@@ -1,4 +1,7 @@
-﻿namespace SFServer.UI.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace SFServer.UI.Models
 {
     public class EnumDropdownViewModel
     {

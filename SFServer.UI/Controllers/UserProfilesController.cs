@@ -1,5 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
@@ -135,7 +141,7 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Edit(Guid id)
         {
             using var httpClient = GetAuthenticatedHttpClient();
-            UserProfile? profile;
+            UserProfile profile;
             try
             {
                 profile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");
@@ -191,7 +197,7 @@ namespace SFServer.UI.Controllers
             }
             else
             {
-                viewModel.WalletItems = [];
+                viewModel.WalletItems = new List<WalletItemViewModel> { };
             }
 
             var playerItems = await httpClient.GetFromMessagePackAsync<List<PlayerInventoryItem>>($"player/{profile.Id}/inventory");
@@ -210,7 +216,7 @@ namespace SFServer.UI.Controllers
             }
             else
             {
-                viewModel.InventoryItems = [];
+                viewModel.InventoryItems = new List<PlayerInventoryItemViewModel> { };
             }
             ViewData["AllInventoryItems"] = allItems ?? new List<InventoryItem>();
 
@@ -235,7 +241,7 @@ namespace SFServer.UI.Controllers
 
             using var httpClient = GetAuthenticatedHttpClient();
             // Retrieve the existing user using MessagePack.
-            UserProfile? existingProfile;
+            UserProfile existingProfile;
             try
             {
                 existingProfile = await httpClient.GetFromMessagePackAsync<UserProfile>($"UserProfiles/{id}");

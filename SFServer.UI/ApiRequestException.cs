@@ -1,16 +1,18 @@
+using System;
 using System.Net;
 
-namespace SFServer.UI;
-
-public class ApiRequestException : Exception
+namespace SFServer.UI
 {
-    public HttpStatusCode StatusCode { get; }
-    public string? ResponseBody { get; }
-
-    public ApiRequestException(string requestUri, HttpStatusCode statusCode, string? responseBody)
-        : base($"Request to '{requestUri}' failed with status code {statusCode}")
+    public class ApiRequestException : Exception
     {
-        StatusCode = statusCode;
-        ResponseBody = responseBody;
+        public HttpStatusCode StatusCode { get; }
+        public string ResponseBody { get; }
+
+        public ApiRequestException(string requestUri, HttpStatusCode statusCode, string responseBody)
+            : base($"Request to '{requestUri}' failed with status code {statusCode}")
+        {
+            StatusCode = statusCode;
+            ResponseBody = responseBody;
+        }
     }
 }

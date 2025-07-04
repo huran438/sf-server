@@ -24,8 +24,6 @@ namespace SFServer.Shared.Server.UserProfile
         public string GooglePlayId { get; set; }
         public bool DebugMode { get; set; }
         public List<string> DeviceIds { get; set; } = new();
-
-        // Player inventory items linked to this profile
-        public List<SFServer.Shared.Server.Inventory.PlayerInventoryItem> PlayerInventory { get; set; } = new();
+        public List<Inventory.PlayerInventoryItem> PlayerInventory { get; set; } = new();
     }
 }

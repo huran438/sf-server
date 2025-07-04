@@ -4,7 +4,6 @@ using SFServer.Shared.Client.Common;
 
 namespace SFServer.Shared.Client.Auth
 {
-    
     [MemoryPackable]
     [MemoryPackUnion(0, typeof(LoginRequest))]
     [MemoryPackUnion(1, typeof(GooglePlayLoginRequest))]

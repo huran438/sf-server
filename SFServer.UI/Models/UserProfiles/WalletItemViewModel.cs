@@ -1,8 +1,11 @@
-﻿namespace SFServer.UI.Models.UserProfiles;
+﻿using System;
 
-public class WalletItemViewModel
+namespace SFServer.UI.Models.UserProfiles
 {
-    public Guid Id { get; set; }
-    public string Currency { get; set; }
-    public decimal Amount { get; set; }
+    public class WalletItemViewModel
+    {
+        public Guid Id { get; set; }
+        public string Currency { get; set; }
+        public decimal Amount { get; set; }
+    }
 }

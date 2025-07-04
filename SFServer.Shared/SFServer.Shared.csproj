@@ -4,8 +4,8 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>11</LangVersion>
-        <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <TargetFrameworks>netstandard2.1;net9.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,6 +16,10 @@
       <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
       <PackageReference Include="MemoryPack" Version="1.21.4" />
       <PackageReference Include="MemoryPack.UnityShims" Version="1.21.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Server\Analytics\" />
     </ItemGroup>
 
 </Project>

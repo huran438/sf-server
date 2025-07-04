@@ -301,9 +301,16 @@
                                 <td>
                                     <select name="Items[@Model.InventoryItems.Count].ItemId" class="form-select">
                                         <option value="">-- Add Item --</option>
-                                        @foreach (var item in (List<SFServer.Shared.Server.Inventory.InventoryItem>)ViewData["AllInventoryItems"])
-                                        {
-                                            <option value="@item.Id">@item.Title</option>
+                                        @{
+                                            var items = ViewData["AllInventoryItems"];
+                                            
+                                            if (items != null)
+                                            {
+                                                foreach (var item in (List<SFServer.Shared.Server.Inventory.InventoryItem>)items)
+                                                {
+                                                    <option value="@item.Id">@item.Title</option>
+                                                }
+                                            }
                                         }
                                     </select>
                                 </td>

@@ -2,7 +2,7 @@
 
 namespace SFServer.Shared.Client.Base
 {
-    public abstract partial class SFRequest : ISFRequest
+    public abstract class SFRequest : ISFRequest
     {
         [MemoryPackIgnore]
         public abstract string Endpoint { get; }

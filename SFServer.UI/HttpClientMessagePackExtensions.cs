@@ -1,5 +1,9 @@
-﻿using System.Net.Http.Headers;
+﻿using System;
+using System.Net.Http.Headers;
 using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using MemoryPack;
 using MemoryPack.Compression;
 
@@ -21,7 +25,7 @@ namespace SFServer.UI
             this HttpClient httpClient,
             string requestUri,
             TRequest request,
-            MemoryPackSerializerOptions? options = null,
+            MemoryPackSerializerOptions options = null,
             CancellationToken cancellationToken = default)
         {
             options ??= DefaultOptions;
@@ -44,7 +48,7 @@ namespace SFServer.UI
             this HttpClient httpClient,
             string requestUri,
             TRequest request,
-            MemoryPackSerializerOptions? options = null,
+            MemoryPackSerializerOptions options = null,
             CancellationToken cancellationToken = default)
         {
             options ??= DefaultOptions;
@@ -72,14 +76,14 @@ namespace SFServer.UI
         /// <summary>
         /// Sends a GET request and deserializes the MessagePack response.
         /// </summary>
-        public static async Task<T?> GetFromMessagePackAsync<T>(this HttpClient httpClient, string requestUri, MemoryPackSerializerOptions? options = null, CancellationToken cancellationToken = default)
+        public static async Task<T> GetFromMessagePackAsync<T>(this HttpClient httpClient, string requestUri, MemoryPackSerializerOptions options = null, CancellationToken cancellationToken = default)
         {
             options ??= DefaultOptions;
             using var response = await httpClient.GetAsync(requestUri, cancellationToken);
             
             if (response.IsSuccessStatusCode == false)
             {
-                string? body = null;
+                string body = null;
                 try
                 {
                     body = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -118,7 +122,7 @@ namespace SFServer.UI
             this HttpClient httpClient,
             string requestUri,
             T value,
-            MemoryPackSerializerOptions? options = null,
+            MemoryPackSerializerOptions options = null,
             CancellationToken cancellationToken = default)
         {
             options ??= DefaultOptions;
