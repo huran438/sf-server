@@ -65,6 +65,7 @@ namespace SFServer.API.Services
             _db.PlayerInventoryItems.RemoveRange(existing);
 
             var grouped = items
+                .Where(i => i.Amount > 0)
                 .GroupBy(i => i.ItemId)
                 .Select(g => new PlayerInventoryItem
                 {

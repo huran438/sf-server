@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
 using SFServer.Shared.Server.Inventory;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -34,6 +35,13 @@ namespace SFServer.UI.Pages.Inventory
         {
             using var http = GetClient();
             Items = await http.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(Guid id)
+        {
+            using var http = GetClient();
+            await http.DeleteAsync($"Inventory/{id}");
+            return RedirectToPage();
         }
     }
 }
