@@ -36,6 +36,11 @@ namespace SFServer.API.Controllers
         public async Task<IActionResult> CreateItem([FromBody] InventoryItem item)
         {
             var created = await _service.CreateItemAsync(item);
+            if (created == null)
+            {
+                return Conflict("Item with same title or product id already exists.");
+            }
+
             return CreatedAtAction(nameof(GetItems), new { id = created.Id }, created);
         }
 
@@ -43,7 +48,9 @@ namespace SFServer.API.Controllers
         public async Task<IActionResult> UpdateItem(Guid id, [FromBody] InventoryItem item)
         {
             if (id != item.Id) return BadRequest();
-            await _service.UpdateItemAsync(item);
+            var updated = await _service.UpdateItemAsync(item);
+            if (!updated)
+                return Conflict("Item with same title or product id already exists.");
             return NoContent();
         }
 

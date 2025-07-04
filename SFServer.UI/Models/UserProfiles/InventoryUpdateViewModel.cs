@@ -5,7 +5,7 @@ namespace SFServer.UI.Models.UserProfiles
 {
     public class InventoryEntry
     {
-        public Guid ItemId { get; set; }
+        public Guid? ItemId { get; set; }
         public int Amount { get; set; }
     }
 
