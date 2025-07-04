@@ -1,9 +1,10 @@
-using SFServer.Shared.Server.Analytics;
+using SFServer.Shared.Client.Analytics;
 
-namespace SFServer.API.Services;
-
-public interface IAnalyticsService
+namespace SFServer.API.Services
 {
-    Task InsertEventAsync(AnalyticsEventDto evt);
-    Task InsertEventsAsync(IEnumerable<AnalyticsEventDto> events);
+    public interface IAnalyticsService
+    {
+        Task InsertEventAsync(AnalyticsEventDto evt);
+        Task InsertEventsAsync(IEnumerable<AnalyticsEventDto> events);
+    }
 }

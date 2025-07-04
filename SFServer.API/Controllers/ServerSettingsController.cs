@@ -41,6 +41,7 @@ namespace SFServer.API.Controllers
                 existing.ServerCopyright = updated.ServerCopyright;
                 existing.GoogleClientId = updated.GoogleClientId;
                 existing.GoogleClientSecret = updated.GoogleClientSecret;
+                existing.ClickHouseConnection = updated.ClickHouseConnection;
             }
 
             await _db.SaveChangesAsync();

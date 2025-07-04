@@ -25,6 +25,29 @@ namespace SFServer.API.Migrations
 
             modelBuilder.HasSequence<int>("UserProfileIndex", "dbo");
 
+            modelBuilder.Entity("SFServer.Shared.Client.Session.UserSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("ResumeCounter")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserSessions");
+                });
+
             modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -81,29 +104,6 @@ namespace SFServer.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PlayerInventoryItems");
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.Session.UserSession", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsPaused")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserSessions");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Settings.ServerSettings", b =>

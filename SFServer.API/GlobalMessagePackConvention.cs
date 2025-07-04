@@ -1,22 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
-namespace SFServer.API;
-
-public class GlobalMessagePackConvention : IApplicationModelConvention
+namespace SFServer.API
 {
-    private readonly string _mediaType;
-    public GlobalMessagePackConvention(string mediaType) => _mediaType = mediaType;
-
-    public void Apply(ApplicationModel application)
+    public class GlobalMessagePackConvention : IApplicationModelConvention
     {
-        foreach (var controller in application.Controllers)
+        private readonly string _mediaType;
+        public GlobalMessagePackConvention(string mediaType) => _mediaType = mediaType;
+
+        public void Apply(ApplicationModel application)
         {
-            foreach (var action in controller.Actions)
+            foreach (var controller in application.Controllers)
             {
-                // Add filters that enforce the use of "application/x-msgpack" on every action.
-                action.Filters.Add(new ConsumesAttribute(_mediaType));
-                action.Filters.Add(new ProducesAttribute(_mediaType));
+                foreach (var action in controller.Actions)
+                {
+                    // Add filters that enforce the use of "application/x-msgpack" on every action.
+                    action.Filters.Add(new ConsumesAttribute(_mediaType));
+                    action.Filters.Add(new ProducesAttribute(_mediaType));
+                }
             }
         }
     }

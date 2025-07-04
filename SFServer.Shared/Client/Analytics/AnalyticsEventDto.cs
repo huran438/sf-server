@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MemoryPack;
 
-namespace SFServer.Shared.Server.Analytics
+namespace SFServer.Shared.Client.Analytics
 {
     [MemoryPackable]
     public partial class AnalyticsEventDto

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SFServer.UI.Models
 {
@@ -9,8 +10,8 @@ namespace SFServer.UI.Models
         [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; }
         
-        public string? Icon { get; set; } = string.Empty;
-        public string? RichText { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;
+        public string RichText { get; set; } = string.Empty;
         
         [Range(0, int.MaxValue, ErrorMessage = "Must be 0 or greater.")]
         public int InitialAmount { get; set; }
@@ -20,6 +21,6 @@ namespace SFServer.UI.Models
         
         [Range(0, int.MaxValue, ErrorMessage = "Must be 0 or greater.")]
         public int RefillSeconds { get; set; }
-        public string? ColorHex { get; set; }
+        public string ColorHex { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using MemoryPack;
 using SFServer.Shared.Client.Base;
-using SFServer.Shared.Server.Analytics;
 
 namespace SFServer.Shared.Client.Analytics
 {

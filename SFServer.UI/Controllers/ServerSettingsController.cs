@@ -1,5 +1,10 @@
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Settings;
 using SFServer.UI.Models;
 
@@ -54,11 +59,11 @@ namespace SFServer.UI.Controllers
             using var client = GetAuthenticatedHttpClient();
             var payload = new ServerSettings
             {
-                ClickHouseConnection = model.ClickHouseConnection,
                 Id = model.Id,
                 ServerCopyright = model.ServerCopyright,
                 GoogleClientId = model.GoogleClientId,
-                GoogleClientSecret = model.GoogleClientSecret
+                GoogleClientSecret = model.GoogleClientSecret,
+                ClickHouseConnection = model.ClickHouseConnection,
             };
             var response = await client.PutAsMessagePackAsync("ServerSettings", payload);
             if (!response.IsSuccessStatusCode)

@@ -1,10 +1,12 @@
-namespace SFServer.Shared.Server.Inventory;
 
-public enum InventoryItemRarity
+namespace SFServer.Shared.Server.Inventory
 {
-    Common,
-    Uncommon,
-    Rare,
-    Epic,
-    Legendary
+    public enum InventoryItemRarity
+    {
+        Common,
+        Uncommon,
+        Rare,
+        Epic,
+        Legendary
+    }
 }

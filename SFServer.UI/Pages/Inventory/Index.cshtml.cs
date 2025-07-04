@@ -1,33 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SFServer.Shared.Server.Inventory;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using SFServer.UI;
 
-namespace SFServer.UI.Pages.Inventory;
-
-public class InventoryPageModel : PageModel
+namespace SFServer.UI.Pages.Inventory
 {
-    private readonly IConfiguration _config;
-
-    public InventoryPageModel(IConfiguration config)
+    public class InventoryPageModel : PageModel
     {
-        _config = config;
-    }
+        private readonly IConfiguration _config;
 
-    public List<InventoryItem> Items { get; set; } = new();
+        public InventoryPageModel(IConfiguration config)
+        {
+            _config = config;
+        }
 
-    private HttpClient GetClient()
-    {
-        var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
-        var token = User.FindFirst("JwtToken")?.Value;
-        if (!string.IsNullOrEmpty(token))
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        return client;
-    }
+        public List<InventoryItem> Items { get; set; } = new();
 
-    public async Task OnGetAsync()
-    {
-        using var http = GetClient();
-        Items = await http.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
+        private HttpClient GetClient()
+        {
+            var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
+            var token = User.FindFirst("JwtToken")?.Value;
+            if (!string.IsNullOrEmpty(token))
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return client;
+        }
+
+        public async Task OnGetAsync()
+        {
+            using var http = GetClient();
+            Items = await http.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
+        }
     }
 }

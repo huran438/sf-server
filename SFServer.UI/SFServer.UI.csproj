@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <LangVersion>default</LangVersion>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
