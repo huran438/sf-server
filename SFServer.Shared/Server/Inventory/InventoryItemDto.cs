@@ -15,7 +15,7 @@ namespace SFServer.Shared.Server.Inventory
         /// <summary>
         /// Optional product id used for Google Play or App Store purchases.
         /// </summary>
-        public string? ProductId { get; set; }
+        public string ProductId { get; set; }
         public bool IsAvailableToBuy { get; set; }
         public bool IsAvailableToDrop { get; set; }
         public List<string> Tags { get; set; } = new();

@@ -17,7 +17,7 @@ namespace SFServer.API.Services
 
         public Task<InventoryItem> GetItemAsync(Guid id) => _db.InventoryItems.FindAsync(id).AsTask();
 
-        public async Task<InventoryItem?> CreateItemAsync(InventoryItem item)
+        public async Task<InventoryItem> CreateItemAsync(InventoryItem item)
         {
             if (await _db.InventoryItems.AnyAsync(i =>
                     i.Title == item.Title ||
