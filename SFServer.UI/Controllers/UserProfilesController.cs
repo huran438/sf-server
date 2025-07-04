@@ -354,8 +354,8 @@ namespace SFServer.UI.Controllers
             using var client = GetAuthenticatedHttpClient();
 
             var items = model.Items
-                .Where(i => i.ItemId != Guid.Empty && i.Amount > 0)
-                .Select(i => new PlayerInventoryItem { ItemId = i.ItemId, Amount = i.Amount })
+                .Where(i => i.ItemId.HasValue && i.Amount > 0)
+                .Select(i => new PlayerInventoryItem { ItemId = i.ItemId!.Value, Amount = i.Amount })
                 .ToList();
 
             await client.PutAsMessagePackAsync($"player/{model.UserId}/inventory", items);
