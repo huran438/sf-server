@@ -38,6 +38,8 @@ namespace SFServer.UI.Controllers
             var settings = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings");
             if (settings != null)
                 _service.UpdateCache(settings);
+            else
+                settings = new ServerSettings();
             var vm = new ServerSettingsViewModel
             {
                 Id = settings.Id,
