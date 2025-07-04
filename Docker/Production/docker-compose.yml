@@ -2,7 +2,7 @@
   api:
     container_name: api
     build:
-      context: ..
+      context: ../..
       dockerfile: ./SFServer.API/Dockerfile
     restart: unless-stopped
     environment:
@@ -25,7 +25,7 @@
   ui:
     container_name: ui
     build:
-      context: ..
+      context: ../..
       dockerfile: ./SFServer.UI/Dockerfile
     restart: unless-stopped
     environment:
