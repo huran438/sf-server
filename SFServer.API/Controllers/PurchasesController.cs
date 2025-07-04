@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFServer.Shared.Client.Purchases;
 using SFServer.API.Data;
 using Microsoft.EntityFrameworkCore;
+using SFServer.Shared.Server.Inventory;
 
 namespace SFServer.API.Controllers;
 
@@ -54,6 +55,32 @@ public class PurchasesController : ControllerBase
             var result = await service.Purchases.Products
                 .Get(request.PackageName, request.ProductId, request.PurchaseToken)
                 .ExecuteAsync();
+
+            if (result.PurchaseState == 0)
+            {
+                var userIdClaim = User.FindFirst("UserId")?.Value;
+                if (Guid.TryParse(userIdClaim, out var userId))
+                {
+                    var item = await _db.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == request.ProductId);
+                    if (item != null)
+                    {
+                        var existing = await _db.PlayerInventoryItems.FirstOrDefaultAsync(p => p.UserId == userId && p.ItemId == item.Id);
+                        if (existing != null)
+                            existing.Amount += 1;
+                        else
+                        {
+                            _db.PlayerInventoryItems.Add(new PlayerInventoryItem
+                            {
+                                Id = Guid.NewGuid(),
+                                UserId = userId,
+                                ItemId = item.Id,
+                                Amount = 1
+                            });
+                        }
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
 
             return Ok(new AndroidPurchaseValidationResponse
             {

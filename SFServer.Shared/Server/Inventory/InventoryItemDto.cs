@@ -12,6 +12,10 @@ namespace SFServer.Shared.Server.Inventory
         public InventoryItemType Type { get; set; }
         public InventoryItemRarity Rarity { get; set; }
         public decimal Price { get; set; }
+        /// <summary>
+        /// Optional product id used for Google Play or App Store purchases.
+        /// </summary>
+        public string? ProductId { get; set; }
         public bool IsAvailableToBuy { get; set; }
         public bool IsAvailableToDrop { get; set; }
         public List<string> Tags { get; set; } = new();
