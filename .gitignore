@@ -83,3 +83,6 @@ $RECYCLE.BIN/
 _UpgradeReport_Files/
 [Pp]ackages/
 .DS_Store
+
+*.crt
+*.key
