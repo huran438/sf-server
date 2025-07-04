@@ -163,7 +163,8 @@ using (var scope = app.Services.CreateScope())
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
             GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
             ClickHouseConnection = config["CLICKHOUSE_CONNECTION"] ?? string.Empty,
-            GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty
+            GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty,
+            GoogleServiceAccountJson = config["GOOGLE_SERVICE_ACCOUNT_JSON"] ?? string.Empty
         };
         context.ServerSettings.Add(settings);
         context.SaveChanges();

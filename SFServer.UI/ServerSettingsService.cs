@@ -22,7 +22,7 @@ namespace SFServer.UI
             if (_cached != null)
                 return _cached;
             var client = _factory.CreateClient("api");
-            _cached = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings");
+            _cached = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings") ?? new ServerSettings();
             return _cached;
         }
 

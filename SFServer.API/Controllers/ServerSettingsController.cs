@@ -1,26 +1,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SFServer.API.Data;
 using SFServer.Shared.Server.Settings;
 
-namespace SFServer.API.Controllers
-{
+namespace SFServer.API.Controllers {
     [ApiController]
     [Route("[controller]")]
     [Authorize(Roles = "Admin")]
-    public class ServerSettingsController : ControllerBase
-    {
+    public class ServerSettingsController : ControllerBase {
         private readonly DatabseContext _db;
-        public ServerSettingsController(DatabseContext db)
-        {
+
+        public ServerSettingsController(DatabseContext db) {
             _db = db;
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetSettings()
-        {
+        public async Task<IActionResult> GetSettings() {
             var settings = await _db.ServerSettings.FirstOrDefaultAsync();
             if (settings == null)
                 return NotFound();
@@ -28,8 +26,7 @@ namespace SFServer.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateSettings([FromBody] ServerSettings updated)
-        {
+        public async Task<IActionResult> UpdateSettings([FromBody] ServerSettings updated) {
             var existing = await _db.ServerSettings.FirstOrDefaultAsync();
             if (existing == null)
             {
@@ -42,6 +39,8 @@ namespace SFServer.API.Controllers
                 existing.GoogleClientId = updated.GoogleClientId;
                 existing.GoogleClientSecret = updated.GoogleClientSecret;
                 existing.ClickHouseConnection = updated.ClickHouseConnection;
+                dynamic parsedJson = JsonConvert.DeserializeObject(updated.GoogleServiceAccountJson);
+                existing.GoogleServiceAccountJson = parsedJson == null ? updated.GoogleServiceAccountJson : (string)JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
             }
 
             await _db.SaveChangesAsync();
