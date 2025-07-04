@@ -121,6 +121,9 @@ namespace SFServer.API.Migrations
                     b.Property<string>("GoogleClientSecret")
                         .HasColumnType("text");
 
+                    b.Property<string>("GoogleServiceAccountJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("ServerCopyright")
                         .HasColumnType("text");
 

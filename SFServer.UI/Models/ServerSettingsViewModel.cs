@@ -17,5 +17,8 @@ namespace SFServer.UI.Models
         public string GoogleClientSecret { get; set; } = string.Empty;
         [Display(Name = "ClickHouse Connection")]
         public string ClickHouseConnection { get; set; } = string.Empty;
+
+        [Display(Name = "Service Account JSON")]
+        public string GoogleServiceAccountJson { get; set; } = string.Empty;
     }
 }

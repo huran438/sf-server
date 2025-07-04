@@ -44,7 +44,8 @@ namespace SFServer.UI.Controllers
                 ServerCopyright = settings.ServerCopyright,
                 GoogleClientId = settings.GoogleClientId,
                 ClickHouseConnection = settings.ClickHouseConnection,
-                GoogleClientSecret = settings.GoogleClientSecret
+                GoogleClientSecret = settings.GoogleClientSecret,
+                GoogleServiceAccountJson = settings.GoogleServiceAccountJson
             };
             return View(vm);
         }
@@ -64,6 +65,7 @@ namespace SFServer.UI.Controllers
                 GoogleClientId = model.GoogleClientId,
                 GoogleClientSecret = model.GoogleClientSecret,
                 ClickHouseConnection = model.ClickHouseConnection,
+                GoogleServiceAccountJson = model.GoogleServiceAccountJson,
             };
             var response = await client.PutAsMessagePackAsync("ServerSettings", payload);
             if (!response.IsSuccessStatusCode)
