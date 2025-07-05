@@ -39,8 +39,10 @@ namespace SFServer.API.Controllers {
                 existing.GoogleClientId = updated.GoogleClientId;
                 existing.GoogleClientSecret = updated.GoogleClientSecret;
                 existing.ClickHouseConnection = updated.ClickHouseConnection;
-                dynamic parsedJson = JsonConvert.DeserializeObject(updated.GoogleServiceAccountJson);
-                existing.GoogleServiceAccountJson = parsedJson == null ? updated.GoogleServiceAccountJson : (string)JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+                if (string.IsNullOrEmpty(updated.GoogleServiceAccountJson) == false) {
+                    dynamic parsedJson = JsonConvert.DeserializeObject(updated.GoogleServiceAccountJson);
+                    existing.GoogleServiceAccountJson = parsedJson == null ? updated.GoogleServiceAccountJson : (string)JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+                }
             }
 
             await _db.SaveChangesAsync();
