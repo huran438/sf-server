@@ -16,18 +16,6 @@ namespace SFServer.API.Migrations
             migrationBuilder.EnsureSchema(
                 name: "dbo");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "UserProfileIndex",
-                schema: "dbo");
-
-            migrationBuilder.AddColumn<int>(
-                name: "Index",
-                table: "UserProfiles",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0)
-                .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
             migrationBuilder.CreateTable(
                 name: "InventoryItems",
                 columns: table => new
@@ -91,14 +79,6 @@ namespace SFServer.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "InventoryItems");
-
-            migrationBuilder.DropColumn(
-                name: "Index",
-                table: "UserProfiles");
-
-            migrationBuilder.DropSequence(
-                name: "UserProfileIndex",
-                schema: "dbo");
         }
     }
 }
