@@ -133,20 +133,57 @@
             <li class="page-item disabled"><span class="page-link">Previous</span></li>
         }
 
-        @for (int i = 1; i <= Model.TotalPages; i++)
+        @{
+            int startPage = Math.Max(1, Model.CurrentPage - 2);
+            int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+        }
+
+        @if (startPage > 1)
+        {
+            <li class="page-item @(Model.CurrentPage == 1 ? "active" : "")">
+                @if(Model.CurrentPage == 1)
+                {
+                    <span class="page-link">1</span>
+                }
+                else
+                {
+                    <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-search="@Model.SearchQuery" asp-route-sortColumn="@Model.SortColumn" asp-route-sortOrder="@Model.SortOrder">1</a>
+                }
+            </li>
+            @if (startPage > 2)
+            {
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+            }
+        }
+
+        @for (int i = startPage; i <= endPage; i++)
         {
             if (i == Model.CurrentPage)
             {
-                <li class="page-item active">
-                    <span class="page-link">@i</span>
-                </li>
+                <li class="page-item active"><span class="page-link">@i</span></li>
             }
             else
             {
-                <li class="page-item">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@Model.SearchQuery" asp-route-sortColumn="@Model.SortColumn" asp-route-sortOrder="@Model.SortOrder">@i</a>
-                </li>
+                <li class="page-item"><a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@Model.SearchQuery" asp-route-sortColumn="@Model.SortColumn" asp-route-sortOrder="@Model.SortOrder">@i</a></li>
             }
+        }
+
+        @if (endPage < Model.TotalPages)
+        {
+            @if (endPage < Model.TotalPages - 1)
+            {
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+            }
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "active" : "")">
+                @if(Model.CurrentPage == Model.TotalPages)
+                {
+                    <span class="page-link">@Model.TotalPages</span>
+                }
+                else
+                {
+                    <a class="page-link" asp-action="Index" asp-route-page="@Model.TotalPages" asp-route-search="@Model.SearchQuery" asp-route-sortColumn="@Model.SortColumn" asp-route-sortOrder="@Model.SortOrder">@Model.TotalPages</a>
+                }
+            </li>
         }
 
         @if (Model.CurrentPage < Model.TotalPages)
