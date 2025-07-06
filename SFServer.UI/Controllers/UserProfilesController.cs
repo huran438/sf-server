@@ -40,11 +40,16 @@ namespace SFServer.UI.Controllers
             return client;
         }
 
-        public async Task<IActionResult> Index(int page = 1, string search = "", string sortColumn = "Id", string sortOrder = "asc")
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 20, string search = "", string sortColumn = "Id", string sortOrder = "asc")
         {
             try
             {
                 using var client = GetAuthenticatedHttpClient();
+
+                if (pageSize <= 0)
+                {
+                    pageSize = 20;
+                }
 
                 // Retrieve profiles using MessagePack.
                 var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles");
@@ -73,7 +78,6 @@ namespace SFServer.UI.Controllers
                 };
 
                 // Pagination logic.
-                int pageSize = 20;
                 int totalProfiles = profiles.Count;
                 int totalPages = (int)Math.Ceiling(totalProfiles / (double)pageSize);
                 var pagedProfiles = profiles.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -83,6 +87,8 @@ namespace SFServer.UI.Controllers
                     Users = pagedProfiles,
                     CurrentPage = page,
                     TotalPages = totalPages,
+                    TotalCount = totalProfiles,
+                    PageSize = pageSize,
                     SearchQuery = search,
                     SortColumn = sortColumn,
                     SortOrder = sortOrder
