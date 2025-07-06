@@ -3,6 +3,10 @@
 @using SFServer.Shared.Server.UserProfile
 @inject IConfiguration Configuration
 @using SFServer.UI
+@inject ServerSettingsService SettingsService
+@{
+    var settings = await SettingsService.GetSettingsAsync();
+}
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
@@ -30,7 +34,7 @@
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light border-bottom box-shadow mb-3">
         <div class="container-fluid">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                @Configuration["SERVER_TITLE"]
+                @(settings?.ServerTitle ?? Configuration["SERVER_TITLE"])
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     aria-controls="navbarSupportedContent"
@@ -122,10 +126,6 @@
     </main>
 </div>
 
-@inject ServerSettingsService SettingsService
-@{
-    var settings = await SettingsService.GetSettingsAsync();
-}
 <footer class="footer border-top text-body-secondary bg-body-tertiary">
     <div class="container d-flex justify-content-between align-items-center flex-wrap py-3">
         <span>@settings?.ServerCopyright</span>

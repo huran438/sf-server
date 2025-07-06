@@ -160,6 +160,7 @@ using (var scope = app.Services.CreateScope())
         var settings = new SFServer.Shared.Server.Settings.ServerSettings
         {
             Id = Guid.NewGuid(),
+            ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
             GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
             ClickHouseConnection = config["CLICKHOUSE_CONNECTION"] ?? string.Empty,
