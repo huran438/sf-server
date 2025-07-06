@@ -83,6 +83,8 @@ namespace SFServer.UI.Controllers
                     Users = pagedProfiles,
                     CurrentPage = page,
                     TotalPages = totalPages,
+                    TotalCount = totalProfiles,
+                    PageSize = pageSize,
                     SearchQuery = search,
                     SortColumn = sortColumn,
                     SortOrder = sortOrder
