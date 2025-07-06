@@ -131,9 +131,9 @@
             <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
             <input type="hidden" name="page" value="1" />
             <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="10" @(Model.PageSize == 10 ? "selected" : "")>10</option>
-                <option value="20" @(Model.PageSize == 20 ? "selected" : "")>20</option>
-                <option value="50" @(Model.PageSize == 50 ? "selected" : "")>50</option>
+                <option value="10" selected="@(Model.PageSize == 10 ? "selected" : null)">10</option>
+                <option value="20" selected="@(Model.PageSize == 20 ? "selected" : null)">20</option>
+                <option value="50" selected="@(Model.PageSize == 50 ? "selected" : null)">50</option>
             </select>
         </form>
 
