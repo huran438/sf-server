@@ -7,6 +7,7 @@ namespace SFServer.Shared.Server.Settings
     public partial class ServerSettings
     {
         public Guid Id { get; set; }
+        public string ServerTitle { get; set; } = string.Empty;
         public string ServerCopyright { get; set; } = string.Empty;
         public string GoogleClientId { get; set; } = string.Empty;
         public string ClickHouseConnection { get; set; } = string.Empty;

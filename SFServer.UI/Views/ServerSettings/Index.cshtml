@@ -18,6 +18,10 @@
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <div class="mb-3">
+        <label asp-for="ServerTitle" class="form-label"></label>
+        <input asp-for="ServerTitle" class="form-control" />
+    </div>
+    <div class="mb-3">
         <label asp-for="ServerCopyright" class="form-label"></label>
         <input asp-for="ServerCopyright" class="form-control" />
     </div>

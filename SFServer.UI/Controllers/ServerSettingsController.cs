@@ -43,6 +43,7 @@ namespace SFServer.UI.Controllers
             var vm = new ServerSettingsViewModel
             {
                 Id = settings.Id,
+                ServerTitle = settings.ServerTitle,
                 ServerCopyright = settings.ServerCopyright,
                 GoogleClientId = settings.GoogleClientId,
                 ClickHouseConnection = settings.ClickHouseConnection,
@@ -63,6 +64,7 @@ namespace SFServer.UI.Controllers
             var payload = new ServerSettings
             {
                 Id = model.Id,
+                ServerTitle = model.ServerTitle,
                 ServerCopyright = model.ServerCopyright,
                 GoogleClientId = model.GoogleClientId,
                 GoogleClientSecret = model.GoogleClientSecret,

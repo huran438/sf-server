@@ -35,6 +35,7 @@ namespace SFServer.API.Controllers {
             }
             else
             {
+                existing.ServerTitle = updated.ServerTitle;
                 existing.ServerCopyright = updated.ServerCopyright;
                 existing.GoogleClientId = updated.GoogleClientId;
                 existing.GoogleClientSecret = updated.GoogleClientSecret;
