@@ -59,9 +59,15 @@ namespace SFServer.UI.Controllers
 
             var model = new AuditLogIndexViewModel
             {
-                Groups = groups
-                    .Where(kv => kv.Value.Count > 0)
-                    .Select(kv => new AuditLogRoleGroup { Role = kv.Key, Logs = kv.Value.OrderByDescending(l => l.Timestamp).ToList() })
+                Groups = Enum.GetValues(typeof(UserRole))
+                    .Cast<UserRole>()
+                    .Select(role => new AuditLogRoleGroup
+                    {
+                        Role = role,
+                        Logs = groups[role]
+                            .OrderByDescending(l => l.Timestamp)
+                            .ToList()
+                    })
                     .ToList()
             };
 
