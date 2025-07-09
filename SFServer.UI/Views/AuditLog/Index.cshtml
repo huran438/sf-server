@@ -1,0 +1,30 @@
+@model List<SFServer.Shared.Server.Audit.AuditLogEntry>
+@{
+    ViewData["Title"] = "Audit Log";
+}
+
+<h1>Audit Log</h1>
+
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var log in Model)
+    {
+        <tr>
+            <td>@log.Timestamp.ToString("u")</td>
+            <td>@log.UserId</td>
+            <td>@log.Method</td>
+            <td>@log.Path</td>
+            <td>@log.StatusCode</td>
+        </tr>
+    }
+    </tbody>
+</table>

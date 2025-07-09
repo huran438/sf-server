@@ -1,0 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using SFServer.Shared.Server.Audit;
+
+namespace SFServer.UI.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class AuditLogController : Controller
+    {
+        private readonly IConfiguration _config;
+
+        public AuditLogController(IConfiguration config)
+        {
+            _config = config;
+        }
+
+        private HttpClient GetClient()
+        {
+            var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
+            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+            return client;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            using var client = GetClient();
+            var logs = await client.GetFromMessagePackAsync<List<AuditLogEntry>>("AuditLog?count=100");
+            return View(logs);
+        }
+    }
+}

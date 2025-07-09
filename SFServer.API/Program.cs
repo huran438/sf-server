@@ -176,6 +176,6 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseMiddleware<SFServer.API.Utils.AuditLogMiddleware>();
 app.UseAuthorization();
-app.MapControllers();
-app.Run();
+app.MapControllers();app.Run();
