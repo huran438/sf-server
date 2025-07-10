@@ -6,6 +6,14 @@
 
 <h1>Audit Log</h1>
 
+<div class="mb-3">
+    <form asp-action="Clear" method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-danger btn-sm">Clear</button>
+    </form>
+    <a asp-action="Export" class="btn btn-secondary btn-sm ms-2">Export</a>
+</div>
+
 <ul class="nav nav-tabs" id="roleTabs" role="tablist">
 @for (int i = 0; i < Model.Groups.Count; i++)
 {

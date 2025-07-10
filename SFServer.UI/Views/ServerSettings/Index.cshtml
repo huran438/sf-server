@@ -5,6 +5,12 @@
 
 <h1>Server Settings</h1>
 
+<div class="mb-3">
+    <a asp-controller="AuditLog" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-clipboard-data"></i> View Audit Log
+    </a>
+</div>
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>

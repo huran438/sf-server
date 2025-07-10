@@ -73,5 +73,35 @@ namespace SFServer.UI.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Clear()
+        {
+            using var client = GetClient();
+            var response = await client.DeleteAsync("AuditLog");
+            if (response.IsSuccessStatusCode)
+                TempData["Success"] = "Audit log cleared.";
+            else
+                TempData["Error"] = "Failed to clear audit log.";
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Export()
+        {
+            using var client = GetClient();
+            var response = await client.GetAsync("AuditLog/export");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to export audit log.";
+                return RedirectToAction("Index");
+            }
+
+            var fileBytes = await response.Content.ReadAsByteArrayAsync();
+            var fileName = response.Content.Headers.ContentDisposition?.FileNameStar ??
+                           response.Content.Headers.ContentDisposition?.FileName ??
+                           "auditlog.csv";
+            return File(fileBytes, "text/csv", fileName);
+        }
     }
 }

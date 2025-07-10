@@ -30,5 +30,26 @@ namespace SFServer.API.Controllers
                 .ToListAsync();
             return Ok(logs);
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> Clear()
+        {
+            _db.AuditLogs.RemoveRange(_db.AuditLogs);
+            await _db.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> Export()
+        {
+            var logs = await _db.AuditLogs
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+
+            var csvLines = logs.Select(l => $"{l.Timestamp:O},{l.UserId},{l.Method},{l.Path},{l.StatusCode}");
+            var csv = string.Join("\n", csvLines);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(csv);
+            return File(bytes, "text/csv", $"auditlog_{DateTime.UtcNow:yyyyMMddHHmmss}.csv");
+        }
     }
 }
