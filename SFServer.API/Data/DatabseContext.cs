@@ -4,6 +4,7 @@ using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
 using SFServer.Shared.Server.Settings;
+using SFServer.Shared.Server.Audit;
 
 namespace SFServer.API.Data
 {
@@ -25,6 +26,8 @@ namespace SFServer.API.Data
         public DbSet<UserSession> UserSessions { get; set; }
 
         public DbSet<ServerSettings> ServerSettings { get; set; }
+
+        public DbSet<SFServer.Shared.Server.Audit.AuditLogEntry> AuditLogs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
