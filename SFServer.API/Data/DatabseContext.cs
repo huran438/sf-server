@@ -27,7 +27,7 @@ namespace SFServer.API.Data
 
         public DbSet<ServerSettings> ServerSettings { get; set; }
 
-        public DbSet<SFServer.Shared.Server.Audit.AuditLogEntry> AuditLogs { get; set; }
+        public DbSet<AuditLogEntry> AuditLogs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

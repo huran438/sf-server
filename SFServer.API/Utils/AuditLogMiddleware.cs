@@ -25,6 +25,8 @@ namespace SFServer.API.Utils
             {
                 userIdString = headerUserId.ToString();
             }
+            
+            Console.WriteLine("User Id: " + userIdString);
 
             var entry = new AuditLogEntry
             {

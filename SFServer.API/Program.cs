@@ -16,6 +16,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+DotNetEnv.Env.Load(); 
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables() // includes .env if loaded
+    .AddCommandLine(args);
+
+// var port = Environment.GetEnvironmentVariable("API_PORT");
+// builder.WebHost.UseUrls($"http://*:{port}");
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -27,7 +39,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
-builder.Services.AddScoped<SFServer.API.Services.InventoryService>();
+builder.Services.AddScoped<InventoryService>();
 builder.Services.AddSingleton<IAnalyticsService>(sp => new ClickHouseAnalyticsService(builder.Configuration.GetConnectionString("ClickHouse")!));
 
 builder.Services.AddControllers()
@@ -125,10 +137,9 @@ using (var scope = app.Services.CreateScope())
 
     var adminUsername = config["ADMIN_USERNAME"];
     var adminEmail = config["ADMIN_EMAIL"];
-    var adminRole = Enum.GetName(UserRole.Admin);
 
     // Only create if admin doesn't exist
-    if (!context.UserProfiles.Any(u => u.Email == adminEmail))
+    if (!context.UserProfiles.Any(u => u.Role == UserRole.Admin))
     {
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<UserProfile>>();
 
@@ -137,7 +148,7 @@ using (var scope = app.Services.CreateScope())
             Id = Guid.CreateVersion7(),
             Username = adminUsername,
             Email = adminEmail,
-            Role = Enum.TryParse<UserRole>(adminRole, out var role) ? role : UserRole.Admin,
+            Role = UserRole.Admin,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -176,6 +187,6 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseMiddleware<SFServer.API.Utils.AuditLogMiddleware>();
+app.UseMiddleware<AuditLogMiddleware>();
 app.UseAuthorization();
 app.MapControllers();app.Run();

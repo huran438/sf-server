@@ -33,7 +33,7 @@ namespace SFServer.UI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var httpClient = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
+            var httpClient = User.CreateApiClient(_config);
 
             try
             {

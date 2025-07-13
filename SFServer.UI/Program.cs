@@ -14,6 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+DotNetEnv.Env.Load(); 
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables() // includes .env if loaded
+    .AddCommandLine(args);
+
+// var port = Environment.GetEnvironmentVariable("UI_PORT");
+// builder.WebHost.UseUrls($"http://*:{port}");
+
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/var/app-keys"))
     .SetApplicationName("SecretGameBackend");

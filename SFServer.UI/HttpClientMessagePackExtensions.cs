@@ -34,6 +34,7 @@ namespace SFServer.UI
             if (!string.IsNullOrEmpty(userId))
             {
                 client.DefaultRequestHeaders.Add("UserId", userId);
+                Console.WriteLine("UserId" + userId);
             }
 
             return client;
