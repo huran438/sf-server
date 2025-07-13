@@ -20,10 +20,16 @@ namespace SFServer.API.Utils
         {
             await _next(context);
 
+            var userIdString = context.User?.FindFirstValue("UserId");
+            if (string.IsNullOrEmpty(userIdString) && context.Request.Headers.TryGetValue("UserId", out var headerUserId))
+            {
+                userIdString = headerUserId.ToString();
+            }
+
             var entry = new AuditLogEntry
             {
                 Id = Guid.CreateVersion7(),
-                UserId = context.User?.FindFirstValue("UserId") is string uid && Guid.TryParse(uid, out var g) ? g : null,
+                UserId = Guid.TryParse(userIdString, out var g) ? g : null,
                 Path = context.Request.Path,
                 Method = context.Request.Method,
                 StatusCode = context.Response.StatusCode,
