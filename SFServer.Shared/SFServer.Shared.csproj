@@ -18,8 +18,9 @@
       <PackageReference Include="MemoryPack.UnityShims" Version="1.21.4" />
     </ItemGroup>
 
-    <ItemGroup>
+  <ItemGroup>
       <Folder Include="Server\Analytics\" />
-    </ItemGroup>
+      <Folder Include="Server\Audit\" />
+  </ItemGroup>
 
 </Project>

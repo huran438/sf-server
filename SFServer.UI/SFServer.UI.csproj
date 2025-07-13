@@ -19,9 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="MemoryPack" Version="1.21.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
-    <PackageReference Include="ZLinq" Version="1.4.12" />
+    <PackageReference Include="ZLinq" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>

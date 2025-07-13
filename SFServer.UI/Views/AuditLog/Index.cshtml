@@ -1,0 +1,88 @@
+@model SFServer.UI.Models.AuditLogs.AuditLogIndexViewModel
+@{
+    ViewData["Title"] = "Audit Log";
+}
+
+<h1>Audit Log</h1>
+
+<div class="mb-3">
+    <form asp-action="Clear" method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-danger btn-sm">Clear</button>
+    </form>
+    <a asp-action="Export" class="btn btn-secondary btn-sm ms-2">Export</a>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stored = localStorage.getItem('activeAuditTab');
+            if (stored) {
+                const trigger = document.querySelector(`#${stored}-tab`);
+                if (trigger) {
+                    bootstrap.Tab.getOrCreateInstance(trigger).show();
+                }
+            }
+
+            document.querySelectorAll('#roleTabs button[data-bs-toggle="tab"]').forEach(function (btn) {
+                btn.addEventListener('shown.bs.tab', function (event) {
+                    const target = event.target.getAttribute('data-bs-target');
+                    if (target) {
+                        localStorage.setItem('activeAuditTab', target.substring(1));
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<ul class="nav nav-tabs" id="roleTabs" role="tablist">
+@for (int i = 0; i < Model.Groups.Count; i++)
+{
+    var g = Model.Groups[i];
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(i == 0 ? "active" : "")" id="@g.Role-tab" data-bs-toggle="tab" data-bs-target="#@g.Role" type="button" role="tab">@g.Role</button>
+    </li>
+}
+</ul>
+
+<div class="tab-content mt-3" id="roleTabsContent">
+@for (int i = 0; i < Model.Groups.Count; i++)
+{
+    var g = Model.Groups[i];
+    <div class="tab-pane fade @(i == 0 ? "show active" : "")" id="@g.Role" role="tabpanel" aria-labelledby="@g.Role-tab">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>UserId</th>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var log in g.Logs)
+            {
+                <tr>
+                    <td>@log.Timestamp.ToString("u")</td>
+                    <td>
+                        @if (log.UserId.HasValue)
+                        {
+                            <a asp-controller="UserProfiles" asp-action="Edit" asp-route-id="@log.UserId">@log.UserId</a>
+                        }
+                        else
+                        {
+                            <span>Anonymous</span>
+                        }
+                    </td>
+                    <td>@log.Method</td>
+                    <td>@log.Path</td>
+                    <td>@log.StatusCode</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+</div>

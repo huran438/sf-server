@@ -2,8 +2,11 @@
 using System.Net.Http.Headers;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
 using MemoryPack;
 using MemoryPack.Compression;
 
@@ -16,6 +19,26 @@ namespace SFServer.UI
 
         // Configure MessagePack options to use ContractlessStandardResolver.
         private static readonly MemoryPackSerializerOptions DefaultOptions = MemoryPackSerializerOptions.Default;
+
+        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config)
+        {
+            var client = new HttpClient { BaseAddress = new Uri(config["API_BASE_URL"]) };
+
+            var token = user.FindFirst("JwtToken")?.Value;
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var userId = user.FindFirst("UserId")?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                client.DefaultRequestHeaders.Add("UserId", userId);
+                Console.WriteLine("UserId" + userId);
+            }
+
+            return client;
+        }
 
         /// <summary>
         /// Sends a POST request with a MessagePack-serialized body and returns an HttpResponseMessage.
