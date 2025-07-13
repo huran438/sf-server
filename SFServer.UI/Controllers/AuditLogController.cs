@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Audit;
 using SFServer.Shared.Server.UserProfile;
+using SFServer.UI;
 using SFServer.UI.Models.AuditLogs;
 
 namespace SFServer.UI.Controllers
@@ -24,13 +25,7 @@ namespace SFServer.UI.Controllers
 
         private HttpClient GetClient()
         {
-            var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
-            var token = User.Claims.FirstOrDefault(c => c.Type == "JwtToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-            {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-            return client;
+            return User.CreateApiClient(_config);
         }
 
         public async Task<IActionResult> Index()

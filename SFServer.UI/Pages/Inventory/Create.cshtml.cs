@@ -4,9 +4,9 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SFServer.Shared.Server.Inventory;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using SFServer.UI;
 
 namespace SFServer.UI.Pages.Inventory
 {
@@ -27,11 +27,7 @@ namespace SFServer.UI.Pages.Inventory
 
         private HttpClient GetClient()
         {
-            var client = new HttpClient { BaseAddress = new Uri(_config["API_BASE_URL"]) };
-            var token = User.FindFirst("JwtToken")?.Value;
-            if (!string.IsNullOrEmpty(token))
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            return client;
+            return User.CreateApiClient(_config);
         }
 
         public void OnGet()
