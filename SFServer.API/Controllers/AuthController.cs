@@ -483,9 +483,13 @@ namespace SFServer.API.Controllers
             }
 
             // Получаем текущего пользователя
-            var userIdClaim = User.FindFirst("UserId")?.Value;
-            if (!Guid.TryParse(userIdClaim, out Guid userId))
-                return Unauthorized("Invalid or missing UserId claim.");
+            var userIdValue = Request.Headers[Headers.UID].FirstOrDefault();
+            if (string.IsNullOrEmpty(userIdValue))
+            {
+                userIdValue = User.FindFirst("UserId")?.Value;
+            }
+            if (!Guid.TryParse(userIdValue, out Guid userId))
+                return Unauthorized("Invalid or missing UserId.");
 
             var user = await _db.UserProfiles.FindAsync(userId);
             if (user == null)
