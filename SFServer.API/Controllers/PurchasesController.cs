@@ -7,6 +7,7 @@ using SFServer.Shared.Client.Purchases;
 using SFServer.API.Data;
 using Microsoft.EntityFrameworkCore;
 using SFServer.Shared.Server.Inventory;
+using SFServer.API.Services;
 
 namespace SFServer.API.Controllers;
 
@@ -17,11 +18,13 @@ public class PurchasesController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly DatabseContext _db;
+    private readonly InventoryService _inventoryService;
 
     public PurchasesController(IConfiguration config, DatabseContext db)
     {
         _config = config;
         _db = db;
+        _inventoryService = new InventoryService(db);
     }
 
     [HttpPost("validate-android")]
@@ -68,20 +71,9 @@ public class PurchasesController : ControllerBase
                     var item = await _db.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == request.ProductId);
                     if (item != null)
                     {
-                        var existing = await _db.PlayerInventoryItems.FirstOrDefaultAsync(p => p.UserId == userId && p.ItemId == item.Id);
-                        if (existing != null)
-                            existing.Amount += 1;
-                        else
-                        {
-                            _db.PlayerInventoryItems.Add(new PlayerInventoryItem
-                            {
-                                Id = Guid.NewGuid(),
-                                UserId = userId,
-                                ItemId = item.Id,
-                                Amount = 1
-                            });
-                        }
+                        await _inventoryService.AddItemsToPlayerAsync(userId, item.Id, 1);
                         await _db.SaveChangesAsync();
+                        await _inventoryService.AutoUnpackPlayerInventoryAsync(userId);
                     }
                 }
             }

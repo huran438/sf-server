@@ -74,5 +74,13 @@ namespace SFServer.API.Controllers
             await _service.UpdatePlayerInventoryAsync(playerId, items);
             return NoContent();
         }
+
+        [HttpPost("/player/{playerId}/inventory/{itemId}/unpack")]
+        public async Task<IActionResult> UnpackItem(Guid playerId, Guid itemId)
+        {
+            var success = await _service.UnpackItemAsync(playerId, itemId);
+            if (!success) return BadRequest();
+            return NoContent();
+        }
     }
 }

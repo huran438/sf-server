@@ -7,6 +7,7 @@ using SFServer.Shared.Server.Inventory;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using SFServer.UI;
+using System.Collections.Generic;
 
 namespace SFServer.UI.Pages.Inventory
 {
@@ -25,6 +26,9 @@ namespace SFServer.UI.Pages.Inventory
         [BindProperty]
         public string Tags { get; set; }
 
+        [BindProperty]
+        public string DropJson { get; set; }
+
         private HttpClient GetClient()
         {
             return User.CreateApiClient(_config);
@@ -42,6 +46,19 @@ namespace SFServer.UI.Pages.Inventory
                 Item.Tags = Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim())
                     .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(DropJson))
+            {
+                try
+                {
+                    Item.Drop = System.Text.Json.JsonSerializer.Deserialize<List<InventoryDropEntry>>(DropJson) ?? new();
+                }
+                catch
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid drop JSON");
+                    return Page();
+                }
             }
 
             var response = await http.PostMessagePackAsync("Inventory", Item);

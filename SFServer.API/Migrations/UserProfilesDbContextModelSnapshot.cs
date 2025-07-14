@@ -99,6 +99,12 @@ namespace SFServer.API.Migrations
                     b.PrimitiveCollection<List<string>>("Tags")
                         .HasColumnType("text[]");
 
+                    b.Property<string>("Drop")
+                        .HasColumnType("jsonb");
+
+                    b.Property<bool>("AutoUnpack")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Title")
                         .HasColumnType("text");
 

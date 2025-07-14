@@ -26,6 +26,9 @@ namespace SFServer.UI.Pages.Inventory
         [BindProperty]
         public string Tags { get; set; }
 
+        [BindProperty]
+        public string DropJson { get; set; }
+
         private HttpClient GetClient()
         {
             return User.CreateApiClient(_config);
@@ -36,6 +39,7 @@ namespace SFServer.UI.Pages.Inventory
             using var http = GetClient();
             Item = await http.GetFromMessagePackAsync<InventoryItem>($"Inventory/{id}");
             Tags = Item.Tags != null && Item.Tags.Count > 0 ? string.Join(", ", Item.Tags) : string.Empty;
+            DropJson = Item.Drop != null && Item.Drop.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(Item.Drop) : string.Empty;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -51,6 +55,19 @@ namespace SFServer.UI.Pages.Inventory
             else
             {
                 Item.Tags = new List<string>();
+            }
+
+            if (!string.IsNullOrWhiteSpace(DropJson))
+            {
+                try
+                {
+                    Item.Drop = System.Text.Json.JsonSerializer.Deserialize<List<InventoryDropEntry>>(DropJson) ?? new();
+                }
+                catch
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid drop JSON");
+                    return Page();
+                }
             }
 
             await http.PutAsMessagePackAsync($"Inventory/{Item.Id}", Item);

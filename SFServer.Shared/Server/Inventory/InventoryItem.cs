@@ -19,5 +19,14 @@ namespace SFServer.Shared.Server.Inventory
         public bool IsAvailableToBuy { get; set; }
         public bool IsAvailableToDrop { get; set; }
         public List<string> Tags { get; set; } = new();
+        /// <summary>
+        /// Rewards that will be granted when this item is unpacked.
+        /// </summary>
+        public List<InventoryDropEntry> Drop { get; set; } = new();
+
+        /// <summary>
+        /// If true the item will be automatically unpacked when added to a player's inventory.
+        /// </summary>
+        public bool AutoUnpack { get; set; }
     }
 }
