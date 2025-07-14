@@ -1,11 +1,11 @@
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace SFServer.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddInventoryItemDrop : Migration
+    public partial class AddInventoryItemDropProper : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,6 +22,7 @@ namespace SFServer.API.Migrations
                 table: "InventoryItems",
                 type: "jsonb",
                 nullable: true);
+
         }
 
         /// <inheritdoc />
@@ -34,6 +35,7 @@ namespace SFServer.API.Migrations
             migrationBuilder.DropColumn(
                 name: "Drop",
                 table: "InventoryItems");
+
         }
     }
 }
