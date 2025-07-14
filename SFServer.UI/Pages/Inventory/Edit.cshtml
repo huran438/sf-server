@@ -64,7 +64,10 @@
 </form>
 @section Scripts {
 <script>
-    const headers = jwtToken ? { 'Authorization': 'Bearer ' + jwtToken } : {};
+    const headers = jwtToken ? {
+        'Authorization': 'Bearer ' + jwtToken,
+        'Accept': 'application/json'
+    } : { 'Accept': 'application/json' };
     let items = [];
     let currencies = [];
     let drops = [];
@@ -79,7 +82,7 @@
     }
 
     function optionHtml(list, selected) {
-        return list.map(i => `<option value="${i.id}" ${i.id===selected?'selected':''}>${i.title}</option>`).join('');
+        return list.map(i => `<option value="${i.Id}" ${i.Id===selected?'selected':''}>${i.Title}</option>`).join('');
     }
 
     function updateHidden() {
@@ -90,7 +93,7 @@
         const tbody = document.querySelector('#dropTable tbody');
         tbody.innerHTML = '';
         drops.forEach((d, idx) => {
-            const type = d.itemId ? 'Item' : 'Currency';
+            const type = d.ItemId ? 'Item' : 'Currency';
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
@@ -113,14 +116,16 @@
             const currencySelect = tr.querySelector('select.currency');
             itemSelect.style.display = type === 'Item' ? 'block' : 'none';
             currencySelect.style.display = type === 'Currency' ? 'block' : 'none';
-            itemSelect.innerHTML = optionHtml(items, d.itemId);
-            currencySelect.innerHTML = optionHtml(currencies, d.currencyId);
+            itemSelect.innerHTML = optionHtml(items, d.ItemId);
+            currencySelect.innerHTML = optionHtml(currencies, d.CurrencyId);
         });
         updateHidden();
     }
 
     function addDrop() {
-        const entry = items.length > 0 ? { itemId: items[0].id, currencyId: null, amount: 1 } : { itemId: null, currencyId: currencies[0]?.id ?? null, amount: 1 };
+        const entry = items.length > 0
+            ? { ItemId: items[0].Id, CurrencyId: null, Amount: 1 }
+            : { ItemId: null, CurrencyId: currencies[0]?.Id ?? null, Amount: 1 };
         drops.push(entry);
         render();
     }
@@ -131,21 +136,21 @@
         const entry = drops[Number(idx)];
         if (e.target.classList.contains('type')) {
             if (e.target.value === 'Item') {
-                entry.itemId = items[0]?.id ?? null;
-                entry.currencyId = null;
+                entry.ItemId = items[0]?.Id ?? null;
+                entry.CurrencyId = null;
             } else {
-                entry.currencyId = currencies[0]?.id ?? null;
-                entry.itemId = null;
+                entry.CurrencyId = currencies[0]?.Id ?? null;
+                entry.ItemId = null;
             }
             render();
         } else if (e.target.classList.contains('item')) {
-            entry.itemId = e.target.value;
+            entry.ItemId = e.target.value;
             updateHidden();
         } else if (e.target.classList.contains('currency')) {
-            entry.currencyId = e.target.value;
+            entry.CurrencyId = e.target.value;
             updateHidden();
         } else if (e.target.classList.contains('amount')) {
-            entry.amount = parseInt(e.target.value) || 0;
+            entry.Amount = parseInt(e.target.value) || 0;
             updateHidden();
         }
     });
