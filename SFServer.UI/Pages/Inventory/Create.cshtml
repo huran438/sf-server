@@ -99,7 +99,8 @@
                     </select>
                 </td>
                 <td>
-                    <select class="form-select form-select-sm reward" data-index="${idx}"></select>
+                    <select class="form-select form-select-sm item" data-index="${idx}" style="display:${type==='Item'?'block':'none'}"></select>
+                    <select class="form-select form-select-sm currency" data-index="${idx}" style="display:${type==='Currency'?'block':'none'}"></select>
                 </td>
                 <td>
                     <input type="number" min="1" class="form-control form-control-sm amount" data-index="${idx}" value="${d.amount}">
@@ -107,12 +108,10 @@
                 <td><button type="button" class="btn btn-sm btn-danger remove" data-index="${idx}">Remove</button></td>`;
             tbody.appendChild(tr);
 
-            const rewardSelect = tr.querySelector('select.reward');
-            if (type === 'Item') {
-                rewardSelect.innerHTML = optionHtml(items, d.itemId);
-            } else {
-                rewardSelect.innerHTML = optionHtml(currencies, d.currencyId);
-            }
+            const itemSelect = tr.querySelector('select.item');
+            const currencySelect = tr.querySelector('select.currency');
+            itemSelect.innerHTML = optionHtml(items, d.itemId);
+            currencySelect.innerHTML = optionHtml(currencies, d.currencyId);
         });
         updateHidden();
     }
@@ -136,8 +135,11 @@
                 entry.itemId = null;
             }
             render();
-        } else if (e.target.classList.contains('reward')) {
-            if (entry.itemId !== null) entry.itemId = e.target.value; else entry.currencyId = e.target.value;
+        } else if (e.target.classList.contains('item')) {
+            entry.itemId = e.target.value;
+            updateHidden();
+        } else if (e.target.classList.contains('currency')) {
+            entry.currencyId = e.target.value;
             updateHidden();
         } else if (e.target.classList.contains('amount')) {
             entry.amount = parseInt(e.target.value) || 0;
