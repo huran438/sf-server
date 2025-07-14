@@ -41,6 +41,26 @@ namespace SFServer.UI.Pages.Inventory
             public int Amount { get; set; } = 1;
         }
 
+        public IEnumerable<InventoryItem> GetItemOptions(Guid? current)
+        {
+            var used = DropEntries
+                .Where(d => d.Type == "Item" && d.ItemId.HasValue && d.ItemId != current)
+                .Select(d => d.ItemId!.Value)
+                .ToHashSet();
+            return Items.Where(i => !used.Contains(i.Id));
+        }
+
+        public IEnumerable<Currency> GetCurrencyOptions(Guid? current)
+        {
+            var used = DropEntries
+                .Where(d => d.Type == "Currency" && d.CurrencyId.HasValue && d.CurrencyId != current)
+                .Select(d => d.CurrencyId!.Value)
+                .ToHashSet();
+            return Currencies.Where(c => !used.Contains(c.Id));
+        }
+
+        public bool CanAddDrop => GetItemOptions(null).Any() || GetCurrencyOptions(null).Any();
+
         private HttpClient GetClient()
         {
             return User.CreateApiClient(_config);
@@ -62,7 +82,29 @@ namespace SFServer.UI.Pages.Inventory
         {
             await LoadListsAsync();
             DropEntries ??= new();
-            DropEntries.Add(new DropEntryVm { Type = Items.Any() ? "Item" : "Currency", ItemId = Items.FirstOrDefault()?.Id, CurrencyId = Currencies.FirstOrDefault()?.Id, Amount = 1 });
+
+            var availableItems = GetItemOptions(null).ToList();
+            var availableCurrencies = GetCurrencyOptions(null).ToList();
+
+            if (availableItems.Count == 0 && availableCurrencies.Count == 0)
+            {
+                ModelState.Clear();
+                return Page();
+            }
+
+            var entry = new DropEntryVm();
+            if (availableItems.Count > 0)
+            {
+                entry.Type = "Item";
+                entry.ItemId = availableItems.First().Id;
+            }
+            else
+            {
+                entry.Type = "Currency";
+                entry.CurrencyId = availableCurrencies.First().Id;
+            }
+
+            DropEntries.Add(entry);
             ModelState.Clear();
             return Page();
         }
@@ -88,12 +130,15 @@ namespace SFServer.UI.Pages.Inventory
 
             if (DropEntries != null)
             {
-                Item.Drop = DropEntries.Select(d => new InventoryDropEntry
-                {
-                    ItemId = d.Type == "Item" ? d.ItemId : null,
-                    CurrencyId = d.Type == "Currency" ? d.CurrencyId : null,
-                    Amount = d.Amount
-                }).ToList();
+                Item.Drop = DropEntries
+                    .GroupBy(d => new { d.ItemId, d.CurrencyId })
+                    .Select(g => new InventoryDropEntry
+                    {
+                        ItemId = g.Key.ItemId,
+                        CurrencyId = g.Key.CurrencyId,
+                        Amount = g.First().Amount
+                    })
+                    .ToList();
             }
 
             var response = await http.PostMessagePackAsync("Inventory", Item);

@@ -63,13 +63,13 @@
                     </td>
                     <td>
                         <select name="DropEntries[@i].ItemId" class="form-select form-select-sm item-select" style="display:@(Model.DropEntries[i].Type == "Item" ? "block" : "none")">
-                            @foreach (var it in Model.Items)
+                            @foreach (var it in Model.GetItemOptions(Model.DropEntries[i].ItemId))
                             {
                                 <option value="@it.Id" selected="@(Model.DropEntries[i].ItemId == it.Id ? "selected" : null)">@it.Title</option>
                             }
                         </select>
                         <select name="DropEntries[@i].CurrencyId" class="form-select form-select-sm currency-select" style="display:@(Model.DropEntries[i].Type == "Currency" ? "block" : "none")">
-                            @foreach (var cur in Model.Currencies)
+                            @foreach (var cur in Model.GetCurrencyOptions(Model.DropEntries[i].CurrencyId))
                             {
                                 <option value="@cur.Id" selected="@(Model.DropEntries[i].CurrencyId == cur.Id ? "selected" : null)">@cur.Title</option>
                             }
@@ -85,7 +85,7 @@
             }
             </tbody>
         </table>
-        <button type="submit" asp-page-handler="AddDrop" class="btn btn-sm btn-secondary">Add</button>
+        <button type="submit" asp-page-handler="AddDrop" class="btn btn-sm btn-secondary" disabled="@(Model.CanAddDrop ? null : "disabled")">Add</button>
     </div>
     <div class="form-check mb-3">
         <input class="form-check-input" asp-for="Item.AutoUnpack" />
