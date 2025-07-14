@@ -41,8 +41,20 @@
         <input id="tagsInput" class="form-control" asp-for="Tags" />
     </div>
     <div class="mb-3">
-        <label class="form-label" asp-for="DropJson">Drop (JSON)</label>
-        <textarea class="form-control" asp-for="DropJson"></textarea>
+        <label class="form-label">Drop</label>
+        <table class="table table-sm" id="dropTable">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Item/Currency</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button type="button" id="addDropBtn" class="btn btn-sm btn-secondary">Add</button>
+        <input type="hidden" asp-for="DropJson" id="DropJson" />
     </div>
     <div class="form-check mb-3">
         <input class="form-check-input" asp-for="Item.AutoUnpack" />
@@ -50,3 +62,104 @@
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+@section Scripts {
+<script>
+    const headers = jwtToken ? { 'Authorization': 'Bearer ' + jwtToken } : {};
+    let items = [];
+    let currencies = [];
+    let drops = [];
+
+    async function loadData() {
+        const [itResp, curResp] = await Promise.all([
+            fetch(apiBaseUrl + 'Inventory', { headers }),
+            fetch(apiBaseUrl + 'Currency', { headers })
+        ]);
+        if (itResp.ok) items = await itResp.json();
+        if (curResp.ok) currencies = await curResp.json();
+    }
+
+    function optionHtml(list, selected) {
+        return list.map(i => `<option value="${i.id}" ${i.id===selected?'selected':''}>${i.title}</option>`).join('');
+    }
+
+    function updateHidden() {
+        document.getElementById('DropJson').value = JSON.stringify(drops);
+    }
+
+    function render() {
+        const tbody = document.querySelector('#dropTable tbody');
+        tbody.innerHTML = '';
+        drops.forEach((d, idx) => {
+            const type = d.itemId ? 'Item' : 'Currency';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <select class="form-select form-select-sm type" data-index="${idx}">
+                        <option value="Item" ${type==='Item'?'selected':''}>Item</option>
+                        <option value="Currency" ${type==='Currency'?'selected':''}>Currency</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm reward" data-index="${idx}"></select>
+                </td>
+                <td>
+                    <input type="number" min="1" class="form-control form-control-sm amount" data-index="${idx}" value="${d.amount}">
+                </td>
+                <td><button type="button" class="btn btn-sm btn-danger remove" data-index="${idx}">Remove</button></td>`;
+            tbody.appendChild(tr);
+
+            const rewardSelect = tr.querySelector('select.reward');
+            if (type === 'Item') {
+                rewardSelect.innerHTML = optionHtml(items, d.itemId);
+            } else {
+                rewardSelect.innerHTML = optionHtml(currencies, d.currencyId);
+            }
+        });
+        updateHidden();
+    }
+
+    function addDrop() {
+        const entry = items.length > 0 ? { itemId: items[0].id, currencyId: null, amount: 1 } : { itemId: null, currencyId: currencies[0]?.id ?? null, amount: 1 };
+        drops.push(entry);
+        render();
+    }
+
+    document.addEventListener('change', function(e) {
+        const idx = e.target.getAttribute('data-index');
+        if (idx === null) return;
+        const entry = drops[Number(idx)];
+        if (e.target.classList.contains('type')) {
+            if (e.target.value === 'Item') {
+                entry.itemId = items[0]?.id ?? null;
+                entry.currencyId = null;
+            } else {
+                entry.currencyId = currencies[0]?.id ?? null;
+                entry.itemId = null;
+            }
+            render();
+        } else if (e.target.classList.contains('reward')) {
+            if (entry.itemId !== null) entry.itemId = e.target.value; else entry.currencyId = e.target.value;
+            updateHidden();
+        } else if (e.target.classList.contains('amount')) {
+            entry.amount = parseInt(e.target.value) || 0;
+            updateHidden();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'addDropBtn') {
+            addDrop();
+        } else if (e.target.classList.contains('remove')) {
+            const idx = Number(e.target.getAttribute('data-index'));
+            drops.splice(idx, 1);
+            render();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadData();
+        try { drops = JSON.parse(@Html.Raw(Model.DropJson ?? "[]")); } catch { drops = []; }
+        render();
+    });
+</script>
+}
