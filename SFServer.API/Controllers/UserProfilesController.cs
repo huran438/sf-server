@@ -138,7 +138,12 @@ namespace SFServer.API.Controllers
             existing.DebugMode = updated.DebugMode;
 
             // Determine if current user is trying to change someone else's password
-            bool isSelf = User.FindFirst("UserId")?.Value == existing.Id.ToString();
+            var currentUserId = Request.Headers[Headers.UID].FirstOrDefault();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                currentUserId = User.FindFirst("UserId")?.Value;
+            }
+            bool isSelf = currentUserId == existing.Id.ToString();
             bool isAdmin = User.IsInRole("Admin");
 
             if (!string.IsNullOrEmpty(updated.PasswordHash))

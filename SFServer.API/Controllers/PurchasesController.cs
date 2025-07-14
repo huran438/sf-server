@@ -58,8 +58,12 @@ public class PurchasesController : ControllerBase
 
             if (result.PurchaseState == 0)
             {
-                var userIdClaim = User.FindFirst("UserId")?.Value;
-                if (Guid.TryParse(userIdClaim, out var userId))
+                var userIdValue = Request.Headers[Headers.UID].FirstOrDefault();
+                if (string.IsNullOrEmpty(userIdValue))
+                {
+                    userIdValue = User.FindFirst("UserId")?.Value;
+                }
+                if (Guid.TryParse(userIdValue, out var userId))
                 {
                     var item = await _db.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == request.ProductId);
                     if (item != null)

@@ -20,10 +20,14 @@ namespace SFServer.API.Utils
         {
             await _next(context);
 
-            var userIdString = context.User?.FindFirstValue("UserId");
-            if (string.IsNullOrEmpty(userIdString) && context.Request.Headers.TryGetValue("UserId", out var headerUserId))
+            string userIdString = null;
+            if (context.Request.Headers.TryGetValue(Headers.UID, out var headerUserId))
             {
                 userIdString = headerUserId.ToString();
+            }
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                userIdString = context.User?.FindFirstValue("UserId");
             }
             
             Console.WriteLine("User Id: " + userIdString);
