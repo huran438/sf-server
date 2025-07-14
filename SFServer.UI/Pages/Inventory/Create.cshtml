@@ -90,7 +90,7 @@
         <input class="form-check-input" asp-for="Item.AutoUnpack" />
         <label class="form-check-label" asp-for="Item.AutoUnpack"></label>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" asp-page-handler="Save" class="btn btn-primary">Create</button>
 </form>
 @section Scripts {
 <script>

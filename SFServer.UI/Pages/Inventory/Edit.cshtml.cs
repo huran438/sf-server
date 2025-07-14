@@ -86,7 +86,7 @@ namespace SFServer.UI.Pages.Inventory
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostSaveAsync()
         {
             using var http = GetClient();
 
