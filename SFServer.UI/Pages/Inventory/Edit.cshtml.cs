@@ -5,6 +5,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SFServer.Shared.Server.Inventory;
+using SFServer.Shared.Server.Wallet;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using SFServer.UI;
@@ -27,11 +28,29 @@ namespace SFServer.UI.Pages.Inventory
         public string Tags { get; set; }
 
         [BindProperty]
-        public string DropJson { get; set; }
+        public List<DropEntryVm> DropEntries { get; set; } = new();
+
+        public List<InventoryItem> Items { get; set; } = new();
+        public List<Currency> Currencies { get; set; } = new();
+
+        public class DropEntryVm
+        {
+            public string Type { get; set; } = "Item";
+            public Guid? ItemId { get; set; }
+            public Guid? CurrencyId { get; set; }
+            public int Amount { get; set; } = 1;
+        }
 
         private HttpClient GetClient()
         {
             return User.CreateApiClient(_config);
+        }
+
+        private async Task LoadListsAsync()
+        {
+            using var http = GetClient();
+            Items = await http.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
+            Currencies = await http.GetFromMessagePackAsync<List<Currency>>("Currency");
         }
 
         public async Task OnGetAsync(Guid id)
@@ -39,7 +58,32 @@ namespace SFServer.UI.Pages.Inventory
             using var http = GetClient();
             Item = await http.GetFromMessagePackAsync<InventoryItem>($"Inventory/{id}");
             Tags = Item.Tags != null && Item.Tags.Count > 0 ? string.Join(", ", Item.Tags) : string.Empty;
-            DropJson = Item.Drop != null && Item.Drop.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(Item.Drop) : string.Empty;
+            DropEntries = Item.Drop.Select(d => new DropEntryVm
+            {
+                Type = d.ItemId.HasValue ? "Item" : "Currency",
+                ItemId = d.ItemId,
+                CurrencyId = d.CurrencyId,
+                Amount = d.Amount
+            }).ToList();
+            await LoadListsAsync();
+        }
+
+        public async Task<IActionResult> OnPostAddDropAsync()
+        {
+            await LoadListsAsync();
+            DropEntries ??= new();
+            DropEntries.Add(new DropEntryVm { Type = Items.Any() ? "Item" : "Currency", ItemId = Items.FirstOrDefault()?.Id, CurrencyId = Currencies.FirstOrDefault()?.Id, Amount = 1 });
+            ModelState.Clear();
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostRemoveDropAsync(int index)
+        {
+            await LoadListsAsync();
+            if (index >= 0 && index < DropEntries.Count)
+                DropEntries.RemoveAt(index);
+            ModelState.Clear();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -57,20 +101,23 @@ namespace SFServer.UI.Pages.Inventory
                 Item.Tags = new List<string>();
             }
 
-            if (!string.IsNullOrWhiteSpace(DropJson))
+            if (DropEntries != null)
             {
-                try
+                Item.Drop = DropEntries.Select(d => new InventoryDropEntry
                 {
-                    Item.Drop = System.Text.Json.JsonSerializer.Deserialize<List<InventoryDropEntry>>(DropJson) ?? new();
-                }
-                catch
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid drop JSON");
-                    return Page();
-                }
+                    ItemId = d.Type == "Item" ? d.ItemId : null,
+                    CurrencyId = d.Type == "Currency" ? d.CurrencyId : null,
+                    Amount = d.Amount
+                }).ToList();
             }
 
-            await http.PutAsMessagePackAsync($"Inventory/{Item.Id}", Item);
+            var resp = await http.PutAsMessagePackAsync($"Inventory/{Item.Id}", Item);
+            if (!resp.IsSuccessStatusCode)
+            {
+                await LoadListsAsync();
+                ModelState.AddModelError(string.Empty, "Failed to save item");
+                return Page();
+            }
             return RedirectToPage("/Inventory/Index");
         }
     }

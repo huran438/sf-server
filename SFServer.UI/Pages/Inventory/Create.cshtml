@@ -41,7 +41,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label">Drop</label>
-        <table class="table table-sm" id="dropTable">
+        <table class="table table-sm">
             <thead>
             <tr>
                 <th>Type</th>
@@ -50,10 +50,41 @@
                 <th></th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            @for (int i = 0; i < Model.DropEntries.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select name="DropEntries[@i].Type" class="form-select form-select-sm type-select">
+                            <option value="Item" selected="@(Model.DropEntries[i].Type == "Item" ? "selected" : null)">Item</option>
+                            <option value="Currency" selected="@(Model.DropEntries[i].Type == "Currency" ? "selected" : null)">Currency</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="DropEntries[@i].ItemId" class="form-select form-select-sm item-select" style="display:@(Model.DropEntries[i].Type == "Item" ? "block" : "none")">
+                            @foreach (var it in Model.Items)
+                            {
+                                <option value="@it.Id" selected="@(Model.DropEntries[i].ItemId == it.Id ? "selected" : null)">@it.Title</option>
+                            }
+                        </select>
+                        <select name="DropEntries[@i].CurrencyId" class="form-select form-select-sm currency-select" style="display:@(Model.DropEntries[i].Type == "Currency" ? "block" : "none")">
+                            @foreach (var cur in Model.Currencies)
+                            {
+                                <option value="@cur.Id" selected="@(Model.DropEntries[i].CurrencyId == cur.Id ? "selected" : null)">@cur.Title</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" name="DropEntries[@i].Amount" value="@Model.DropEntries[i].Amount" min="1" />
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-sm btn-danger" asp-page-handler="RemoveDrop" asp-route-index="@i">Remove</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
         </table>
-        <button type="button" id="addDropBtn" class="btn btn-sm btn-secondary">Add</button>
-        <input type="hidden" asp-for="DropJson" id="DropJson" />
+        <button type="submit" asp-page-handler="AddDrop" class="btn btn-sm btn-secondary">Add</button>
     </div>
     <div class="form-check mb-3">
         <input class="form-check-input" asp-for="Item.AutoUnpack" />
@@ -63,109 +94,27 @@
 </form>
 @section Scripts {
 <script>
-    const headers = jwtToken ? {
-        'Authorization': 'Bearer ' + jwtToken,
-        'Accept': 'application/json'
-    } : { 'Accept': 'application/json' };
-    let items = [];
-    let currencies = [];
-    let drops = [];
-
-    async function loadData() {
-        const [itResp, curResp] = await Promise.all([
-            fetch(apiBaseUrl + 'Inventory', { headers }),
-            fetch(apiBaseUrl + 'Currency', { headers })
-        ]);
-        if (itResp.ok) items = await itResp.json();
-        if (curResp.ok) currencies = await curResp.json();
-    }
-
-    function optionHtml(list, selected) {
-        return list.map(i => `<option value="${i.Id}" ${i.Id===selected?'selected':''}>${i.Title}</option>`).join('');
-    }
-
-    function updateHidden() {
-        document.getElementById('DropJson').value = JSON.stringify(drops);
-    }
-
-    function render() {
-        const tbody = document.querySelector('#dropTable tbody');
-        tbody.innerHTML = '';
-        drops.forEach((d, idx) => {
-            const type = d.ItemId ? 'Item' : 'Currency';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <select class="form-select form-select-sm type" data-index="${idx}">
-                        <option value="Item" ${type==='Item'?'selected':''}>Item</option>
-                        <option value="Currency" ${type==='Currency'?'selected':''}>Currency</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="form-select form-select-sm item" data-index="${idx}" style="display:${type==='Item'?'block':'none'}"></select>
-                    <select class="form-select form-select-sm currency" data-index="${idx}" style="display:${type==='Currency'?'block':'none'}"></select>
-                </td>
-                <td>
-                    <input type="number" min="1" class="form-control form-control-sm amount" data-index="${idx}" value="${d.amount}">
-                </td>
-                <td><button type="button" class="btn btn-sm btn-danger remove" data-index="${idx}">Remove</button></td>`;
-            tbody.appendChild(tr);
-
-            const itemSelect = tr.querySelector('select.item');
-            const currencySelect = tr.querySelector('select.currency');
-            itemSelect.innerHTML = optionHtml(items, d.ItemId);
-            currencySelect.innerHTML = optionHtml(currencies, d.CurrencyId);
-        });
-        updateHidden();
-    }
-
-    function addDrop() {
-        const entry = items.length > 0
-            ? { ItemId: items[0].Id, CurrencyId: null, Amount: 1 }
-            : { ItemId: null, CurrencyId: currencies[0]?.Id ?? null, Amount: 1 };
-        drops.push(entry);
-        render();
+    function updateRow(select) {
+        const row = select.closest('tr');
+        const itemSel = row.querySelector('.item-select');
+        const curSel = row.querySelector('.currency-select');
+        if (select.value === 'Item') {
+            itemSel.style.display = 'block';
+            curSel.style.display = 'none';
+        } else {
+            itemSel.style.display = 'none';
+            curSel.style.display = 'block';
+        }
     }
 
     document.addEventListener('change', function(e) {
-        const idx = e.target.getAttribute('data-index');
-        if (idx === null) return;
-        const entry = drops[Number(idx)];
-        if (e.target.classList.contains('type')) {
-            if (e.target.value === 'Item') {
-                entry.ItemId = items[0]?.Id ?? null;
-                entry.CurrencyId = null;
-            } else {
-                entry.CurrencyId = currencies[0]?.Id ?? null;
-                entry.ItemId = null;
-            }
-            render();
-        } else if (e.target.classList.contains('item')) {
-            entry.ItemId = e.target.value;
-            updateHidden();
-        } else if (e.target.classList.contains('currency')) {
-            entry.CurrencyId = e.target.value;
-            updateHidden();
-        } else if (e.target.classList.contains('amount')) {
-            entry.Amount = parseInt(e.target.value) || 0;
-            updateHidden();
+        if (e.target.classList.contains('type-select')) {
+            updateRow(e.target);
         }
     });
 
-    document.addEventListener('click', function(e) {
-        if (e.target.id === 'addDropBtn') {
-            addDrop();
-        } else if (e.target.classList.contains('remove')) {
-            const idx = Number(e.target.getAttribute('data-index'));
-            drops.splice(idx, 1);
-            render();
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', async function() {
-        await loadData();
-        try { drops = JSON.parse(@Html.Raw(Model.DropJson ?? "[]")); } catch { drops = []; }
-        render();
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.type-select').forEach(updateRow);
     });
 </script>
 }
