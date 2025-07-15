@@ -101,10 +101,14 @@
         const curSel = row.querySelector('.currency-select');
         if (select.value === 'Item') {
             itemSel.style.display = 'block';
+            itemSel.disabled = false;
             curSel.style.display = 'none';
+            curSel.disabled = true;
         } else {
             itemSel.style.display = 'none';
+            itemSel.disabled = true;
             curSel.style.display = 'block';
+            curSel.disabled = false;
         }
     }
 

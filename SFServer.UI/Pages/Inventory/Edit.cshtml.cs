@@ -146,13 +146,11 @@ namespace SFServer.UI.Pages.Inventory
             if (DropEntries != null)
             {
                 Item.Drop = DropEntries
+                    .Select(d => d.Type == "Item"
+                        ? new InventoryDropEntry { ItemId = d.ItemId, Amount = d.Amount }
+                        : new InventoryDropEntry { CurrencyId = d.CurrencyId, Amount = d.Amount })
                     .GroupBy(d => new { d.ItemId, d.CurrencyId })
-                    .Select(g => new InventoryDropEntry
-                    {
-                        ItemId = g.Key.ItemId,
-                        CurrencyId = g.Key.CurrencyId,
-                        Amount = g.First().Amount
-                    })
+                    .Select(g => g.First())
                     .ToList();
             }
 
