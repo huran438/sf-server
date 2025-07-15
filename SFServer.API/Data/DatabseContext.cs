@@ -5,6 +5,8 @@ using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
 using SFServer.Shared.Server.Settings;
 using SFServer.Shared.Server.Audit;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace SFServer.API.Data
 {
@@ -29,6 +31,13 @@ namespace SFServer.API.Data
 
         public DbSet<AuditLogEntry> AuditLogs { get; set; }
 
+        private static string SerializeDrop(List<InventoryDropEntry> drop) => JsonSerializer.Serialize(drop ?? new());
+
+        private static List<InventoryDropEntry> DeserializeDrop(string json) =>
+            string.IsNullOrEmpty(json)
+                ? new List<InventoryDropEntry>()
+                : JsonSerializer.Deserialize<List<InventoryDropEntry>>(json) ?? new List<InventoryDropEntry>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +53,11 @@ namespace SFServer.API.Data
                     .HasConversion<string>();
                 entity.Property(p => p.Rarity)
                     .HasConversion<string>();
+                entity.Property(p => p.Drop)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        v => SerializeDrop(v),
+                        v => DeserializeDrop(v));
             });
 
             modelBuilder.Entity<PlayerInventoryItem>(entity =>

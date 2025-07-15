@@ -19,5 +19,7 @@ namespace SFServer.Shared.Server.Inventory
         public bool IsAvailableToBuy { get; set; }
         public bool IsAvailableToDrop { get; set; }
         public List<string> Tags { get; set; } = new();
+        public List<InventoryDropEntry> Drop { get; set; } = new();
+        public bool AutoUnpack { get; set; }
     }
 }

@@ -39,5 +39,86 @@
         <label class="form-label" for="tagsInput">Tags (comma separated)</label>
         <input id="tagsInput" class="form-control" asp-for="Tags" />
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
+    <div class="mb-3">
+        <label class="form-label">Drop</label>
+        <table class="table table-sm">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Item/Currency</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @for (int i = 0; i < Model.DropEntries.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select name="DropEntries[@i].Type" class="form-select form-select-sm type-select">
+                            <option value="Item" selected="@(Model.DropEntries[i].Type == "Item" ? "selected" : null)">Item</option>
+                            <option value="Currency" selected="@(Model.DropEntries[i].Type == "Currency" ? "selected" : null)">Currency</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="DropEntries[@i].ItemId" class="form-select form-select-sm item-select" style="display:@(Model.DropEntries[i].Type == "Item" ? "block" : "none")">
+                            @foreach (var it in Model.GetItemOptions(Model.DropEntries[i].ItemId))
+                            {
+                                <option value="@it.Id" selected="@(Model.DropEntries[i].ItemId == it.Id ? "selected" : null)">@it.Title</option>
+                            }
+                        </select>
+                        <select name="DropEntries[@i].CurrencyId" class="form-select form-select-sm currency-select" style="display:@(Model.DropEntries[i].Type == "Currency" ? "block" : "none")">
+                            @foreach (var cur in Model.GetCurrencyOptions(Model.DropEntries[i].CurrencyId))
+                            {
+                                <option value="@cur.Id" selected="@(Model.DropEntries[i].CurrencyId == cur.Id ? "selected" : null)">@cur.Title</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm" name="DropEntries[@i].Amount" value="@Model.DropEntries[i].Amount" min="1" />
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-sm btn-danger" asp-page-handler="RemoveDrop" asp-route-index="@i">Remove</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <button type="submit" asp-page-handler="AddDrop" class="btn btn-sm btn-secondary" disabled="@(Model.CanAddDrop ? null : "disabled")">Add</button>
+    </div>
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="Item.AutoUnpack" />
+        <label class="form-check-label" asp-for="Item.AutoUnpack"></label>
+    </div>
+    <button type="submit" asp-page-handler="Save" class="btn btn-primary">Create</button>
 </form>
+@section Scripts {
+<script>
+    function updateRow(select) {
+        const row = select.closest('tr');
+        const itemSel = row.querySelector('.item-select');
+        const curSel = row.querySelector('.currency-select');
+        if (select.value === 'Item') {
+            itemSel.style.display = 'block';
+            itemSel.disabled = false;
+            curSel.style.display = 'none';
+            curSel.disabled = true;
+        } else {
+            itemSel.style.display = 'none';
+            itemSel.disabled = true;
+            curSel.style.display = 'block';
+            curSel.disabled = false;
+        }
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('type-select')) {
+            updateRow(e.target);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.type-select').forEach(updateRow);
+    });
+</script>
+}
