@@ -5,8 +5,15 @@
 @using SFServer.UI
 @inject ServerSettingsService SettingsService
 @inject ProjectContext ProjectContext
+@using SFServer.Shared.Server.Project
 @{
     var settings = await SettingsService.GetSettingsAsync();
+    var projects = new List<ProjectInfo>();
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        using var client = User.CreateApiClient(Configuration);
+        projects = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects") ?? new();
+    }
 }
 
 <!DOCTYPE html>
@@ -81,7 +88,14 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <div class="d-flex align-items-center">
-                        <span class="me-3 text-info">@ProjectContext.CurrentProjectName</span>
+                        <form asp-controller="Projects" asp-action="Select" method="post" class="me-3">
+                            <select name="id" class="form-select form-select-sm" onchange="this.form.submit();">
+@foreach (var p in projects)
+{
+                                <option value="@p.Id" selected="@(p.Id == ProjectContext.CurrentProjectId ? "selected" : null)">@p.Name</option>
+}
+                            </select>
+                        </form>
                         <span id="server-time" class="me-3 text-primary fw-bold">--:--:--</span>
                         @{
                             var userId = User.FindFirst("UserId")?.Value;

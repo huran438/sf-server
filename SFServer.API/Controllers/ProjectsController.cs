@@ -35,4 +35,17 @@ public class ProjectsController : ControllerBase
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAll), new { id = project.Id }, project);
     }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var project = await _db.Projects.FindAsync(id);
+        if (project == null)
+            return NotFound();
+
+        _db.Projects.Remove(project);
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Project;
+using SFServer.UI;
 
 namespace SFServer.UI.Controllers;
 
@@ -18,11 +19,11 @@ public class ProjectsController : Controller
         _context = context;
     }
 
-    private HttpClient GetClient() => User.CreateApiClient(_config, _context.CurrentProjectId);
+    private HttpClient GetClient(Guid projectId = default) => User.CreateApiClient(_config, projectId);
 
     public async Task<IActionResult> Index()
     {
-        using var client = User.CreateApiClient(_config);
+        using var client = GetClient();
         var projects = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects");
         return View(projects);
     }
@@ -30,7 +31,7 @@ public class ProjectsController : Controller
     [HttpPost]
     public async Task<IActionResult> Select(Guid id)
     {
-        using var client = User.CreateApiClient(_config);
+        using var client = GetClient();
         var list = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects");
         var proj = list.FirstOrDefault(p => p.Id == id);
         if (proj != null)
@@ -39,5 +40,29 @@ public class ProjectsController : Controller
             _context.CurrentProjectName = proj.Name;
         }
         return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Create(string name)
+    {
+        using var client = GetClient();
+        var project = new ProjectInfo { Name = name };
+        await client.PostAsMessagePackAsync<ProjectInfo, ProjectInfo>("Projects", project);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        using var client = GetClient();
+        await client.DeleteAsync($"Projects/{id}");
+        if (_context.CurrentProjectId == id)
+        {
+            _context.CurrentProjectId = Guid.Empty;
+            _context.CurrentProjectName = string.Empty;
+        }
+        return RedirectToAction(nameof(Index));
     }
 }
