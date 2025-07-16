@@ -8,6 +8,7 @@ namespace SFServer.Shared.Server.UserProfile
     public partial class UserDevice
     {
         public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
         public Guid UserId { get; set; }
         public string DeviceId { get; set; }
         public string DeviceModel { get; set; }

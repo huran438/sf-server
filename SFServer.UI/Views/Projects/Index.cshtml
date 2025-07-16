@@ -1,0 +1,11 @@
+@model List<SFServer.Shared.Server.Project.ProjectInfo>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Projects";
+}
+<h1>Projects</h1>
+<form asp-action="Select" method="post">
+    <select name="id" class="form-select" asp-items="@(new SelectList(Model, "Id", "Name", null))"></select>
+    <button type="submit" class="btn btn-primary mt-2">Select</button>
+</form>
+

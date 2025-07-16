@@ -50,6 +50,7 @@ builder.Services.AddHttpClient("api", c =>
     c.BaseAddress = new Uri(builder.Configuration["API_BASE_URL"]);
 });
 builder.Services.AddSingleton<ServerSettingsService>();
+builder.Services.AddSingleton<ProjectContext>();
 
 var app = builder.Build();
 

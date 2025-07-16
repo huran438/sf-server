@@ -165,12 +165,27 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"ℹ️ Admin user '{adminUsername}' already exists.");
     }
 
+    // Seed projects
+    var project = context.Projects.FirstOrDefault();
+    if (project == null)
+    {
+        project = new SFServer.Shared.Server.Project.ProjectInfo
+        {
+            Id = Guid.NewGuid(),
+            Name = config["DEFAULT_PROJECT_NAME"] ?? "Default"
+        };
+        context.Projects.Add(project);
+        context.SaveChanges();
+        Console.WriteLine("✅ Default project created.");
+    }
+
     // Seed server settings from environment variables if not present
     if (!context.ServerSettings.Any())
     {
         var settings = new SFServer.Shared.Server.Settings.ServerSettings
         {
             Id = Guid.NewGuid(),
+            ProjectId = project.Id,
             ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
             GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,

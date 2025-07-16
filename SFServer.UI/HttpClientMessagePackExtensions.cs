@@ -20,7 +20,7 @@ namespace SFServer.UI
         // Configure MessagePack options to use ContractlessStandardResolver.
         private static readonly MemoryPackSerializerOptions DefaultOptions = MemoryPackSerializerOptions.Default;
 
-        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config)
+        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config, Guid projectId = default)
         {
             var client = new HttpClient { BaseAddress = new Uri(config["API_BASE_URL"]) };
 
@@ -37,6 +37,10 @@ namespace SFServer.UI
                 Console.WriteLine("UserId" + userId);
             }
 
+            if (projectId != Guid.Empty)
+            {
+                client.DefaultRequestHeaders.Add("ProjectId", projectId.ToString());
+            }
             return client;
         }
 
