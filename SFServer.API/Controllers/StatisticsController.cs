@@ -21,10 +21,13 @@ namespace SFServer.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStatistics()
         {
-            var totalUsers = await _db.UserProfiles.CountAsync();
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
+            var totalUsers = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId);
             var now = DateTime.UtcNow;
-            var mau = await _db.UserProfiles.CountAsync(u => u.LastLoginAt >= now.AddDays(-30));
-            var dau = await _db.UserProfiles.CountAsync(u => u.LastLoginAt >= now.AddDays(-1));
+            var mau = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId && u.LastLoginAt >= now.AddDays(-30));
+            var dau = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId && u.LastLoginAt >= now.AddDays(-1));
             double retention = mau == 0 ? 0 : (double)dau / mau;
 
             var dto = new StatisticsDto
