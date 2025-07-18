@@ -14,10 +14,12 @@ namespace SFServer.UI.Pages.Inventory
     public class EditInventoryItemModel : PageModel
     {
         private readonly IConfiguration _config;
+        private readonly ProjectContext _project;
 
-        public EditInventoryItemModel(IConfiguration config)
+        public EditInventoryItemModel(IConfiguration config, ProjectContext project)
         {
             _config = config;
+            _project = project;
         }
 
         [BindProperty]
@@ -28,7 +30,7 @@ namespace SFServer.UI.Pages.Inventory
 
         private HttpClient GetClient()
         {
-            return User.CreateApiClient(_config);
+            return User.CreateApiClient(_config, _project.CurrentProjectId);
         }
 
         public async Task OnGetAsync(Guid id)

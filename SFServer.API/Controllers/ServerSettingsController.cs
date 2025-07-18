@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SFServer.API.Data;
+using SFServer.API;
 using SFServer.Shared.Server.Settings;
 
 namespace SFServer.API.Controllers {
@@ -19,7 +20,9 @@ namespace SFServer.API.Controllers {
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetSettings() {
-            var settings = await _db.ServerSettings.FirstOrDefaultAsync();
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var settings = await _db.ServerSettings.FirstOrDefaultAsync(s => s.ProjectId == projectId);
             if (settings == null)
                 return NotFound();
             return Ok(settings);
@@ -27,10 +30,13 @@ namespace SFServer.API.Controllers {
 
         [HttpPut]
         public async Task<IActionResult> UpdateSettings([FromBody] ServerSettings updated) {
-            var existing = await _db.ServerSettings.FirstOrDefaultAsync();
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var existing = await _db.ServerSettings.FirstOrDefaultAsync(s => s.ProjectId == projectId);
             if (existing == null)
             {
                 updated.Id = Guid.NewGuid();
+                updated.ProjectId = projectId;
                 _db.ServerSettings.Add(updated);
             }
             else

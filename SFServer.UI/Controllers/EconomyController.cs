@@ -14,15 +14,17 @@ namespace SFServer.UI.Controllers
     public class EconomyController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly ProjectContext _project;
 
-        public EconomyController(IConfiguration configuration)
+        public EconomyController(IConfiguration configuration, ProjectContext project)
         {
             _configuration = configuration;
+            _project = project;
         }
 
         private HttpClient GetAuthenticatedHttpClient()
         {
-            return User.CreateApiClient(_configuration);
+            return User.CreateApiClient(_configuration, _project.CurrentProjectId);
         }
 
         // GET: /Economy/Index

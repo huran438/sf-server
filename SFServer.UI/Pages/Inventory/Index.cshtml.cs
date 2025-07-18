@@ -13,17 +13,19 @@ namespace SFServer.UI.Pages.Inventory
     public class InventoryPageModel : PageModel
     {
         private readonly IConfiguration _config;
+        private readonly ProjectContext _project;
 
-        public InventoryPageModel(IConfiguration config)
+        public InventoryPageModel(IConfiguration config, ProjectContext project)
         {
             _config = config;
+            _project = project;
         }
 
         public List<InventoryItem> Items { get; set; } = new();
 
         private HttpClient GetClient()
         {
-            return User.CreateApiClient(_config);
+            return User.CreateApiClient(_config, _project.CurrentProjectId);
         }
 
         public async Task OnGetAsync()

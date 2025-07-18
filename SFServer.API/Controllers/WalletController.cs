@@ -21,12 +21,17 @@ namespace SFServer.API.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetWallet(Guid userId)
         {
-            // Retrieve all system currencies.
-            var currencies = await _context.Currencies.ToListAsync();
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
+            // Retrieve all system currencies for project.
+            var currencies = await _context.Currencies
+                .Where(c => c.ProjectId == projectId)
+                .ToListAsync();
 
             // Retrieve existing wallet items for the user.
             var walletItems = await _context.WalletItems
-                .Where(w => w.UserId == userId)
+                .Where(w => w.UserId == userId && w.ProjectId == projectId)
                 .Include(w => w.Currency)
                 .ToListAsync();
 
@@ -39,8 +44,9 @@ namespace SFServer.API.Controllers
                     {
                         UserId = userId,
                         CurrencyId = currency.Id,
-                        Amount = currency.InitialAmount, // Default initial amount.
-                        Currency = currency
+                        Amount = currency.InitialAmount,
+                        Currency = currency,
+                        ProjectId = projectId
                     };
                     _context.WalletItems.Add(newItem);
                     walletItems.Add(newItem);
@@ -60,15 +66,17 @@ namespace SFServer.API.Controllers
                 Console.WriteLine("ID mismatch.");
                 return BadRequest("ID mismatch.");
             }
-               
 
-            var existingItem = await _context.WalletItems.FindAsync(walletItemId);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
+            var existingItem = await _context.WalletItems
+                .FirstOrDefaultAsync(w => w.Id == walletItemId && w.ProjectId == projectId);
             if (existingItem == null)
             {
                 Console.WriteLine("Wallet item not found.");
                 return NotFound("Wallet item not found.");
             }
-               
 
             existingItem.Amount = updateDto.Amount;
             await _context.SaveChangesAsync();
@@ -84,21 +92,22 @@ namespace SFServer.API.Controllers
                 return BadRequest("No wallet items provided for update.");
             }
 
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
             foreach (var updateDto in updateDtos)
             {
-                // Retrieve the existing item by its ID (from the update DTO).
-                var existingItem = await _context.WalletItems.FindAsync(updateDto.Id);
+                var existingItem = await _context.WalletItems
+                    .FirstOrDefaultAsync(w => w.Id == updateDto.Id && w.ProjectId == projectId);
                 if (existingItem == null)
                 {
                     Console.WriteLine($"Wallet item not found for ID: {updateDto.Id}");
                     return NotFound($"Wallet item not found for ID: {updateDto.Id}");
                 }
 
-                // Update the amount.
                 existingItem.Amount = updateDto.Amount;
             }
 
-            // Save changes once all items have been updated.
             await _context.SaveChangesAsync();
             return NoContent();
         }

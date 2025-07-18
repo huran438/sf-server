@@ -39,6 +39,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
+builder.Services.AddScoped<IPasswordHasher<SFServer.Shared.Server.Admin.Administrator>, PasswordHasher<SFServer.Shared.Server.Admin.Administrator>>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddSingleton<IAnalyticsService>(sp => new ClickHouseAnalyticsService(builder.Configuration.GetConnectionString("ClickHouse")!));
 
@@ -138,31 +139,41 @@ using (var scope = app.Services.CreateScope())
     var adminUsername = config["ADMIN_USERNAME"];
     var adminEmail = config["ADMIN_EMAIL"];
 
-    // Only create if admin doesn't exist
-    if (!context.UserProfiles.Any(u => u.Role == UserRole.Admin))
+    if (!context.Administrators.Any())
     {
-        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<UserProfile>>();
+        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<SFServer.Shared.Server.Admin.Administrator>>();
 
-        var adminUser = new UserProfile
+        var adminUser = new SFServer.Shared.Server.Admin.Administrator
         {
-            Id = Guid.CreateVersion7(),
+            Id = Guid.Empty,
             Username = adminUsername,
             Email = adminEmail,
-            Role = UserRole.Admin,
             CreatedAt = DateTime.UtcNow
         };
 
-
         adminUser.PasswordHash = hasher.HashPassword(adminUser, config["ADMIN_PASSWORD"] ?? "password");
 
-        context.UserProfiles.Add(adminUser);
-
+        context.Administrators.Add(adminUser);
         context.SaveChanges();
-        Console.WriteLine($"✅ Admin user '{adminUsername}' created.");
+        Console.WriteLine($"✅ Root administrator '{adminUsername}' created.");
     }
     else
     {
-        Console.WriteLine($"ℹ️ Admin user '{adminUsername}' already exists.");
+        Console.WriteLine("ℹ️ Administrators already configured.");
+    }
+
+    // Seed projects
+    var project = context.Projects.FirstOrDefault();
+    if (project == null)
+    {
+        project = new SFServer.Shared.Server.Project.ProjectInfo
+        {
+            Id = Guid.NewGuid(),
+            Name = config["DEFAULT_PROJECT_NAME"] ?? "Default"
+        };
+        context.Projects.Add(project);
+        context.SaveChanges();
+        Console.WriteLine("✅ Default project created.");
     }
 
     // Seed server settings from environment variables if not present
@@ -171,6 +182,7 @@ using (var scope = app.Services.CreateScope())
         var settings = new SFServer.Shared.Server.Settings.ServerSettings
         {
             Id = Guid.NewGuid(),
+            ProjectId = project.Id,
             ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
             GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,

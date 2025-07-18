@@ -5,6 +5,7 @@ using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
 using SFServer.Shared.Server.Settings;
 using SFServer.Shared.Server.Audit;
+using SFServer.Shared.Server.Project;
 
 namespace SFServer.API.Data
 {
@@ -18,6 +19,8 @@ namespace SFServer.API.Data
         public DbSet<WalletItem> WalletItems { get; set; }
         public DbSet<Currency> Currencies { get; set; }
 
+        public DbSet<ProjectInfo> Projects { get; set; }
+
         public DbSet<UserDevice> UserDevices { get; set; }
 
         public DbSet<InventoryItem> InventoryItems { get; set; }
@@ -28,6 +31,8 @@ namespace SFServer.API.Data
         public DbSet<ServerSettings> ServerSettings { get; set; }
 
         public DbSet<AuditLogEntry> AuditLogs { get; set; }
+
+        public DbSet<SFServer.Shared.Server.Admin.Administrator> Administrators { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

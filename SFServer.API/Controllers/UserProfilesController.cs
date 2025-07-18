@@ -22,7 +22,9 @@ namespace SFServer.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserProfiles()
         {
-            var profiles = await _db.UserProfiles.ToListAsync();
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var profiles = await _db.UserProfiles.Where(p => p.ProjectId == projectId).ToListAsync();
             return Ok(profiles);
         }
 
@@ -47,7 +49,11 @@ namespace SFServer.API.Controllers
                 return BadRequest("Email already exists.");
             }
 
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
             profile.CreatedAt = DateTime.UtcNow;
+            profile.ProjectId = projectId;
             _db.UserProfiles.Add(profile);
             await _db.SaveChangesAsync();
 
@@ -60,7 +66,9 @@ namespace SFServer.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var profile = await _db.UserProfiles.FindAsync(id);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var profile = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (profile == null)
                 return NotFound();
 
@@ -82,7 +90,9 @@ namespace SFServer.API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var user = await _db.UserProfiles.FindAsync(id);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (user == null) return NotFound();
             return Ok(user);
         }
@@ -91,7 +101,9 @@ namespace SFServer.API.Controllers
         [HttpGet("{userId:guid}/device/{deviceId}")]
         public async Task<IActionResult> GetDeviceById(Guid userId, string deviceId)
         {
-            var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId && d.ProjectId == projectId);
             if (userDevice == null)
             {
                 Console.WriteLine($"Device {deviceId} for user {userId} not found");
@@ -104,12 +116,14 @@ namespace SFServer.API.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateUserProfile(Guid id, [FromBody] UserProfile updated)
         {
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
             if (id != updated.Id)
             {
                 return BadRequest("ID mismatch.");
             }
 
-            var existing = await _db.UserProfiles.FindAsync(id);
+            var existing = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (existing == null)
             {
                 return NotFound("User not found.");
@@ -136,6 +150,7 @@ namespace SFServer.API.Controllers
             existing.Role = updated.Role;
             existing.LastEditAt = DateTime.UtcNow;
             existing.DebugMode = updated.DebugMode;
+            updated.ProjectId = existing.ProjectId;
 
             // Determine if current user is trying to change someone else's password
             var currentUserId = Request.Headers[Headers.UID].FirstOrDefault();

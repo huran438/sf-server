@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SFServer.API.Data;
@@ -12,9 +13,11 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715222859_AddProjectSupport")]
+    partial class AddProjectSupport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,29 +49,6 @@ namespace SFServer.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserSessions");
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.Admin.Administrator", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Administrators");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Audit.AuditLogEntry", b =>
