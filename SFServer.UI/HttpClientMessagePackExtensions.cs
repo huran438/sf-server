@@ -10,18 +10,15 @@ using System.Linq;
 using MemoryPack;
 using MemoryPack.Compression;
 
-namespace SFServer.UI
-{
-    public static class HttpClientMessagePackExtensions
-    {
+namespace SFServer.UI {
+    public static class HttpClientMessagePackExtensions {
         // Set the default content type for MessagePack.
         private static readonly MediaTypeHeaderValue _contentType = new("application/x-memorypack");
 
         // Configure MessagePack options to use ContractlessStandardResolver.
         private static readonly MemoryPackSerializerOptions DefaultOptions = MemoryPackSerializerOptions.Default;
 
-        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config, Guid projectId = default)
-        {
+        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config, Guid projectId = default) {
             var client = new HttpClient { BaseAddress = new Uri(config["API_BASE_URL"]) };
 
             var token = user.FindFirst("JwtToken")?.Value;
@@ -34,13 +31,10 @@ namespace SFServer.UI
             if (!string.IsNullOrEmpty(userId))
             {
                 client.DefaultRequestHeaders.Add("UserId", userId);
-                Console.WriteLine("UserId" + userId);
             }
 
-            if (projectId != Guid.Empty)
-            {
-                client.DefaultRequestHeaders.Add("ProjectId", projectId.ToString());
-            }
+            client.DefaultRequestHeaders.Add("ProjectId", projectId != Guid.Empty ? projectId.ToString() : Guid.Empty.ToString());
+
             return client;
         }
 
@@ -53,12 +47,10 @@ namespace SFServer.UI
             string requestUri,
             TRequest request,
             MemoryPackSerializerOptions options = null,
-            CancellationToken cancellationToken = default)
-        {
+            CancellationToken cancellationToken = default) {
             options ??= DefaultOptions;
 
 
-   
             using var compressor = new BrotliCompressor();
             MemoryPackSerializer.Serialize(compressor, request, options);
             var requestData = compressor.ToArray();
@@ -76,10 +68,9 @@ namespace SFServer.UI
             string requestUri,
             TRequest request,
             MemoryPackSerializerOptions options = null,
-            CancellationToken cancellationToken = default)
-        {
+            CancellationToken cancellationToken = default) {
             options ??= DefaultOptions;
-            
+
             using var compressor = new BrotliCompressor();
             MemoryPackSerializer.Serialize(compressor, request, options);
             var requestData = compressor.ToArray();
@@ -103,11 +94,13 @@ namespace SFServer.UI
         /// <summary>
         /// Sends a GET request and deserializes the MessagePack response.
         /// </summary>
-        public static async Task<T> GetFromMessagePackAsync<T>(this HttpClient httpClient, string requestUri, MemoryPackSerializerOptions options = null, CancellationToken cancellationToken = default)
-        {
+        public static async Task<T> GetFromMessagePackAsync<T>(this HttpClient httpClient, string requestUri, MemoryPackSerializerOptions options = null, CancellationToken cancellationToken = default) {
             options ??= DefaultOptions;
+
+            httpClient.DefaultRequestHeaders.Add("ProjectId", Guid.Empty.ToString());
+
             using var response = await httpClient.GetAsync(requestUri, cancellationToken);
-            
+
             if (response.IsSuccessStatusCode == false)
             {
                 string body = null;
@@ -125,15 +118,13 @@ namespace SFServer.UI
                 {
                     Console.WriteLine(body);
                 }
-                
+
                 Console.WriteLine(new ApiRequestException(
                     $"Request to '{requestUri}' failed with status code {(int)response.StatusCode}",
                     response.StatusCode,
                     body).ToString());
-                
-                return default;
 
-          
+                return default;
             }
 
             var stream = await response.Content.ReadAsByteArrayAsync(cancellationToken);
@@ -150,8 +141,7 @@ namespace SFServer.UI
             string requestUri,
             T value,
             MemoryPackSerializerOptions options = null,
-            CancellationToken cancellationToken = default)
-        {
+            CancellationToken cancellationToken = default) {
             options ??= DefaultOptions;
             using var compressor = new BrotliCompressor();
             MemoryPackSerializer.Serialize(compressor, value, options);
