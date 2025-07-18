@@ -40,7 +40,7 @@ public class AdministratorsController : ControllerBase
 
         var admin = new Administrator
         {
-            Id = Guid.CreateVersion7(),
+            Id = await _db.Administrators.AnyAsync() ? Guid.CreateVersion7() : Guid.Empty,
             Username = request.Username,
             Email = request.Email,
             CreatedAt = DateTime.UtcNow
