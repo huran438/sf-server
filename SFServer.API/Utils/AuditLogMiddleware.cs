@@ -32,9 +32,17 @@ namespace SFServer.API.Utils
             
             Console.WriteLine("User Id: " + userIdString);
 
+            Guid projectId = Guid.Empty;
+            var segments = context.Request.Path.Value?.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments != null && segments.Length > 0)
+            {
+                Guid.TryParse(segments[0], out projectId);
+            }
+
             var entry = new AuditLogEntry
             {
                 Id = Guid.CreateVersion7(),
+                ProjectId = projectId,
                 UserId = Guid.TryParse(userIdString, out var g) ? g : null,
                 Path = context.Request.Path,
                 Method = context.Request.Method,

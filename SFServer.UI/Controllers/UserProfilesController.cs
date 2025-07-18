@@ -125,7 +125,7 @@ namespace SFServer.UI.Controllers
             var response = await client.PostMessagePackAsync("UserProfiles", newUser);
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
             }
 
             var errorContent = await response.Content.ReadAsStringAsync();
@@ -149,7 +149,7 @@ namespace SFServer.UI.Controllers
             catch (ApiRequestException ex)
             {
                 TempData["Error"] = $"Failed to load user profile: {ex.Message}";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
             }
 
             if (profile == null)
@@ -295,7 +295,7 @@ namespace SFServer.UI.Controllers
                 TempData["Error"] = "Failed to delete user.";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
         
         
@@ -333,7 +333,7 @@ namespace SFServer.UI.Controllers
             TempData["Success"] = "Wallet updated successfully.";
             // Set the active tab to "wallet"
             TempData["activeTab"] = "wallet";
-            return RedirectToAction("Edit", new { id = model.UserId });
+            return RedirectToAction("Edit", new { projectId = _project.CurrentProjectId, id = model.UserId });
         }
 
         [HttpPost]
@@ -344,7 +344,7 @@ namespace SFServer.UI.Controllers
             {
                 TempData["Error"] = "Invalid inventory data.";
                 TempData["activeTab"] = "inventory";
-                return RedirectToAction("Edit", new { id = model.UserId });
+                return RedirectToAction("Edit", new { projectId = _project.CurrentProjectId, id = model.UserId });
             }
 
             using var client = GetAuthenticatedHttpClient();
@@ -358,7 +358,7 @@ namespace SFServer.UI.Controllers
 
             TempData["Success"] = "Inventory updated successfully.";
             TempData["activeTab"] = "inventory";
-            return RedirectToAction("Edit", new { id = model.UserId });
+            return RedirectToAction("Edit", new { projectId = _project.CurrentProjectId, id = model.UserId });
         }
     }
 }

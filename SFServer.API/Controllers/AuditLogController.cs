@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin")]
     public class AuditLogController : ControllerBase
     {
@@ -22,10 +22,8 @@ namespace SFServer.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<AuditLogEntry>>> Get([FromQuery] int count = 100)
+        public async Task<ActionResult<List<AuditLogEntry>>> Get(Guid projectId, [FromQuery] int count = 100)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var logs = await _db.AuditLogs
                 .Where(l => l.ProjectId == projectId)
                 .OrderByDescending(l => l.Timestamp)
@@ -35,10 +33,8 @@ namespace SFServer.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Clear()
+        public async Task<IActionResult> Clear(Guid projectId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var toRemove = _db.AuditLogs.Where(l => l.ProjectId == projectId);
             _db.AuditLogs.RemoveRange(toRemove);
             await _db.SaveChangesAsync();
@@ -46,10 +42,8 @@ namespace SFServer.API.Controllers
         }
 
         [HttpGet("export")]
-        public async Task<IActionResult> Export()
+        public async Task<IActionResult> Export(Guid projectId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var logs = await _db.AuditLogs
                 .Where(l => l.ProjectId == projectId)
                 .OrderByDescending(l => l.Timestamp)

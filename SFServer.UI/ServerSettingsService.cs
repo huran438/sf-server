@@ -28,7 +28,7 @@ namespace SFServer.UI
 
             var client = _factory.CreateClient("api");
             if (_project.CurrentProjectId != Guid.Empty)
-                client.DefaultRequestHeaders.Add("ProjectId", _project.CurrentProjectId.ToString());
+                client.BaseAddress = new Uri(client.BaseAddress.ToString().TrimEnd('/') + "/" + _project.CurrentProjectId + "/");
 
             _cached = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings") ?? new ServerSettings();
             _cachedProjectId = _project.CurrentProjectId;

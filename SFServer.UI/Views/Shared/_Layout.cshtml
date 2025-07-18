@@ -34,6 +34,10 @@
         if (!apiBaseUrl.endsWith("/")) {
             apiBaseUrl += "/";
         }
+        const currentProject = '@ProjectContext.CurrentProjectId';
+        if (currentProject && currentProject !== '00000000-0000-0000-0000-000000000000') {
+            apiBaseUrl += currentProject + '/';
+        }
         let jwtToken = '@User.FindFirst("JwtToken")?.Value';
     </script>
 </head>
@@ -41,7 +45,7 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                 @(settings?.ServerTitle ?? Configuration["SERVER_TITLE"])
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
@@ -52,39 +56,39 @@
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                             <i class="bi bi-house-door"></i> Home
                         </a>
                     </li>
                     @if (User.IsInRole(nameof(UserRole.Admin)) || User.IsInRole(nameof(UserRole.Developer)))
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="UserProfiles" asp-action="Index">
+                            <a class="nav-link text-dark" asp-controller="UserProfiles" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-people"></i> Users
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Economy" asp-action="Index">
+                            <a class="nav-link text-dark" asp-controller="Economy" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-currency-dollar"></i> Economy
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Projects" asp-action="Index">
+                            <a class="nav-link text-dark" asp-controller="Projects" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-collection"></i> Projects
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Administrators" asp-action="Index">
+                            <a class="nav-link text-dark" asp-controller="Administrators" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-shield-lock"></i> Admins
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Inventory/Index">
+                            <a class="nav-link text-dark" asp-page="/Inventory/Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-box"></i> Inventory
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Statistics" asp-action="Index">
+                            <a class="nav-link text-dark" asp-controller="Statistics" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-bar-chart"></i> Statistics
                             </a>
                         </li>
@@ -109,28 +113,28 @@
                         @if (User.IsInRole(nameof(UserRole.Admin)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit" asp-route-id="@userId">
+                               asp-action="Edit" asp-route-projectId="@ProjectContext.CurrentProjectId" asp-route-id="@userId">
                                 <i class="bi bi-person-badge"></i> @userName
                             </a>
                         }
                         else if (User.IsInRole(nameof(UserRole.Developer)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit" asp-route-id="@userId">
+                               asp-action="Edit" asp-route-projectId="@ProjectContext.CurrentProjectId" asp-route-id="@userId">
                                 <i class="bi bi-code-slash"></i> @userName
                             </a>
                         }
                         else if (User.IsInRole(nameof(UserRole.User)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit" asp-route-id="@userId">
+                               asp-action="Edit" asp-route-projectId="@ProjectContext.CurrentProjectId" asp-route-id="@userId">
                                 <i class="bi bi-person"></i> @userName
                             </a>
                         }
                         else if (User.IsInRole(nameof(UserRole.Guest)))
                         {
                             <a class="me-3 text-muted text-decoration-none" asp-controller="UserProfiles"
-                               asp-action="Edit" asp-route-id="@userId">
+                               asp-action="Edit" asp-route-projectId="@ProjectContext.CurrentProjectId" asp-route-id="@userId">
                                 <i class="bi bi-person-lines-fill"></i> @userName
                             </a>
                         }
@@ -158,7 +162,7 @@
 
         @if (User.IsInRole("Admin"))
         {
-            <a class="btn btn-outline-secondary btn-sm" asp-controller="ServerSettings" asp-action="Index">
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="ServerSettings" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                 <i class="bi bi-gear"></i> Server Settings
             </a>
         }

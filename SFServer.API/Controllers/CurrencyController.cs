@@ -7,7 +7,7 @@ using SFServer.Shared.Server.Wallet;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin,Developer")]
     public class CurrencyController : ControllerBase
     {
@@ -19,10 +19,8 @@ namespace SFServer.API.Controllers
         
         // GET /Currency
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(Guid projectId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var currencies = await _context.Currencies
                 .Where(c => c.ProjectId == projectId)
                 .ToListAsync();
@@ -30,10 +28,8 @@ namespace SFServer.API.Controllers
         }
         
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCurrencyById(Guid id)
+        public async Task<IActionResult> GetCurrencyById(Guid projectId, Guid id)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var currency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (currency == null)
             {
@@ -44,13 +40,10 @@ namespace SFServer.API.Controllers
         
         // POST /Currency/create
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] Currency currency)
+        public async Task<IActionResult> Create(Guid projectId, [FromBody] Currency currency)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
 
             currency.ProjectId = projectId;
             _context.Currencies.Add(currency);
@@ -59,13 +52,11 @@ namespace SFServer.API.Controllers
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCurrency(Guid id, [FromBody] Currency updatedCurrency)
+        public async Task<IActionResult> UpdateCurrency(Guid projectId, Guid id, [FromBody] Currency updatedCurrency)
         {
             if (id != updatedCurrency.Id)
                 return BadRequest("ID mismatch.");
 
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
 
             var existingCurrency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (existingCurrency == null)
@@ -86,10 +77,8 @@ namespace SFServer.API.Controllers
         
         // DELETE /Currency/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCurrency(Guid id)
+        public async Task<IActionResult> DeleteCurrency(Guid projectId, Guid id)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var currency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (currency == null)
             {

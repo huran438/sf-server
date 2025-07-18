@@ -39,7 +39,7 @@ public class ProjectsController : Controller
             _context.CurrentProjectId = proj.Id;
             _context.CurrentProjectName = proj.Name;
         }
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Home", new { projectId = _context.CurrentProjectId });
     }
 
     [HttpPost]
@@ -49,7 +49,7 @@ public class ProjectsController : Controller
         using var client = GetClient();
         var project = new ProjectInfo { Name = name };
         await client.PostAsMessagePackAsync<ProjectInfo, ProjectInfo>("Projects", project);
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { projectId = _context.CurrentProjectId });
     }
 
     [HttpPost]
@@ -63,7 +63,7 @@ public class ProjectsController : Controller
         {
             _context.CurrentProjectName = name;
         }
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { projectId = _context.CurrentProjectId });
     }
 
     [HttpPost]
@@ -71,7 +71,7 @@ public class ProjectsController : Controller
     public async Task<IActionResult> Delete(Guid id)
     {
         if (id == Guid.Empty)
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { projectId = _context.CurrentProjectId });
 
         using var client = GetClient();
         await client.DeleteAsync($"Projects/{id}");
@@ -80,7 +80,7 @@ public class ProjectsController : Controller
             _context.CurrentProjectId = Guid.Empty;
             _context.CurrentProjectName = string.Empty;
         }
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { projectId = _context.CurrentProjectId });
     }
 
     [HttpPost]
@@ -95,6 +95,6 @@ public class ProjectsController : Controller
             _context.CurrentProjectId = proj.Id;
             _context.CurrentProjectName = proj.Name;
         }
-        return RedirectToAction("Index", "ServerSettings");
+        return RedirectToAction("Index", "ServerSettings", new { projectId = _context.CurrentProjectId });
     }
 }

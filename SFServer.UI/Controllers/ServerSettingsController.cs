@@ -78,7 +78,7 @@ namespace SFServer.UI.Controllers
                 TempData["Success"] = "Settings saved.";
                 _service.UpdateCache(payload);
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
     }
 }

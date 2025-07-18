@@ -81,7 +81,7 @@ namespace SFServer.UI.Controllers
                 TempData["Success"] = "Audit log cleared.";
             else
                 TempData["Error"] = "Failed to clear audit log.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
 
         public async Task<IActionResult> Export()
@@ -91,7 +91,7 @@ namespace SFServer.UI.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to export audit log.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
             }
 
             var fileBytes = await response.Content.ReadAsByteArrayAsync();

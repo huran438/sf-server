@@ -56,7 +56,7 @@ namespace SFServer.UI.Controllers
                 TempData["Error"] = $"Failed to update wallet item: {response}";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
     }
 }

@@ -15,6 +15,9 @@ namespace SFServer.UI.Pages.Inventory
         private readonly IConfiguration _config;
         private readonly ProjectContext _project;
 
+        [BindProperty(SupportsGet = true)]
+        public Guid projectId { get; set; }
+
         public CreateInventoryItemModel(IConfiguration config, ProjectContext project)
         {
             _config = config;
@@ -52,7 +55,7 @@ namespace SFServer.UI.Pages.Inventory
                 ModelState.AddModelError(string.Empty, "Failed to create item");
                 return Page();
             }
-            return RedirectToPage("/Inventory/Index");
+            return RedirectToPage("/Inventory/Index", new { projectId });
         }
     }
 }

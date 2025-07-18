@@ -7,7 +7,7 @@ using SFServer.Shared.Server.Wallet;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize] // Requires authentication.
     public class WalletController : ControllerBase
     {
@@ -19,10 +19,8 @@ namespace SFServer.API.Controllers
         
         // GET /Wallet/{userId}
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetWallet(Guid userId)
+        public async Task<IActionResult> GetWallet(Guid projectId, Guid userId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
 
             // Retrieve all system currencies for project.
             var currencies = await _context.Currencies
@@ -59,7 +57,7 @@ namespace SFServer.API.Controllers
         
         // PUT /Wallet/{walletItemId}
         [HttpPut("{walletItemId:guid}")]
-        public async Task<IActionResult> UpdateWalletItem(Guid walletItemId, [FromBody] WalletUpdateDto updateDto)
+        public async Task<IActionResult> UpdateWalletItem(Guid projectId, Guid walletItemId, [FromBody] WalletUpdateDto updateDto)
         {
             if (walletItemId != updateDto.Id)
             {
@@ -67,8 +65,6 @@ namespace SFServer.API.Controllers
                 return BadRequest("ID mismatch.");
             }
 
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
 
             var existingItem = await _context.WalletItems
                 .FirstOrDefaultAsync(w => w.Id == walletItemId && w.ProjectId == projectId);
@@ -85,15 +81,13 @@ namespace SFServer.API.Controllers
         
         // PUT /Wallet/batch
         [HttpPut("batch")]
-        public async Task<IActionResult> UpdateWalletItems([FromBody] List<WalletUpdateDto> updateDtos)
+        public async Task<IActionResult> UpdateWalletItems(Guid projectId, [FromBody] List<WalletUpdateDto> updateDtos)
         {
             if (updateDtos == null || updateDtos.Count == 0)
             {
                 return BadRequest("No wallet items provided for update.");
             }
 
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
 
             foreach (var updateDto in updateDtos)
             {

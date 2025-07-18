@@ -7,7 +7,7 @@ using SFServer.Shared.Server.UserProfile;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin,Developer")]
     public class UserProfilesController : ControllerBase
     {
@@ -20,17 +20,15 @@ namespace SFServer.API.Controllers
 
         // GET: api/UserProfiles
         [HttpGet]
-        public async Task<IActionResult> GetUserProfiles()
+        public async Task<IActionResult> GetUserProfiles(Guid projectId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var profiles = await _db.UserProfiles.Where(p => p.ProjectId == projectId).ToListAsync();
             return Ok(profiles);
         }
 
         // POST: api/UserProfiles
         [HttpPost]
-        public async Task<IActionResult> CreateUserProfile([FromBody] UserProfile profile)
+        public async Task<IActionResult> CreateUserProfile(Guid projectId, [FromBody] UserProfile profile)
         {
             if (profile == null)
             {
@@ -49,9 +47,6 @@ namespace SFServer.API.Controllers
                 return BadRequest("Email already exists.");
             }
 
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
-
             profile.CreatedAt = DateTime.UtcNow;
             profile.ProjectId = projectId;
             _db.UserProfiles.Add(profile);
@@ -64,10 +59,8 @@ namespace SFServer.API.Controllers
 
         [HttpDelete("{id:guid}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid projectId, Guid id)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var profile = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (profile == null)
                 return NotFound();
@@ -88,10 +81,8 @@ namespace SFServer.API.Controllers
 
         // GET: api/UserProfiles/{id}
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid projectId, Guid id)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (user == null) return NotFound();
             return Ok(user);
@@ -99,10 +90,8 @@ namespace SFServer.API.Controllers
 
         // GET: api/UserProfiles/{userId}/device/{deviceId}
         [HttpGet("{userId:guid}/device/{deviceId}")]
-        public async Task<IActionResult> GetDeviceById(Guid userId, string deviceId)
+        public async Task<IActionResult> GetDeviceById(Guid projectId, Guid userId, string deviceId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId && d.ProjectId == projectId);
             if (userDevice == null)
             {
@@ -114,10 +103,8 @@ namespace SFServer.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUserProfile(Guid id, [FromBody] UserProfile updated)
+        public async Task<IActionResult> UpdateUserProfile(Guid projectId, Guid id, [FromBody] UserProfile updated)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
             if (id != updated.Id)
             {
                 return BadRequest("ID mismatch.");

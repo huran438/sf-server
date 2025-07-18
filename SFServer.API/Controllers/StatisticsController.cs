@@ -7,7 +7,7 @@ using SFServer.Shared.Server.Statistics;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin,Developer")]
     public class StatisticsController : ControllerBase
     {
@@ -19,10 +19,8 @@ namespace SFServer.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStatistics()
+        public async Task<IActionResult> GetStatistics(Guid projectId)
         {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
 
             var totalUsers = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId);
             var now = DateTime.UtcNow;

@@ -8,7 +8,7 @@ using SFServer.Shared.Server.Settings;
 
 namespace SFServer.API.Controllers {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin")]
     public class ServerSettingsController : ControllerBase {
         private readonly DatabseContext _db;
@@ -19,9 +19,7 @@ namespace SFServer.API.Controllers {
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetSettings() {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
+        public async Task<IActionResult> GetSettings(Guid projectId) {
             var settings = await _db.ServerSettings.FirstOrDefaultAsync(s => s.ProjectId == projectId);
             if (settings == null)
                 return NotFound();
@@ -29,9 +27,7 @@ namespace SFServer.API.Controllers {
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateSettings([FromBody] ServerSettings updated) {
-            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
-                return BadRequest("ProjectId header required");
+        public async Task<IActionResult> UpdateSettings(Guid projectId, [FromBody] ServerSettings updated) {
             var existing = await _db.ServerSettings.FirstOrDefaultAsync(s => s.ProjectId == projectId);
             if (existing == null)
             {

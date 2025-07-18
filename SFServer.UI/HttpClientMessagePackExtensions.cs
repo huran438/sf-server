@@ -22,7 +22,10 @@ namespace SFServer.UI
 
         public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config, Guid projectId = default)
         {
-            var client = new HttpClient { BaseAddress = new Uri(config["API_BASE_URL"]) };
+            var baseUrl = config["API_BASE_URL"].TrimEnd('/') + "/";
+            if (projectId != Guid.Empty)
+                baseUrl += projectId.ToString() + "/";
+            var client = new HttpClient { BaseAddress = new Uri(baseUrl) };
 
             var token = user.FindFirst("JwtToken")?.Value;
             if (!string.IsNullOrEmpty(token))
@@ -37,10 +40,6 @@ namespace SFServer.UI
                 Console.WriteLine("UserId" + userId);
             }
 
-            if (projectId != Guid.Empty)
-            {
-                client.DefaultRequestHeaders.Add("ProjectId", projectId.ToString());
-            }
             return client;
         }
 

@@ -15,6 +15,9 @@ namespace SFServer.UI.Pages.Inventory
         private readonly IConfiguration _config;
         private readonly ProjectContext _project;
 
+        [BindProperty(SupportsGet = true)]
+        public Guid projectId { get; set; }
+
         public InventoryPageModel(IConfiguration config, ProjectContext project)
         {
             _config = config;
@@ -38,7 +41,7 @@ namespace SFServer.UI.Pages.Inventory
         {
             using var http = GetClient();
             await http.DeleteAsync($"Inventory/{id}");
-            return RedirectToPage();
+            return RedirectToPage(new { projectId = projectId });
         }
     }
 }

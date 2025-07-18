@@ -10,10 +10,12 @@ namespace SFServer.UI.Controllers;
 public class AdministratorsController : Controller
 {
     private readonly IConfiguration _config;
+    private readonly ProjectContext _project;
 
-    public AdministratorsController(IConfiguration config)
+    public AdministratorsController(IConfiguration config, ProjectContext project)
     {
         _config = config;
+        _project = project;
     }
 
     private HttpClient GetClient() => User.CreateApiClient(_config);
@@ -29,11 +31,11 @@ public class AdministratorsController : Controller
     public async Task<IActionResult> Create(CreateAdminRequest model)
     {
         if (!ModelState.IsValid)
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { projectId = _project.CurrentProjectId });
 
         using var client = GetClient();
         await client.PostAsMessagePackAsync<CreateAdminRequest, Administrator>("Administrators", model);
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { projectId = _project.CurrentProjectId });
     }
 
     [HttpPost]
@@ -41,6 +43,6 @@ public class AdministratorsController : Controller
     {
         using var client = GetClient();
         await client.DeleteAsync($"Administrators/{id}");
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { projectId = _project.CurrentProjectId });
     }
 }
