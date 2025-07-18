@@ -54,8 +54,25 @@ public class ProjectsController : Controller
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Rename(Guid id, string name)
+    {
+        using var client = GetClient();
+        var project = new ProjectInfo { Id = id, Name = name };
+        await client.PutAsMessagePackAsync($"Projects/{id}", project);
+        if (_context.CurrentProjectId == id)
+        {
+            _context.CurrentProjectName = name;
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (id == Guid.Empty)
+            return RedirectToAction(nameof(Index));
+
         using var client = GetClient();
         await client.DeleteAsync($"Projects/{id}");
         if (_context.CurrentProjectId == id)

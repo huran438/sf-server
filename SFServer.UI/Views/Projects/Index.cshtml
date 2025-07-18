@@ -16,19 +16,28 @@
     <thead>
         <tr>
             <th>Name</th>
-            <th style="width:150px;">Actions</th>
+            <th style="width:200px;">Actions</th>
         </tr>
     </thead>
     <tbody>
 @foreach (var p in Model)
 {
         <tr>
-            <td>@p.Name</td>
             <td>
-                <form asp-action="Delete" method="post" class="d-inline">
+                <form asp-action="Rename" method="post" class="d-flex">
                     <input type="hidden" name="id" value="@p.Id" />
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    <input type="text" name="name" value="@p.Name" class="form-control form-control-sm me-2" />
+                    <button type="submit" class="btn btn-primary btn-sm">Rename</button>
                 </form>
+            </td>
+            <td>
+                @if (p.Id != Guid.Empty)
+                {
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@p.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                }
             </td>
         </tr>
 }

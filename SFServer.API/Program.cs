@@ -168,7 +168,7 @@ using (var scope = app.Services.CreateScope())
     {
         project = new SFServer.Shared.Server.Project.ProjectInfo
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.Empty,
             Name = config["DEFAULT_PROJECT_NAME"] ?? "Default"
         };
         context.Projects.Add(project);
