@@ -82,4 +82,19 @@ public class ProjectsController : Controller
         }
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Settings(Guid id)
+    {
+        using var client = GetClient();
+        var list = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects");
+        var proj = list.FirstOrDefault(p => p.Id == id);
+        if (proj != null)
+        {
+            _context.CurrentProjectId = proj.Id;
+            _context.CurrentProjectName = proj.Name;
+        }
+        return RedirectToAction("Index", "ServerSettings");
+    }
 }
