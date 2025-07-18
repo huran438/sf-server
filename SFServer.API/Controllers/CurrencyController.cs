@@ -21,14 +21,20 @@ namespace SFServer.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var currencies = await _context.Currencies.ToListAsync();
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var currencies = await _context.Currencies
+                .Where(c => c.ProjectId == projectId)
+                .ToListAsync();
             return Ok(currencies);
         }
         
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCurrencyById(Guid id)
         {
-            var currency = await _context.Currencies.FindAsync(id);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var currency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (currency == null)
             {
                 return NotFound();
@@ -42,7 +48,11 @@ namespace SFServer.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
+            currency.ProjectId = projectId;
             _context.Currencies.Add(currency);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAll), new { id = currency.Id }, currency);
@@ -54,7 +64,10 @@ namespace SFServer.API.Controllers
             if (id != updatedCurrency.Id)
                 return BadRequest("ID mismatch.");
 
-            var existingCurrency = await _context.Currencies.FindAsync(id);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+
+            var existingCurrency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (existingCurrency == null)
                 return NotFound("Currency not found.");
 
@@ -75,7 +88,9 @@ namespace SFServer.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCurrency(Guid id)
         {
-            var currency = await _context.Currencies.FindAsync(id);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var currency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (currency == null)
             {
                 return NotFound("Currency not found.");

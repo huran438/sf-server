@@ -17,15 +17,17 @@ namespace SFServer.UI.Controllers
     public class UserProfilesController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly ProjectContext _project;
 
-        public UserProfilesController(IConfiguration configuration)
+        public UserProfilesController(IConfiguration configuration, ProjectContext project)
         {
             _configuration = configuration;
+            _project = project;
         }
 
         private HttpClient GetAuthenticatedHttpClient()
         {
-            return User.CreateApiClient(_configuration);
+            return User.CreateApiClient(_configuration, _project.CurrentProjectId);
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 20, string search = "", string sortColumn = "Id", string sortOrder = "asc")

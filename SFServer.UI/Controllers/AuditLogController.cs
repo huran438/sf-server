@@ -17,15 +17,17 @@ namespace SFServer.UI.Controllers
     public class AuditLogController : Controller
     {
         private readonly IConfiguration _config;
+        private readonly ProjectContext _project;
 
-        public AuditLogController(IConfiguration config)
+        public AuditLogController(IConfiguration config, ProjectContext project)
         {
             _config = config;
+            _project = project;
         }
 
         private HttpClient GetClient()
         {
-            return User.CreateApiClient(_config);
+            return User.CreateApiClient(_config, _project.CurrentProjectId);
         }
 
         public async Task<IActionResult> Index()

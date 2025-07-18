@@ -24,7 +24,10 @@ namespace SFServer.API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<AuditLogEntry>>> Get([FromQuery] int count = 100)
         {
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
             var logs = await _db.AuditLogs
+                .Where(l => l.ProjectId == projectId)
                 .OrderByDescending(l => l.Timestamp)
                 .Take(count)
                 .ToListAsync();
@@ -34,7 +37,10 @@ namespace SFServer.API.Controllers
         [HttpDelete]
         public async Task<IActionResult> Clear()
         {
-            _db.AuditLogs.RemoveRange(_db.AuditLogs);
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
+            var toRemove = _db.AuditLogs.Where(l => l.ProjectId == projectId);
+            _db.AuditLogs.RemoveRange(toRemove);
             await _db.SaveChangesAsync();
             return NoContent();
         }
@@ -42,7 +48,10 @@ namespace SFServer.API.Controllers
         [HttpGet("export")]
         public async Task<IActionResult> Export()
         {
+            if (!Guid.TryParse(Request.Headers[Headers.PID], out var projectId))
+                return BadRequest("ProjectId header required");
             var logs = await _db.AuditLogs
+                .Where(l => l.ProjectId == projectId)
                 .OrderByDescending(l => l.Timestamp)
                 .ToListAsync();
 

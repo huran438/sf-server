@@ -16,15 +16,17 @@ namespace SFServer.UI.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ServerSettingsService _service;
-        public ServerSettingsController(IConfiguration configuration, ServerSettingsService service)
+        private readonly ProjectContext _project;
+        public ServerSettingsController(IConfiguration configuration, ServerSettingsService service, ProjectContext project)
         {
             _configuration = configuration;
             _service = service;
+            _project = project;
         }
 
         private HttpClient GetAuthenticatedHttpClient()
         {
-            return User.CreateApiClient(_configuration);
+            return User.CreateApiClient(_configuration, _project.CurrentProjectId);
         }
 
         public async Task<IActionResult> Index()
