@@ -28,7 +28,8 @@ namespace SFServer.API.Data
 
         public DbSet<UserSession> UserSessions { get; set; }
 
-        public DbSet<ServerSettings> ServerSettings { get; set; }
+        public DbSet<ProjectSettings> ProjectSettings { get; set; }
+        public DbSet<GlobalSettings> GlobalSettings { get; set; }
 
         public DbSet<AuditLogEntry> AuditLogs { get; set; }
 

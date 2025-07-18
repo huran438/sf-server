@@ -176,13 +176,12 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("✅ Default project created.");
     }
 
-    // Seed server settings from environment variables if not present
-    if (!context.ServerSettings.Any())
+    // Seed global settings
+    if (!context.GlobalSettings.Any())
     {
-        var settings = new SFServer.Shared.Server.Settings.ServerSettings
+        var gs = new SFServer.Shared.Server.Settings.GlobalSettings
         {
             Id = Guid.NewGuid(),
-            ProjectId = project.Id,
             ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
             GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
@@ -190,9 +189,27 @@ using (var scope = app.Services.CreateScope())
             GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty,
             GoogleServiceAccountJson = config["GOOGLE_SERVICE_ACCOUNT_JSON"] ?? string.Empty
         };
-        context.ServerSettings.Add(settings);
+        context.GlobalSettings.Add(gs);
         context.SaveChanges();
-        Console.WriteLine("✅ Server settings created from environment.");
+        Console.WriteLine("✅ Global settings created from environment.");
+    }
+
+    if (!context.ProjectSettings.Any())
+    {
+        var ps = new SFServer.Shared.Server.Settings.ProjectSettings
+        {
+            Id = Guid.NewGuid(),
+            ProjectId = project.Id,
+            ServerTitle = project.Name,
+            ServerCopyright = string.Empty,
+            GoogleClientId = string.Empty,
+            ClickHouseConnection = string.Empty,
+            GoogleClientSecret = string.Empty,
+            GoogleServiceAccountJson = string.Empty
+        };
+        context.ProjectSettings.Add(ps);
+        context.SaveChanges();
+        Console.WriteLine("✅ Default project settings created.");
     }
 }
 

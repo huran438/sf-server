@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SFServer.UI.Models
 {
-    public class ServerSettingsViewModel
+    public class ProjectSettingsViewModel
     {
         public Guid Id { get; set; }
 

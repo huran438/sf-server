@@ -12,12 +12,12 @@ using SFServer.UI;
 namespace SFServer.UI.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class ServerSettingsController : Controller
+    public class ProjectSettingsController : Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly ServerSettingsService _service;
+        private readonly ProjectSettingsService _service;
         private readonly ProjectContext _project;
-        public ServerSettingsController(IConfiguration configuration, ServerSettingsService service, ProjectContext project)
+        public ProjectSettingsController(IConfiguration configuration, ProjectSettingsService service, ProjectContext project)
         {
             _configuration = configuration;
             _service = service;
@@ -32,12 +32,12 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Index()
         {
             using var client = GetAuthenticatedHttpClient();
-            var settings = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings");
+            var settings = await client.GetFromMessagePackAsync<ProjectSettings>("ProjectSettings");
             if (settings != null)
                 _service.UpdateCache(settings);
             else
-                settings = new ServerSettings();
-            var vm = new ServerSettingsViewModel
+                settings = new ProjectSettings();
+            var vm = new ProjectSettingsViewModel
             {
                 Id = settings.Id,
                 ServerTitle = settings.ServerTitle,
@@ -52,13 +52,13 @@ namespace SFServer.UI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(ServerSettingsViewModel model)
+        public async Task<IActionResult> Index(ProjectSettingsViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             using var client = GetAuthenticatedHttpClient();
-            var payload = new ServerSettings
+            var payload = new ProjectSettings
             {
                 Id = model.Id,
                 ServerTitle = model.ServerTitle,
@@ -68,7 +68,7 @@ namespace SFServer.UI.Controllers
                 ClickHouseConnection = model.ClickHouseConnection,
                 GoogleServiceAccountJson = model.GoogleServiceAccountJson,
             };
-            var response = await client.PutAsMessagePackAsync("ServerSettings", payload);
+            var response = await client.PutAsMessagePackAsync("ProjectSettings", payload);
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to save settings.";

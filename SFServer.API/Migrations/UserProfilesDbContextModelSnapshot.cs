@@ -181,7 +181,7 @@ namespace SFServer.API.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Server.Settings.ServerSettings", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.Settings.ProjectSettings", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -210,7 +210,36 @@ namespace SFServer.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerSettings");
+                    b.ToTable("ProjectSettings");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Settings.GlobalSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ClickHouseConnection")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GoogleClientId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GoogleClientSecret")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GoogleServiceAccountJson")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServerCopyright")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServerTitle")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GlobalSettings");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserDevice", b =>

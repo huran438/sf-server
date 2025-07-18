@@ -30,7 +30,7 @@ public class PurchasesController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var settings = await _db.ServerSettings.FirstOrDefaultAsync();
+        var settings = await _db.GlobalSettings.FirstOrDefaultAsync();
         var credJson = settings?.GoogleServiceAccountJson;
         if (string.IsNullOrEmpty(credJson))
             credJson = _config["GOOGLE_SERVICE_ACCOUNT_JSON"];

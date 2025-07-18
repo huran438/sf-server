@@ -95,6 +95,6 @@ public class ProjectsController : Controller
             _context.CurrentProjectId = proj.Id;
             _context.CurrentProjectName = proj.Name;
         }
-        return RedirectToAction("Index", "ServerSettings", new { projectId = _context.CurrentProjectId });
+        return RedirectToAction("Index", "ProjectSettings", new { projectId = _context.CurrentProjectId });
     }
 }

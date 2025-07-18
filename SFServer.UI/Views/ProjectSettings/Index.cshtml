@@ -1,15 +1,8 @@
-@model SFServer.UI.Models.ServerSettingsViewModel
+@model SFServer.UI.Models.ProjectSettingsViewModel
 @{
-    ViewData["Title"] = "Server Settings";
+    ViewData["Title"] = "Project Settings";
 }
-
-<h1>Server Settings</h1>
-
-<div class="mb-3">
-    <a asp-controller="AuditLog" asp-action="Index" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-clipboard-data"></i> View Audit Log
-    </a>
-</div>
+<h1>Project Settings</h1>
 
 @if (TempData["Success"] != null)
 {
