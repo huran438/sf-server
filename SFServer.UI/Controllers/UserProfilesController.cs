@@ -43,6 +43,11 @@ namespace SFServer.UI.Controllers
 
                 // Retrieve profiles using MessagePack.
                 var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles");
+                if (profiles == null)
+                {
+                    TempData["Error"] = "Failed to load user profiles.";
+                    profiles = new List<UserProfile>();
+                }
 
                 // Filter profiles by search query.
                 if (!string.IsNullOrWhiteSpace(search))
