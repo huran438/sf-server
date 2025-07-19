@@ -34,8 +34,8 @@ namespace SFServer.UI.Controllers
         {
             using var client = GetClient();
 
-            var logs = await client.GetFromMessagePackAsync<List<AuditLogEntry>>("AuditLog?count=100");
-            var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles");
+            var logs = await client.GetFromMessagePackAsync<List<AuditLogEntry>>("AuditLog?count=100") ?? new();
+            var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles") ?? new();
             var profileLookup = profiles.ToDictionary(p => p.Id);
 
             var groups = new Dictionary<UserRole, List<AuditLogEntry>>();

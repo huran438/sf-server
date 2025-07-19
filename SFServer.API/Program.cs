@@ -183,11 +183,7 @@ using (var scope = app.Services.CreateScope())
         {
             Id = Guid.NewGuid(),
             ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
-            ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
-            GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
-            ClickHouseConnection = config["CLICKHOUSE_CONNECTION"] ?? string.Empty,
-            GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty,
-            GoogleServiceAccountJson = config["GOOGLE_SERVICE_ACCOUNT_JSON"] ?? string.Empty
+            ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty
         };
         context.GlobalSettings.Add(gs);
         context.SaveChanges();

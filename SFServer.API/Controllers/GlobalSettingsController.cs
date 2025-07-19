@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using SFServer.API.Data;
 using SFServer.Shared.Server.Settings;
 
@@ -42,14 +41,6 @@ public class GlobalSettingsController : ControllerBase
         {
             existing.ServerTitle = updated.ServerTitle;
             existing.ServerCopyright = updated.ServerCopyright;
-            existing.GoogleClientId = updated.GoogleClientId;
-            existing.GoogleClientSecret = updated.GoogleClientSecret;
-            existing.ClickHouseConnection = updated.ClickHouseConnection;
-            if (!string.IsNullOrEmpty(updated.GoogleServiceAccountJson))
-            {
-                dynamic parsedJson = JsonConvert.DeserializeObject(updated.GoogleServiceAccountJson);
-                existing.GoogleServiceAccountJson = parsedJson == null ? updated.GoogleServiceAccountJson : (string)JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
-            }
         }
         await _db.SaveChangesAsync();
         return NoContent();

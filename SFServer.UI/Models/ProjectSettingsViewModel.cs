@@ -7,12 +7,6 @@ namespace SFServer.UI.Models
     {
         public Guid Id { get; set; }
 
-        [Display(Name = "Server Title")]
-        public string ServerTitle { get; set; } = string.Empty;
-
-        [Display(Name = "Copyright")]
-        public string ServerCopyright { get; set; } = string.Empty;
-
         [Display(Name = "Google Client ID")]
         public string GoogleClientId { get; set; } = string.Empty;
 
