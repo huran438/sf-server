@@ -7,7 +7,7 @@ using SFServer.Shared.Server.Wallet;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin,Developer")]
     public class CurrencyController : ControllerBase
     {
@@ -19,16 +19,18 @@ namespace SFServer.API.Controllers
         
         // GET /Currency
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(Guid projectId)
         {
-            var currencies = await _context.Currencies.ToListAsync();
+            var currencies = await _context.Currencies
+                .Where(c => c.ProjectId == projectId)
+                .ToListAsync();
             return Ok(currencies);
         }
         
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCurrencyById(Guid id)
+        public async Task<IActionResult> GetCurrencyById(Guid projectId, Guid id)
         {
-            var currency = await _context.Currencies.FindAsync(id);
+            var currency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (currency == null)
             {
                 return NotFound();
@@ -38,23 +40,25 @@ namespace SFServer.API.Controllers
         
         // POST /Currency/create
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] Currency currency)
+        public async Task<IActionResult> Create(Guid projectId, [FromBody] Currency currency)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
+            currency.ProjectId = projectId;
             _context.Currencies.Add(currency);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetAll), new { id = currency.Id }, currency);
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCurrency(Guid id, [FromBody] Currency updatedCurrency)
+        public async Task<IActionResult> UpdateCurrency(Guid projectId, Guid id, [FromBody] Currency updatedCurrency)
         {
             if (id != updatedCurrency.Id)
                 return BadRequest("ID mismatch.");
 
-            var existingCurrency = await _context.Currencies.FindAsync(id);
+
+            var existingCurrency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (existingCurrency == null)
                 return NotFound("Currency not found.");
 
@@ -73,9 +77,9 @@ namespace SFServer.API.Controllers
         
         // DELETE /Currency/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCurrency(Guid id)
+        public async Task<IActionResult> DeleteCurrency(Guid projectId, Guid id)
         {
-            var currency = await _context.Currencies.FindAsync(id);
+            var currency = await _context.Currencies.FirstOrDefaultAsync(c => c.Id == id && c.ProjectId == projectId);
             if (currency == null)
             {
                 return NotFound("Currency not found.");

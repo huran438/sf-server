@@ -14,15 +14,17 @@ namespace SFServer.UI.Controllers
     public class StatisticsController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly ProjectContext _project;
 
-        public StatisticsController(IConfiguration configuration)
+        public StatisticsController(IConfiguration configuration, ProjectContext project)
         {
             _configuration = configuration;
+            _project = project;
         }
 
         private HttpClient GetAuthenticatedHttpClient()
         {
-            return User.CreateApiClient(_configuration);
+            return User.CreateApiClient(_configuration, _project.CurrentProjectId);
         }
 
         public async Task<IActionResult> Index()

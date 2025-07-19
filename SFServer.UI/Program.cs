@@ -49,7 +49,9 @@ builder.Services.AddHttpClient("api", c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["API_BASE_URL"]);
 });
-builder.Services.AddSingleton<ServerSettingsService>();
+builder.Services.AddSingleton<ProjectSettingsService>();
+builder.Services.AddSingleton<GlobalSettingsService>();
+builder.Services.AddSingleton<ProjectContext>();
 
 var app = builder.Build();
 
@@ -70,7 +72,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "project", pattern: "{projectId:guid}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Account}/{action=Login}/{id?}");
 app.MapRazorPages();
 
 app.Run();

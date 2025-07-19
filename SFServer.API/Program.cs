@@ -39,6 +39,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddScoped<IPasswordHasher<UserProfile>, PasswordHasher<UserProfile>>();
+builder.Services.AddScoped<IPasswordHasher<SFServer.Shared.Server.Admin.Administrator>, PasswordHasher<SFServer.Shared.Server.Admin.Administrator>>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddSingleton<IAnalyticsService>(sp => new ClickHouseAnalyticsService(builder.Configuration.GetConnectionString("ClickHouse")!));
 
@@ -138,49 +139,73 @@ using (var scope = app.Services.CreateScope())
     var adminUsername = config["ADMIN_USERNAME"];
     var adminEmail = config["ADMIN_EMAIL"];
 
-    // Only create if admin doesn't exist
-    if (!context.UserProfiles.Any(u => u.Role == UserRole.Admin))
+    if (!context.Administrators.Any())
     {
-        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<UserProfile>>();
+        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<SFServer.Shared.Server.Admin.Administrator>>();
 
-        var adminUser = new UserProfile
+        var adminUser = new SFServer.Shared.Server.Admin.Administrator
         {
-            Id = Guid.CreateVersion7(),
+            Id = Guid.Empty,
             Username = adminUsername,
             Email = adminEmail,
-            Role = UserRole.Admin,
             CreatedAt = DateTime.UtcNow
         };
 
-
         adminUser.PasswordHash = hasher.HashPassword(adminUser, config["ADMIN_PASSWORD"] ?? "password");
 
-        context.UserProfiles.Add(adminUser);
-
+        context.Administrators.Add(adminUser);
         context.SaveChanges();
-        Console.WriteLine($"✅ Admin user '{adminUsername}' created.");
+        Console.WriteLine($"✅ Root administrator '{adminUsername}' created.");
     }
     else
     {
-        Console.WriteLine($"ℹ️ Admin user '{adminUsername}' already exists.");
+        Console.WriteLine("ℹ️ Administrators already configured.");
     }
 
-    // Seed server settings from environment variables if not present
-    if (!context.ServerSettings.Any())
+    // Seed projects
+    var project = context.Projects.FirstOrDefault();
+    if (project == null)
     {
-        var settings = new SFServer.Shared.Server.Settings.ServerSettings
+        project = new SFServer.Shared.Server.Project.ProjectInfo
+        {
+            Id = Guid.Empty,
+            Name = config["DEFAULT_PROJECT_NAME"] ?? "Default"
+        };
+        context.Projects.Add(project);
+        context.SaveChanges();
+        Console.WriteLine("✅ Default project created.");
+    }
+
+    // Seed global settings
+    if (!context.GlobalSettings.Any())
+    {
+        var gs = new SFServer.Shared.Server.Settings.GlobalSettings
         {
             Id = Guid.NewGuid(),
             ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
-            ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty,
-            GoogleClientId = config["GOOGLE_CLIENT_ID"] ?? string.Empty,
-            ClickHouseConnection = config["CLICKHOUSE_CONNECTION"] ?? string.Empty,
-            GoogleClientSecret = config["GOOGLE_CLIENT_SECRET"] ?? string.Empty,
-            GoogleServiceAccountJson = config["GOOGLE_SERVICE_ACCOUNT_JSON"] ?? string.Empty
+            ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty
         };
-        context.ServerSettings.Add(settings);
+        context.GlobalSettings.Add(gs);
         context.SaveChanges();
-        Console.WriteLine("✅ Server settings created from environment.");
+        Console.WriteLine("✅ Global settings created from environment.");
+    }
+
+    if (!context.ProjectSettings.Any())
+    {
+        var ps = new SFServer.Shared.Server.Settings.ProjectSettings
+        {
+            Id = Guid.NewGuid(),
+            ProjectId = project.Id,
+            ServerTitle = project.Name,
+            ServerCopyright = string.Empty,
+            GoogleClientId = string.Empty,
+            ClickHouseConnection = string.Empty,
+            GoogleClientSecret = string.Empty,
+            GoogleServiceAccountJson = string.Empty
+        };
+        context.ProjectSettings.Add(ps);
+        context.SaveChanges();
+        Console.WriteLine("✅ Default project settings created.");
     }
 }
 

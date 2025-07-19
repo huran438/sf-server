@@ -14,6 +14,7 @@ using SFServer.Shared.Client.Auth;
 using SFServer.Shared.Server.Auth;
 using SFServer.Shared.Server.Google;
 using SFServer.Shared.Server.UserProfile;
+using SFServer.Shared.Server.Admin;
 using shortid;
 using shortid.Configuration;
 
@@ -44,36 +45,79 @@ namespace SFServer.API.Controllers
                 return BadRequest(ModelState);
             }
 
+            Administrator admin = null;
             UserProfile user = null;
 
-            // Try to interpret the credential as an ID (integer)
             if (Guid.TryParse(request.Credential, out Guid id))
             {
-                user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id);
+                admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Id == id);
+                user = admin == null ? await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id) : null;
             }
 
-            // If not found and if the credential contains '@', try email lookup.
-            if (user == null && request.Credential.Contains("@"))
+            if (admin == null && user == null && request.Credential.Contains("@"))
             {
-                user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Credential.ToLower());
+                admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Email.ToLower() == request.Credential.ToLower());
+                if (admin == null)
+                    user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Credential.ToLower());
             }
 
-            // If still not found, try username lookup.
-            if (user == null)
+            if (admin == null && user == null)
             {
-                user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
+                admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Username.ToLower() == request.Credential.ToLower());
+                if (admin == null)
+                    user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
             }
 
-            if (user == null)
+            if (admin == null && user == null)
                 return Unauthorized("User not found");
 
-            // Only allow Admin or Developer logins (or allow others as per your business logic)
+            if (admin != null)
+            {
+                var hasher = new PasswordHasher<Administrator>();
+                var result = hasher.VerifyHashedPassword(admin, admin.PasswordHash, request.Password);
+                if (result == PasswordVerificationResult.Failed)
+                    return Unauthorized("Invalid password");
+
+                var adminClaims = new List<Claim>
+                {
+                    new(ClaimTypes.Name, admin.Username),
+                    new(ClaimTypes.Role, UserRole.Admin.ToString())
+                };
+
+                var adminKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET"]));
+                var adminExpiration = GetExpirationDate();
+                var adminCreds = new SigningCredentials(adminKey, SecurityAlgorithms.HmacSha256);
+                var adminToken = new JwtSecurityToken(
+                    issuer: _config["Jwt:Issuer"],
+                    audience: _config["Jwt:Audience"],
+                    claims: adminClaims,
+                    expires: adminExpiration,
+                    signingCredentials: adminCreds
+                );
+                var adminJwtToken = new JwtSecurityTokenHandler().WriteToken(adminToken);
+
+                await _db.SaveChangesAsync();
+
+                var adminResponse = new DashboardLoginResponse
+                {
+                    UserId = admin.Id,
+                    Username = admin.Username,
+                    Email = admin.Email,
+                    Role = UserRole.Admin,
+                    ExpirationDate = adminExpiration,
+                    JwtToken = adminJwtToken
+                };
+
+                return Ok(adminResponse);
+            }
+
+            // Only allow Admin or Developer user logins
             if (user.Role != UserRole.Admin && user.Role != UserRole.Developer)
                 return Unauthorized("You do not have permission to access this service.");
 
-            var hasher = new PasswordHasher<UserProfile>();
-            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-            if (result == PasswordVerificationResult.Failed)
+            var hasherUser = new PasswordHasher<UserProfile>();
+            var resultUser = hasherUser.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            if (resultUser == PasswordVerificationResult.Failed)
                 return Unauthorized("Invalid password");
 
             // Create JWT token.

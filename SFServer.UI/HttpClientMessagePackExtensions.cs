@@ -20,9 +20,12 @@ namespace SFServer.UI
         // Configure MessagePack options to use ContractlessStandardResolver.
         private static readonly MemoryPackSerializerOptions DefaultOptions = MemoryPackSerializerOptions.Default;
 
-        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config)
+        public static HttpClient CreateApiClient(this ClaimsPrincipal user, IConfiguration config, Guid projectId = default)
         {
-            var client = new HttpClient { BaseAddress = new Uri(config["API_BASE_URL"]) };
+            var baseUrl = config["API_BASE_URL"].TrimEnd('/') + "/";
+            if (projectId != Guid.Empty)
+                baseUrl += projectId.ToString() + "/";
+            var client = new HttpClient { BaseAddress = new Uri(baseUrl) };
 
             var token = user.FindFirst("JwtToken")?.Value;
             if (!string.IsNullOrEmpty(token))

@@ -7,6 +7,7 @@ namespace SFServer.Shared.Server.Audit
     public partial class AuditLogEntry
     {
         public Guid Id { get; set; }
+        public Guid ProjectId { get; set; }
         public Guid? UserId { get; set; }
         public string Path { get; set; }
         public string Method { get; set; }
