@@ -16,11 +16,6 @@
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="form-group mb-3">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-group mb-3">
         <label asp-for="Role"></label>
         <enum-dropdown asp-for="Role" enum-type="@(typeof(UserRole))" exclude="@(new[] { nameof(UserRole.Admin), nameof(UserRole.Guest)  })" />
         <span asp-validation-for="Role" class="text-danger"></span>

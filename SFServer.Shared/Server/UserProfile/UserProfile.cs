@@ -21,7 +21,6 @@ namespace SFServer.Shared.Server.UserProfile
         public DateTime LastEditAt { get; set; }
         public DateTime LastLoginAt { get; set; }
         public UserRole Role { get; set; }
-        public string PasswordHash { get; set; }
         public string GooglePlayId { get; set; }
         public bool DebugMode { get; set; }
         public List<string> DeviceIds { get; set; } = new();

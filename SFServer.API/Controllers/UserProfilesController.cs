@@ -139,25 +139,6 @@ namespace SFServer.API.Controllers
             existing.DebugMode = updated.DebugMode;
             updated.ProjectId = existing.ProjectId;
 
-            // Determine if current user is trying to change someone else's password
-            var currentUserId = Request.Headers[Headers.UID].FirstOrDefault();
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                currentUserId = User.FindFirst("UserId")?.Value;
-            }
-            bool isSelf = currentUserId == existing.Id.ToString();
-            bool isAdmin = User.IsInRole("Admin");
-
-            if (!string.IsNullOrEmpty(updated.PasswordHash))
-            {
-                if (!isAdmin && !isSelf)
-                {
-                    return Forbid("You can only change your own password.");
-                }
-
-                // Only allow Admin or self to update password
-                existing.PasswordHash = updated.PasswordHash;
-            }
 
             try
             {

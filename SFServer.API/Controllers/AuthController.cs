@@ -37,94 +37,38 @@ namespace SFServer.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || string.IsNullOrEmpty(request.Credential))
                 return BadRequest(ModelState);
-
-            if (string.IsNullOrEmpty(request.Credential))
-            {
-                return BadRequest(ModelState);
-            }
 
             Administrator admin = null;
-            UserProfile user = null;
 
             if (Guid.TryParse(request.Credential, out Guid id))
             {
                 admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Id == id);
-                user = admin == null ? await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id) : null;
             }
 
-            if (admin == null && user == null && request.Credential.Contains("@"))
+            if (admin == null && request.Credential.Contains("@"))
             {
                 admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Email.ToLower() == request.Credential.ToLower());
-                if (admin == null)
-                    user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Credential.ToLower());
             }
 
-            if (admin == null && user == null)
+            if (admin == null)
             {
                 admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Username.ToLower() == request.Credential.ToLower());
-                if (admin == null)
-                    user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
             }
 
-            if (admin == null && user == null)
+            if (admin == null)
                 return Unauthorized("User not found");
 
-            if (admin != null)
-            {
-                var hasher = new PasswordHasher<Administrator>();
-                var result = hasher.VerifyHashedPassword(admin, admin.PasswordHash, request.Password);
-                if (result == PasswordVerificationResult.Failed)
-                    return Unauthorized("Invalid password");
-
-                var adminClaims = new List<Claim>
-                {
-                    new(ClaimTypes.Name, admin.Username),
-                    new(ClaimTypes.Role, UserRole.Admin.ToString())
-                };
-
-                var adminKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET"]));
-                var adminExpiration = GetExpirationDate();
-                var adminCreds = new SigningCredentials(adminKey, SecurityAlgorithms.HmacSha256);
-                var adminToken = new JwtSecurityToken(
-                    issuer: _config["Jwt:Issuer"],
-                    audience: _config["Jwt:Audience"],
-                    claims: adminClaims,
-                    expires: adminExpiration,
-                    signingCredentials: adminCreds
-                );
-                var adminJwtToken = new JwtSecurityTokenHandler().WriteToken(adminToken);
-
-                await _db.SaveChangesAsync();
-
-                var adminResponse = new DashboardLoginResponse
-                {
-                    UserId = admin.Id,
-                    Username = admin.Username,
-                    Email = admin.Email,
-                    Role = UserRole.Admin,
-                    ExpirationDate = adminExpiration,
-                    JwtToken = adminJwtToken
-                };
-
-                return Ok(adminResponse);
-            }
-
-            // Only allow Admin or Developer user logins
-            if (user.Role != UserRole.Admin && user.Role != UserRole.Developer)
-                return Unauthorized("You do not have permission to access this service.");
-
-            var hasherUser = new PasswordHasher<UserProfile>();
-            var resultUser = hasherUser.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-            if (resultUser == PasswordVerificationResult.Failed)
+            var hasher = new PasswordHasher<Administrator>();
+            var result = hasher.VerifyHashedPassword(admin, admin.PasswordHash, request.Password);
+            if (result == PasswordVerificationResult.Failed)
                 return Unauthorized("Invalid password");
 
-            // Create JWT token.
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, user.Username),
-                new(ClaimTypes.Role, user.Role.ToString())
+                new(ClaimTypes.Name, admin.Username),
+                new(ClaimTypes.Role, UserRole.Admin.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET"]));
@@ -139,15 +83,14 @@ namespace SFServer.API.Controllers
             );
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            user.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
             var response = new DashboardLoginResponse
             {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                Role = user.Role,
+                UserId = admin.Id,
+                Username = admin.Username,
+                Email = admin.Email,
+                Role = UserRole.Admin,
                 ExpirationDate = expirationDate,
                 JwtToken = jwtToken
             };
@@ -441,9 +384,6 @@ namespace SFServer.API.Controllers
                 {
                     user.DeviceIds.Add(request.DeviceId);
                 }
-
-                var hasher = new PasswordHasher<UserProfile>();
-                user.PasswordHash = hasher.HashPassword(user, Guid.NewGuid().ToString());
 
                 _db.UserProfiles.Add(user);
             }

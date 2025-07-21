@@ -11,8 +11,6 @@ namespace SFServer.UI.Models.UserProfiles
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required, DataType(DataType.Password)]
-        public string Password { get; set; }
 
         [Required]
         public UserRole Role { get; set; } = UserRole.User;

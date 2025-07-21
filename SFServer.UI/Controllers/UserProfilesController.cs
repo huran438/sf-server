@@ -121,8 +121,6 @@ namespace SFServer.UI.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            var hasher = new PasswordHasher<UserProfile>();
-            newUser.PasswordHash = hasher.HashPassword(newUser, model.Password);
 
             using var client = GetAuthenticatedHttpClient();
 
@@ -268,12 +266,6 @@ namespace SFServer.UI.Controllers
             existingProfile.Role = model.Role;
             existingProfile.DebugMode = model.Role is UserRole.Admin or UserRole.Developer && model.DebugMode;
 
-            // Update password if provided.
-            if (!string.IsNullOrWhiteSpace(model.NewPassword) && model.NewPassword == model.ConfirmPassword)
-            {
-                var hasher = new PasswordHasher<UserProfile>();
-                existingProfile.PasswordHash = hasher.HashPassword(existingProfile, model.NewPassword);
-            }
 
             // Use MessagePack for PUT.
             var response = await httpClient.PutAsMessagePackAsync($"UserProfiles/{id}", existingProfile);

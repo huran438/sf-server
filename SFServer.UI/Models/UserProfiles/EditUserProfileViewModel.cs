@@ -24,14 +24,6 @@ namespace SFServer.UI.Models.UserProfiles
     
         public string FacebookId { get; set; }
 
-        // New properties for password change
-        [DataType(DataType.Password)]
-        public string NewPassword { get; set; }
-    
-    
-        [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
-        public string ConfirmPassword { get; set; }
     
         public List<WalletItemViewModel> WalletItems { get; set; } = new() { };
     
