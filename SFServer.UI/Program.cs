@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFServer.UI;
+using SFServer.UI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AuthorizeFilter());
+    options.Filters.Add<ProjectContextFilter>();
 });
 builder.Services.AddRazorPages();
 
@@ -52,6 +54,7 @@ builder.Services.AddHttpClient("api", c =>
 builder.Services.AddSingleton<ProjectSettingsService>();
 builder.Services.AddSingleton<GlobalSettingsService>();
 builder.Services.AddSingleton<ProjectContext>();
+builder.Services.AddScoped<ProjectContextFilter>();
 
 var app = builder.Build();
 

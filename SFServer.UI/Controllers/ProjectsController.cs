@@ -34,6 +34,8 @@ public class ProjectsController : Controller
         using var client = GetClient();
         var list = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects");
         var proj = list.FirstOrDefault(p => p.Id == id);
+        if (proj == null && list.Count > 0)
+            proj = list.First();
         if (proj != null)
         {
             _context.CurrentProjectId = proj.Id;
@@ -77,8 +79,18 @@ public class ProjectsController : Controller
         await client.DeleteAsync($"Projects/{id}");
         if (_context.CurrentProjectId == id)
         {
-            _context.CurrentProjectId = Guid.Empty;
-            _context.CurrentProjectName = string.Empty;
+            var list = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects") ?? new();
+            var proj = list.FirstOrDefault();
+            if (proj != null)
+            {
+                _context.CurrentProjectId = proj.Id;
+                _context.CurrentProjectName = proj.Name;
+            }
+            else
+            {
+                _context.CurrentProjectId = Guid.Empty;
+                _context.CurrentProjectName = string.Empty;
+            }
         }
         return RedirectToAction(nameof(Index), new { projectId = _context.CurrentProjectId });
     }
@@ -90,6 +102,8 @@ public class ProjectsController : Controller
         using var client = GetClient();
         var list = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects");
         var proj = list.FirstOrDefault(p => p.Id == id);
+        if (proj == null && list.Count > 0)
+            proj = list.First();
         if (proj != null)
         {
             _context.CurrentProjectId = proj.Id;
