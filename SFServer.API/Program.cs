@@ -145,7 +145,7 @@ using (var scope = app.Services.CreateScope())
 
         var adminUser = new SFServer.Shared.Server.Admin.Administrator
         {
-            Id = Guid.Empty,
+            Id = Guid.CreateVersion7(),
             Username = adminUsername,
             Email = adminEmail,
             CreatedAt = DateTime.UtcNow
@@ -168,7 +168,7 @@ using (var scope = app.Services.CreateScope())
     {
         project = new SFServer.Shared.Server.Project.ProjectInfo
         {
-            Id = Guid.Empty,
+            Id = Guid.CreateVersion7(),
             Name = config["DEFAULT_PROJECT_NAME"] ?? "Default"
         };
         context.Projects.Add(project);

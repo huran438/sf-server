@@ -57,7 +57,7 @@ public class ProjectsController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         if (id == Guid.Empty)
-            return BadRequest("Cannot delete default project");
+            return BadRequest();
 
         var project = await _db.Projects.FindAsync(id);
         if (project == null)

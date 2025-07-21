@@ -40,7 +40,7 @@ public class AdministratorsController : ControllerBase
 
         var admin = new Administrator
         {
-            Id = await _db.Administrators.AnyAsync() ? Guid.CreateVersion7() : Guid.Empty,
+            Id = Guid.CreateVersion7(),
             Username = request.Username,
             Email = request.Email,
             CreatedAt = DateTime.UtcNow
@@ -54,9 +54,9 @@ public class AdministratorsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (id == Guid.Empty) return BadRequest();
         var admin = await _db.Administrators.FindAsync(id);
         if (admin == null) return NotFound();
-        if (admin.Id == Guid.Empty) return BadRequest("Cannot delete root administrator.");
         _db.Administrators.Remove(admin);
         await _db.SaveChangesAsync();
         return NoContent();

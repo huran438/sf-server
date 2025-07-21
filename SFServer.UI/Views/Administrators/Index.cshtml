@@ -36,13 +36,10 @@
             <td>@a.Username</td>
             <td>@a.Email</td>
             <td>
-                @if (a.Id != Guid.Empty)
-                {
-                    <form asp-action="Delete" method="post" class="d-inline">
-                        <input type="hidden" name="id" value="@a.Id" />
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                }
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@a.Id" />
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
             </td>
         </tr>
 }
