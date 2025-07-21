@@ -7,7 +7,6 @@ namespace SFServer.Shared.Server.Wallet
     public partial class WalletItem
     {
         public Guid Id { get; set; }
-        public Guid ProjectId { get; set; }
 
         // Foreign key to user
         public Guid UserId { get; set; }

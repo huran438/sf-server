@@ -29,7 +29,7 @@ namespace SFServer.API.Controllers
 
             // Retrieve existing wallet items for the user.
             var walletItems = await _context.WalletItems
-                .Where(w => w.UserId == userId && w.ProjectId == projectId)
+                .Where(w => w.UserId == userId)
                 .Include(w => w.Currency)
                 .ToListAsync();
 
@@ -43,8 +43,7 @@ namespace SFServer.API.Controllers
                         UserId = userId,
                         CurrencyId = currency.Id,
                         Amount = currency.InitialAmount,
-                        Currency = currency,
-                        ProjectId = projectId
+                        Currency = currency
                     };
                     _context.WalletItems.Add(newItem);
                     walletItems.Add(newItem);
@@ -67,7 +66,7 @@ namespace SFServer.API.Controllers
 
 
             var existingItem = await _context.WalletItems
-                .FirstOrDefaultAsync(w => w.Id == walletItemId && w.ProjectId == projectId);
+                .FirstOrDefaultAsync(w => w.Id == walletItemId);
             if (existingItem == null)
             {
                 Console.WriteLine("Wallet item not found.");
@@ -92,7 +91,7 @@ namespace SFServer.API.Controllers
             foreach (var updateDto in updateDtos)
             {
                 var existingItem = await _context.WalletItems
-                    .FirstOrDefaultAsync(w => w.Id == updateDto.Id && w.ProjectId == projectId);
+                    .FirstOrDefaultAsync(w => w.Id == updateDto.Id);
                 if (existingItem == null)
                 {
                     Console.WriteLine($"Wallet item not found for ID: {updateDto.Id}");

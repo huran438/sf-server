@@ -64,11 +64,11 @@ namespace SFServer.API.Services
         }
 
         public Task<List<PlayerInventoryItem>> GetPlayerInventoryAsync(Guid projectId, Guid playerId)
-            => _db.PlayerInventoryItems.Where(p => p.UserId == playerId && p.ProjectId == projectId).ToListAsync();
+            => _db.PlayerInventoryItems.Where(p => p.UserId == playerId).ToListAsync();
 
         public async Task UpdatePlayerInventoryAsync(Guid projectId, Guid playerId, List<PlayerInventoryItem> items)
         {
-            var existing = _db.PlayerInventoryItems.Where(p => p.UserId == playerId && p.ProjectId == projectId);
+            var existing = _db.PlayerInventoryItems.Where(p => p.UserId == playerId);
             _db.PlayerInventoryItems.RemoveRange(existing);
 
             var grouped = items
@@ -77,8 +77,7 @@ namespace SFServer.API.Services
                 .Select(g => new PlayerInventoryItem
                 {
                     ItemId = g.Key,
-                    Amount = g.Sum(x => x.Amount),
-                    ProjectId = projectId
+                    Amount = g.Sum(x => x.Amount)
                 });
 
             foreach (var item in grouped)

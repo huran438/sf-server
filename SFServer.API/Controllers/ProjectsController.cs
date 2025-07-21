@@ -63,22 +63,24 @@ public class ProjectsController : ControllerBase
         if (project == null)
             return NotFound();
         // Remove all records that belong to the project before deleting it
-        var profiles = _db.UserProfiles.Where(p => p.ProjectId == id);
+        var profiles = _db.UserProfiles.Where(p => p.ProjectId == id).ToList();
         _db.UserProfiles.RemoveRange(profiles);
 
-        var devices = _db.UserDevices.Where(d => d.ProjectId == id);
+        var userIds = profiles.Select(p => p.Id).ToList();
+
+        var devices = _db.UserDevices.Where(d => userIds.Contains(d.UserId));
         _db.UserDevices.RemoveRange(devices);
 
         var currencies = _db.Currencies.Where(c => c.ProjectId == id);
         _db.Currencies.RemoveRange(currencies);
 
-        var wallets = _db.WalletItems.Where(w => w.ProjectId == id);
+        var wallets = _db.WalletItems.Where(w => userIds.Contains(w.UserId));
         _db.WalletItems.RemoveRange(wallets);
 
         var inventoryItems = _db.InventoryItems.Where(i => i.ProjectId == id);
         _db.InventoryItems.RemoveRange(inventoryItems);
 
-        var playerInventory = _db.PlayerInventoryItems.Where(pi => pi.ProjectId == id);
+        var playerInventory = _db.PlayerInventoryItems.Where(pi => userIds.Contains(pi.UserId));
         _db.PlayerInventoryItems.RemoveRange(playerInventory);
 
         var settings = _db.ProjectSettings.Where(s => s.ProjectId == id);

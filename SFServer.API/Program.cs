@@ -223,22 +223,24 @@ static void CleanupOrphanProjectData(DatabseContext db)
     if (validIds.Count == 0)
         return;
 
-    var profiles = db.UserProfiles.Where(p => !validIds.Contains(p.ProjectId));
-    db.UserProfiles.RemoveRange(profiles);
+    var orphanProfiles = db.UserProfiles.Where(p => !validIds.Contains(p.ProjectId)).ToList();
+    db.UserProfiles.RemoveRange(orphanProfiles);
 
-    var devices = db.UserDevices.Where(d => !validIds.Contains(d.ProjectId));
+    var orphanIds = orphanProfiles.Select(p => p.Id).ToList();
+
+    var devices = db.UserDevices.Where(d => orphanIds.Contains(d.UserId));
     db.UserDevices.RemoveRange(devices);
 
     var currencies = db.Currencies.Where(c => !validIds.Contains(c.ProjectId));
     db.Currencies.RemoveRange(currencies);
 
-    var wallets = db.WalletItems.Where(w => !validIds.Contains(w.ProjectId));
+    var wallets = db.WalletItems.Where(w => orphanIds.Contains(w.UserId));
     db.WalletItems.RemoveRange(wallets);
 
     var items = db.InventoryItems.Where(i => !validIds.Contains(i.ProjectId));
     db.InventoryItems.RemoveRange(items);
 
-    var playerInv = db.PlayerInventoryItems.Where(pi => !validIds.Contains(pi.ProjectId));
+    var playerInv = db.PlayerInventoryItems.Where(pi => orphanIds.Contains(pi.UserId));
     db.PlayerInventoryItems.RemoveRange(playerInv);
 
     var settings = db.ProjectSettings.Where(s => !validIds.Contains(s.ProjectId));
