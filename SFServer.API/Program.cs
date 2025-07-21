@@ -133,6 +133,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DatabseContext>();
     context.Database.Migrate(); // apply migrations
+    CleanupOrphanProjectData(context);
 
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
@@ -215,3 +216,36 @@ app.UseAuthentication();
 app.UseMiddleware<AuditLogMiddleware>();
 app.UseAuthorization();
 app.MapControllers();app.Run();
+
+static void CleanupOrphanProjectData(DatabseContext db)
+{
+    var validIds = db.Projects.Select(p => p.Id).ToHashSet();
+    if (validIds.Count == 0)
+        return;
+
+    var profiles = db.UserProfiles.Where(p => !validIds.Contains(p.ProjectId));
+    db.UserProfiles.RemoveRange(profiles);
+
+    var devices = db.UserDevices.Where(d => !validIds.Contains(d.ProjectId));
+    db.UserDevices.RemoveRange(devices);
+
+    var currencies = db.Currencies.Where(c => !validIds.Contains(c.ProjectId));
+    db.Currencies.RemoveRange(currencies);
+
+    var wallets = db.WalletItems.Where(w => !validIds.Contains(w.ProjectId));
+    db.WalletItems.RemoveRange(wallets);
+
+    var items = db.InventoryItems.Where(i => !validIds.Contains(i.ProjectId));
+    db.InventoryItems.RemoveRange(items);
+
+    var playerInv = db.PlayerInventoryItems.Where(pi => !validIds.Contains(pi.ProjectId));
+    db.PlayerInventoryItems.RemoveRange(playerInv);
+
+    var settings = db.ProjectSettings.Where(s => !validIds.Contains(s.ProjectId));
+    db.ProjectSettings.RemoveRange(settings);
+
+    var logs = db.AuditLogs.Where(l => !validIds.Contains(l.ProjectId));
+    db.AuditLogs.RemoveRange(logs);
+
+    db.SaveChanges();
+}
