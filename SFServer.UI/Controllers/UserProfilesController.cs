@@ -199,7 +199,7 @@ namespace SFServer.UI.Controllers
                 viewModel.WalletItems = new List<WalletItemViewModel> { };
             }
 
-            var playerItems = await httpClient.GetFromMessagePackAsync<List<PlayerInventoryItem>>($"player/{profile.Id}/inventory");
+            var playerItems = await httpClient.GetFromMessagePackAsync<List<PlayerInventoryItem>>($"Inventory/player/{profile.Id}/inventory");
             var allItems = await httpClient.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
             if (playerItems != null && allItems != null)
             {
@@ -351,7 +351,7 @@ namespace SFServer.UI.Controllers
                 .Select(i => new PlayerInventoryItem { ItemId = i.ItemId!.Value, Amount = i.Amount })
                 .ToList();
 
-            await client.PutAsMessagePackAsync($"player/{model.UserId}/inventory", items);
+            await client.PutAsMessagePackAsync($"Inventory/player/{model.UserId}/inventory", items);
 
             TempData["Success"] = "Inventory updated successfully.";
             TempData["activeTab"] = "inventory";

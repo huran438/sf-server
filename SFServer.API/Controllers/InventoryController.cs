@@ -61,14 +61,14 @@ namespace SFServer.API.Controllers
             return NoContent();
         }
 
-        [HttpGet("/player/{playerId}/inventory")]
+        [HttpGet("player/{playerId}/inventory")]
         public async Task<IActionResult> GetPlayerInventory(Guid projectId, Guid playerId)
         {
             var inv = await _service.GetPlayerInventoryAsync(projectId, playerId);
             return Ok(inv);
         }
 
-        [HttpPut("/player/{playerId}/inventory")]
+        [HttpPut("player/{playerId}/inventory")]
         public async Task<IActionResult> UpdatePlayerInventory(Guid projectId, Guid playerId, [FromBody] List<PlayerInventoryItem> items)
         {
             await _service.UpdatePlayerInventoryAsync(projectId, playerId, items);
