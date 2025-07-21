@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFServer.UI;
 using SFServer.UI.Filters;
+using SFServer.Shared.Server.Project;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +76,34 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/", async (HttpContext context, IConfiguration config, ProjectContext proj) =>
+{
+    if (context.User.Identity?.IsAuthenticated != true)
+    {
+        context.Response.Redirect("/Account/Login");
+        return;
+    }
+
+    if (proj.CurrentProjectId == Guid.Empty)
+    {
+        using var client = context.User.CreateApiClient(config);
+        var projects = await client.GetFromMessagePackAsync<List<ProjectInfo>>("Projects") ?? new();
+        if (projects.Count > 0)
+        {
+            proj.CurrentProjectId = projects[0].Id;
+            proj.CurrentProjectName = projects[0].Name;
+        }
+    }
+
+    if (proj.CurrentProjectId == Guid.Empty)
+    {
+        context.Response.Redirect("/Account/Login");
+        return;
+    }
+
+    context.Response.Redirect($"/{proj.CurrentProjectId}/");
+});
 
 app.MapControllerRoute(name: "project", pattern: "{projectId:guid}/{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "default", pattern: "{controller=Account}/{action=Login}/{id?}");
