@@ -62,6 +62,30 @@ public class ProjectsController : ControllerBase
         var project = await _db.Projects.FindAsync(id);
         if (project == null)
             return NotFound();
+        // Remove all records that belong to the project before deleting it
+        var profiles = _db.UserProfiles.Where(p => p.ProjectId == id);
+        _db.UserProfiles.RemoveRange(profiles);
+
+        var devices = _db.UserDevices.Where(d => d.ProjectId == id);
+        _db.UserDevices.RemoveRange(devices);
+
+        var currencies = _db.Currencies.Where(c => c.ProjectId == id);
+        _db.Currencies.RemoveRange(currencies);
+
+        var wallets = _db.WalletItems.Where(w => w.ProjectId == id);
+        _db.WalletItems.RemoveRange(wallets);
+
+        var inventoryItems = _db.InventoryItems.Where(i => i.ProjectId == id);
+        _db.InventoryItems.RemoveRange(inventoryItems);
+
+        var playerInventory = _db.PlayerInventoryItems.Where(pi => pi.ProjectId == id);
+        _db.PlayerInventoryItems.RemoveRange(playerInventory);
+
+        var settings = _db.ProjectSettings.Where(s => s.ProjectId == id);
+        _db.ProjectSettings.RemoveRange(settings);
+
+        var logs = _db.AuditLogs.Where(l => l.ProjectId == id);
+        _db.AuditLogs.RemoveRange(logs);
 
         _db.Projects.Remove(project);
         await _db.SaveChangesAsync();
