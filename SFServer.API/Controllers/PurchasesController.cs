@@ -1,3 +1,4 @@
+using System;
 using Google.Apis.AndroidPublisher.v3;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
@@ -51,6 +52,7 @@ public class PurchasesController : ControllerBase
         if (await _db.Products.AnyAsync(p => p.ProjectId == projectId && p.ProductId == product.ProductId))
             return Conflict("ProductId already exists");
 
+        product.Id = Guid.CreateVersion7();
         product.ProjectId = projectId;
         _db.Products.Add(product);
         await _db.SaveChangesAsync();
@@ -68,7 +70,10 @@ public class PurchasesController : ControllerBase
         if (await _db.Products.AnyAsync(p => p.ProjectId == projectId && p.ProductId == product.ProductId && p.Id != id))
             return Conflict("ProductId already exists");
 
-        _db.Entry(existing).CurrentValues.SetValues(product);
+        existing.Title = product.Title;
+        existing.ProductId = product.ProductId;
+        existing.Description = product.Description;
+        existing.Type = product.Type;
         await _db.SaveChangesAsync();
         return NoContent();
     }
