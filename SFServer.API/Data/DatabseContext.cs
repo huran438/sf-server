@@ -69,7 +69,7 @@ namespace SFServer.API.Data
 
             modelBuilder.Entity<SFServer.Shared.Server.Purchases.PlayerPurchase>(entity =>
             {
-                entity.HasOne<SFServer.Shared.Server.Purchases.Product>()
+                entity.HasOne(p => p.Product)
                     .WithMany()
                     .HasForeignKey(p => p.ProductId)
                     .OnDelete(DeleteBehavior.Cascade);
