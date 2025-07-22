@@ -131,7 +131,7 @@ namespace SFServer.API.Services
                         if (currency == null) continue;
                         wallet = new WalletItem
                         {
-                            Id = Guid.NewGuid(),
+                            Id = Guid.CreateVersion7(),
                             UserId = playerId,
                             CurrencyId = d.CurrencyId.Value,
                             Currency = currency,
