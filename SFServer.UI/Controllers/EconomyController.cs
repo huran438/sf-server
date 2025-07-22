@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Wallet;
+using SFServer.Shared.Server.Inventory;
 using SFServer.UI.Models;
 using SFServer.UI;
 
@@ -31,11 +32,13 @@ namespace SFServer.UI.Controllers
         public async Task<IActionResult> Index()
         {
             using var httpClient = GetAuthenticatedHttpClient();
-            // Retrieve currencies using MessagePack
+            // Retrieve currencies and inventory items using MessagePack
             var currencies = await httpClient.GetFromMessagePackAsync<List<Currency>>("Currency");
+            var items = await httpClient.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
             var model = new EconomyViewModel
             {
-                Currencies = currencies ?? new List<Currency>()
+                Currencies = currencies ?? new List<Currency>(),
+                InventoryItems = items ?? new List<InventoryItem>()
             };
             return View(model);
         }

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -28,8 +26,6 @@ namespace SFServer.UI.Pages.Inventory
         [BindProperty]
         public InventoryItem Item { get; set; } = new();
 
-        [BindProperty]
-        public string Tags { get; set; }
 
         private HttpClient GetClient()
         {
@@ -40,23 +36,11 @@ namespace SFServer.UI.Pages.Inventory
         {
             using var http = GetClient();
             Item = await http.GetFromMessagePackAsync<InventoryItem>($"Inventory/{id}");
-            Tags = Item.Tags != null && Item.Tags.Count > 0 ? string.Join(", ", Item.Tags) : string.Empty;
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             using var http = GetClient();
-
-            if (!string.IsNullOrWhiteSpace(Tags))
-            {
-                Item.Tags = Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim())
-                    .ToList();
-            }
-            else
-            {
-                Item.Tags = new List<string>();
-            }
 
             await http.PutAsMessagePackAsync($"Inventory/{Item.Id}", Item);
             return RedirectToPage("/Inventory/Index", new { projectId });

@@ -44,13 +44,7 @@ namespace SFServer.API.Data
                     .HasConversion<string>();
             });
 
-            modelBuilder.Entity<InventoryItem>(entity =>
-            {
-                entity.Property(p => p.Type)
-                    .HasConversion<string>();
-                entity.Property(p => p.Rarity)
-                    .HasConversion<string>();
-            });
+            modelBuilder.Entity<InventoryItem>();
 
             modelBuilder.Entity<PlayerInventoryItem>(entity =>
             {

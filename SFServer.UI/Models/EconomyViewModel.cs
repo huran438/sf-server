@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using SFServer.Shared.Server.Wallet;
+using SFServer.Shared.Server.Inventory;
 
 namespace SFServer.UI.Models
 {
     public class EconomyViewModel
     {
         public List<Currency> Currencies { get; set; } = new List<Currency>();
+        public List<InventoryItem> InventoryItems { get; set; } = new();
 
         // Only Title is required.
         [Required(ErrorMessage = "Title is required.")]

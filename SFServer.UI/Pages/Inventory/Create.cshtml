@@ -12,32 +12,8 @@
         <input asp-for="Item.Title" class="form-control" />
     </div>
     <div class="mb-3">
-        <label asp-for="Item.Type" class="form-label"></label>
-        <enum-dropdown asp-for="Item.Type" enum-type="@(typeof(InventoryItemType))" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="Item.Rarity" class="form-label"></label>
-        <enum-dropdown asp-for="Item.Rarity" enum-type="@(typeof(InventoryItemRarity))" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="Item.Price" class="form-label"></label>
-        <input asp-for="Item.Price" class="form-control" />
-    </div>
-    <div class="mb-3">
         <label asp-for="Item.ProductId" class="form-label"></label>
         <input asp-for="Item.ProductId" class="form-control" />
-    </div>
-    <div class="form-check mb-3">
-        <input class="form-check-input" asp-for="Item.IsAvailableToBuy" />
-        <label class="form-check-label" asp-for="Item.IsAvailableToBuy"></label>
-    </div>
-    <div class="form-check mb-3">
-        <input class="form-check-input" asp-for="Item.IsAvailableToDrop" />
-        <label class="form-check-label" asp-for="Item.IsAvailableToDrop"></label>
-    </div>
-    <div class="mb-3">
-        <label class="form-label" for="tagsInput">Tags (comma separated)</label>
-        <input id="tagsInput" class="form-control" asp-for="Tags" />
     </div>
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
