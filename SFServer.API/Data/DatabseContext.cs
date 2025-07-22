@@ -26,6 +26,7 @@ namespace SFServer.API.Data
         public DbSet<InventoryItem> InventoryItems { get; set; }
         public DbSet<PlayerInventoryItem> PlayerInventoryItems { get; set; }
         public DbSet<SFServer.Shared.Server.Purchases.Product> Products { get; set; }
+        public DbSet<SFServer.Shared.Server.Purchases.ProductDrop> ProductDrops { get; set; }
         public DbSet<SFServer.Shared.Server.Purchases.PlayerPurchase> PlayerPurchases { get; set; }
 
         public DbSet<UserSession> UserSessions { get; set; }
@@ -55,6 +56,18 @@ namespace SFServer.API.Data
                 entity.Property(p => p.ProductId)
                     .IsRequired();
                 entity.HasIndex(p => new { p.ProjectId, p.ProductId })
+                    .IsUnique();
+                entity.HasMany(p => p.Drops)
+                    .WithOne()
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SFServer.Shared.Server.Purchases.ProductDrop>(entity =>
+            {
+                entity.Property(d => d.Type)
+                    .HasConversion<string>();
+                entity.HasIndex(d => new { d.ProductId, d.Type, d.TargetId })
                     .IsUnique();
             });
 

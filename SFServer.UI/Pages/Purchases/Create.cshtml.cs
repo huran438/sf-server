@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.Purchases;
+using SFServer.Shared.Server.Wallet;
+using SFServer.Shared.Server.Inventory;
 using SFServer.UI;
 
 namespace SFServer.UI.Pages.Purchases
@@ -26,13 +28,19 @@ namespace SFServer.UI.Pages.Purchases
         [BindProperty]
         public Product Product { get; set; } = new();
 
+        public List<Currency> Currencies { get; set; } = new();
+        public List<InventoryItem> InventoryItems { get; set; } = new();
+
         [TempData]
         public string? ActiveTab { get; set; }
 
         private HttpClient GetClient() => User.CreateApiClient(_config, _project.CurrentProjectId);
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
+            using var http = GetClient();
+            Currencies = await http.GetFromMessagePackAsync<List<Currency>>("Currency");
+            InventoryItems = await http.GetFromMessagePackAsync<List<InventoryItem>>("Inventory");
         }
 
         public async Task<IActionResult> OnPostAsync()

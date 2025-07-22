@@ -24,5 +24,72 @@
         <label asp-for="Product.Type" class="form-label"></label>
         <enum-dropdown asp-for="Product.Type" enum-type="@(typeof(ProductType))" />
     </div>
+    <div class="mb-3">
+        <label class="form-label">Drops</label>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Item</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for (var i = 0; i < Model.Product.Drops.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <enum-dropdown asp-for="Product.Drops[i].Type" enum-type="@(typeof(ProductDropType))" />
+                    </td>
+                    <td>
+                        <select asp-for="Product.Drops[i].TargetId" class="form-select">
+                            <option value="">-- Select --</option>
+                            <optgroup label="Items">
+                                @foreach (var it in Model.InventoryItems)
+                                {
+                                    <option value="@it.Id">@it.Title</option>
+                                }
+                            </optgroup>
+                            <optgroup label="Currencies">
+                                @foreach (var c in Model.Currencies)
+                                {
+                                    <option value="@c.Id">@c.Title</option>
+                                }
+                            </optgroup>
+                        </select>
+                    </td>
+                    <td>
+                        <input asp-for="Product.Drops[i].Amount" class="form-control" />
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td>
+                    <enum-dropdown asp-for="Product.Drops[@Model.Product.Drops.Count].Type" enum-type="@(typeof(ProductDropType))" />
+                </td>
+                <td>
+                    <select name="Product.Drops[@Model.Product.Drops.Count].TargetId" class="form-select">
+                        <option value="">-- Select --</option>
+                        <optgroup label="Items">
+                            @foreach (var it in Model.InventoryItems)
+                            {
+                                <option value="@it.Id">@it.Title</option>
+                            }
+                        </optgroup>
+                        <optgroup label="Currencies">
+                            @foreach (var c in Model.Currencies)
+                            {
+                                <option value="@c.Id">@c.Title</option>
+                            }
+                        </optgroup>
+                    </select>
+                </td>
+                <td>
+                    <input name="Product.Drops[@Model.Product.Drops.Count].Amount" class="form-control" value="0" />
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>

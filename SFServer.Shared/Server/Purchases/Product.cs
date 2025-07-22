@@ -1,5 +1,6 @@
 using System;
 using MemoryPack;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SFServer.Shared.Server.Purchases
@@ -15,5 +16,6 @@ namespace SFServer.Shared.Server.Purchases
         public string Title { get; set; }
         public string Description { get; set; }
         public ProductType Type { get; set; }
+        public List<ProductDrop> Drops { get; set; } = new();
     }
 }
