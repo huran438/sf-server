@@ -15,10 +15,15 @@ namespace SFServer.UI.Pages.Inventory
     public class EditInventoryItemModel : PageModel
     {
         private readonly IConfiguration _config;
+        private readonly ProjectContext _project;
 
-        public EditInventoryItemModel(IConfiguration config)
+        [BindProperty(SupportsGet = true)]
+        public Guid projectId { get; set; }
+
+        public EditInventoryItemModel(IConfiguration config, ProjectContext project)
         {
             _config = config;
+            _project = project;
         }
 
         [BindProperty]
@@ -63,7 +68,7 @@ namespace SFServer.UI.Pages.Inventory
 
         private HttpClient GetClient()
         {
-            return User.CreateApiClient(_config);
+            return User.CreateApiClient(_config, _project.CurrentProjectId);
         }
 
         private async Task LoadListsAsync()
@@ -161,7 +166,7 @@ namespace SFServer.UI.Pages.Inventory
                 ModelState.AddModelError(string.Empty, "Failed to save item");
                 return Page();
             }
-            return RedirectToPage("/Inventory/Index");
+            return RedirectToPage("/Inventory/Index", new { projectId });
         }
     }
 }

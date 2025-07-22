@@ -1,0 +1,124 @@
+@model SFServer.UI.Models.GlobalSettingsViewModel
+@{
+    ViewData["Title"] = "Global Settings";
+}
+
+<h1>Global Settings</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">General</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="admins-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button" role="tab">Administrators</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">Projects</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="audit-tab" href="@Url.Action("Index", "AuditLog")">Audit Log</a>
+    </li>
+</ul>
+<div class="tab-content mt-3" id="settingsTabsContent">
+    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+        <form asp-action="Save" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Settings.Id" />
+            <div class="mb-3">
+                <label asp-for="Settings.ServerTitle" class="form-label"></label>
+                <input asp-for="Settings.ServerTitle" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Settings.ServerCopyright" class="form-label"></label>
+                <input asp-for="Settings.ServerCopyright" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="admins" role="tabpanel" aria-labelledby="admins-tab">
+        <form asp-action="AddAdmin" method="post" class="mb-3">
+            <div class="row g-2">
+                <div class="col-auto">
+                    <input type="text" name="Username" class="form-control" placeholder="Username" required />
+                </div>
+                <div class="col-auto">
+                    <input type="email" name="Email" class="form-control" placeholder="Email" />
+                </div>
+                <div class="col-auto">
+                    <input type="password" name="Password" class="form-control" placeholder="Password" required />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </div>
+        </form>
+        <table class="table">
+            <thead>
+                <tr><th>Username</th><th>Email</th><th style="width:150px;">Actions</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var a in Model.Administrators)
+            {
+                <tr>
+                    <td>@a.Username</td>
+                    <td>@a.Email</td>
+                    <td>
+                        <form asp-action="DeleteAdmin" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@a.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-pane fade" id="projects" role="tabpanel" aria-labelledby="projects-tab">
+        <form asp-action="CreateProject" method="post" class="mb-3 d-flex">
+            <input type="text" name="name" class="form-control me-2" placeholder="Project Name" required />
+            <button type="submit" class="btn btn-success">Add</button>
+        </form>
+        <table class="table">
+            <thead>
+                <tr><th>Name</th><th style="width:150px;">Actions</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model.Projects)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="RenameProject" method="post" class="d-flex">
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <input type="text" name="name" value="@p.Name" class="form-control form-control-sm me-2" />
+                            <button type="submit" class="btn btn-primary btn-sm">Rename</button>
+                        </form>
+                    </td>
+                    <td class="d-flex gap-2">
+                        <form asp-action="Settings" asp-controller="Projects" method="post">
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <button type="submit" class="btn btn-secondary btn-sm">Settings</button>
+                        </form>
+                        <form asp-action="DeleteProject" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

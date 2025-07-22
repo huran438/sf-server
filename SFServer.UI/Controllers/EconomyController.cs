@@ -14,15 +14,17 @@ namespace SFServer.UI.Controllers
     public class EconomyController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly ProjectContext _project;
 
-        public EconomyController(IConfiguration configuration)
+        public EconomyController(IConfiguration configuration, ProjectContext project)
         {
             _configuration = configuration;
+            _project = project;
         }
 
         private HttpClient GetAuthenticatedHttpClient()
         {
-            return User.CreateApiClient(_configuration);
+            return User.CreateApiClient(_configuration, _project.CurrentProjectId);
         }
 
         // GET: /Economy/Index
@@ -65,7 +67,7 @@ namespace SFServer.UI.Controllers
                 TempData["Error"] = $"Failed to add currency: {response.StatusCode}";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
 
         // GET: /Economy/EditCurrency/{id}
@@ -85,7 +87,7 @@ namespace SFServer.UI.Controllers
             catch (ApiRequestException ex)
             {
                 TempData["Error"] = $"Failed to load currency: {ex.Message}";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
             }
 
             if (currency == null)
@@ -131,7 +133,7 @@ namespace SFServer.UI.Controllers
             var response = await httpClient.PutAsMessagePackAsync($"Currency/{model.Id}", updatedCurrency);
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Index", "Economy");
+                return RedirectToAction("Index", "Economy", new { projectId = _project.CurrentProjectId });
             }
             else
             {
@@ -152,7 +154,7 @@ namespace SFServer.UI.Controllers
                 TempData["Error"] = "Failed to delete currency.";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
     }
 }

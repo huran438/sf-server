@@ -14,6 +14,7 @@ using SFServer.Shared.Client.Auth;
 using SFServer.Shared.Server.Auth;
 using SFServer.Shared.Server.Google;
 using SFServer.Shared.Server.UserProfile;
+using SFServer.Shared.Server.Admin;
 using shortid;
 using shortid.Configuration;
 
@@ -36,51 +37,38 @@ namespace SFServer.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDashboardRequest request)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || string.IsNullOrEmpty(request.Credential))
                 return BadRequest(ModelState);
 
-            if (string.IsNullOrEmpty(request.Credential))
-            {
-                return BadRequest(ModelState);
-            }
+            Administrator admin = null;
 
-            UserProfile user = null;
-
-            // Try to interpret the credential as an ID (integer)
             if (Guid.TryParse(request.Credential, out Guid id))
             {
-                user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id);
+                admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Id == id);
             }
 
-            // If not found and if the credential contains '@', try email lookup.
-            if (user == null && request.Credential.Contains("@"))
+            if (admin == null && request.Credential.Contains("@"))
             {
-                user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Email.ToLower() == request.Credential.ToLower());
+                admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Email.ToLower() == request.Credential.ToLower());
             }
 
-            // If still not found, try username lookup.
-            if (user == null)
+            if (admin == null)
             {
-                user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Username.ToLower() == request.Credential.ToLower());
+                admin = await _db.Administrators.FirstOrDefaultAsync(a => a.Username.ToLower() == request.Credential.ToLower());
             }
 
-            if (user == null)
+            if (admin == null)
                 return Unauthorized("User not found");
 
-            // Only allow Admin or Developer logins (or allow others as per your business logic)
-            if (user.Role != UserRole.Admin && user.Role != UserRole.Developer)
-                return Unauthorized("You do not have permission to access this service.");
-
-            var hasher = new PasswordHasher<UserProfile>();
-            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            var hasher = new PasswordHasher<Administrator>();
+            var result = hasher.VerifyHashedPassword(admin, admin.PasswordHash, request.Password);
             if (result == PasswordVerificationResult.Failed)
                 return Unauthorized("Invalid password");
 
-            // Create JWT token.
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, user.Username),
-                new(ClaimTypes.Role, user.Role.ToString())
+                new(ClaimTypes.Name, admin.Username),
+                new(ClaimTypes.Role, UserRole.Admin.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_SECRET"]));
@@ -95,15 +83,14 @@ namespace SFServer.API.Controllers
             );
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            user.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
             var response = new DashboardLoginResponse
             {
-                UserId = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                Role = user.Role,
+                UserId = admin.Id,
+                Username = admin.Username,
+                Email = admin.Email,
+                Role = UserRole.Admin,
                 ExpirationDate = expirationDate,
                 JwtToken = jwtToken
             };
@@ -397,9 +384,6 @@ namespace SFServer.API.Controllers
                 {
                     user.DeviceIds.Add(request.DeviceId);
                 }
-
-                var hasher = new PasswordHasher<UserProfile>();
-                user.PasswordHash = hasher.HashPassword(user, Guid.NewGuid().ToString());
 
                 _db.UserProfiles.Add(user);
             }

@@ -7,7 +7,7 @@ using SFServer.Shared.Server.Statistics;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin,Developer")]
     public class StatisticsController : ControllerBase
     {
@@ -19,12 +19,13 @@ namespace SFServer.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStatistics()
+        public async Task<IActionResult> GetStatistics(Guid projectId)
         {
-            var totalUsers = await _db.UserProfiles.CountAsync();
+
+            var totalUsers = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId);
             var now = DateTime.UtcNow;
-            var mau = await _db.UserProfiles.CountAsync(u => u.LastLoginAt >= now.AddDays(-30));
-            var dau = await _db.UserProfiles.CountAsync(u => u.LastLoginAt >= now.AddDays(-1));
+            var mau = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId && u.LastLoginAt >= now.AddDays(-30));
+            var dau = await _db.UserProfiles.CountAsync(u => u.ProjectId == projectId && u.LastLoginAt >= now.AddDays(-1));
             double retention = mau == 0 ? 0 : (double)dau / mau;
 
             var dto = new StatisticsDto

@@ -1,0 +1,48 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SFServer.API.Data;
+using SFServer.Shared.Server.Settings;
+
+namespace SFServer.API.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+[Authorize(Roles = "Admin")]
+public class GlobalSettingsController : ControllerBase
+{
+    private readonly DatabseContext _db;
+
+    public GlobalSettingsController(DatabseContext db)
+    {
+        _db = db;
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetSettings()
+    {
+        var settings = await _db.GlobalSettings.FirstOrDefaultAsync();
+        if (settings == null)
+            return NotFound();
+        return Ok(settings);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateSettings([FromBody] GlobalSettings updated)
+    {
+        var existing = await _db.GlobalSettings.FirstOrDefaultAsync();
+        if (existing == null)
+        {
+            updated.Id = Guid.CreateVersion7();
+            _db.GlobalSettings.Add(updated);
+        }
+        else
+        {
+            existing.ServerTitle = updated.ServerTitle;
+            existing.ServerCopyright = updated.ServerCopyright;
+        }
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+}
