@@ -7,7 +7,7 @@ using SFServer.Shared.Server.UserProfile;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin,Developer")]
     public class UserProfilesController : ControllerBase
     {
@@ -20,15 +20,15 @@ namespace SFServer.API.Controllers
 
         // GET: api/UserProfiles
         [HttpGet]
-        public async Task<IActionResult> GetUserProfiles()
+        public async Task<IActionResult> GetUserProfiles(Guid projectId)
         {
-            var profiles = await _db.UserProfiles.ToListAsync();
+            var profiles = await _db.UserProfiles.Where(p => p.ProjectId == projectId).ToListAsync();
             return Ok(profiles);
         }
 
         // POST: api/UserProfiles
         [HttpPost]
-        public async Task<IActionResult> CreateUserProfile([FromBody] UserProfile profile)
+        public async Task<IActionResult> CreateUserProfile(Guid projectId, [FromBody] UserProfile profile)
         {
             if (profile == null)
             {
@@ -48,6 +48,7 @@ namespace SFServer.API.Controllers
             }
 
             profile.CreatedAt = DateTime.UtcNow;
+            profile.ProjectId = projectId;
             _db.UserProfiles.Add(profile);
             await _db.SaveChangesAsync();
 
@@ -58,9 +59,9 @@ namespace SFServer.API.Controllers
 
         [HttpDelete("{id:guid}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid projectId, Guid id)
         {
-            var profile = await _db.UserProfiles.FindAsync(id);
+            var profile = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (profile == null)
                 return NotFound();
 
@@ -80,16 +81,16 @@ namespace SFServer.API.Controllers
 
         // GET: api/UserProfiles/{id}
         [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid projectId, Guid id)
         {
-            var user = await _db.UserProfiles.FindAsync(id);
+            var user = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (user == null) return NotFound();
             return Ok(user);
         }
 
         // GET: api/UserProfiles/{userId}/device/{deviceId}
         [HttpGet("{userId:guid}/device/{deviceId}")]
-        public async Task<IActionResult> GetDeviceById(Guid userId, string deviceId)
+        public async Task<IActionResult> GetDeviceById(Guid projectId, Guid userId, string deviceId)
         {
             var userDevice = await _db.UserDevices.FirstOrDefaultAsync(d => d.UserId == userId && d.DeviceId == deviceId);
             if (userDevice == null)
@@ -102,14 +103,14 @@ namespace SFServer.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUserProfile(Guid id, [FromBody] UserProfile updated)
+        public async Task<IActionResult> UpdateUserProfile(Guid projectId, Guid id, [FromBody] UserProfile updated)
         {
             if (id != updated.Id)
             {
                 return BadRequest("ID mismatch.");
             }
 
-            var existing = await _db.UserProfiles.FindAsync(id);
+            var existing = await _db.UserProfiles.FirstOrDefaultAsync(u => u.Id == id && u.ProjectId == projectId);
             if (existing == null)
             {
                 return NotFound("User not found.");
@@ -136,26 +137,8 @@ namespace SFServer.API.Controllers
             existing.Role = updated.Role;
             existing.LastEditAt = DateTime.UtcNow;
             existing.DebugMode = updated.DebugMode;
+            updated.ProjectId = existing.ProjectId;
 
-            // Determine if current user is trying to change someone else's password
-            var currentUserId = Request.Headers[Headers.UID].FirstOrDefault();
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                currentUserId = User.FindFirst("UserId")?.Value;
-            }
-            bool isSelf = currentUserId == existing.Id.ToString();
-            bool isAdmin = User.IsInRole("Admin");
-
-            if (!string.IsNullOrEmpty(updated.PasswordHash))
-            {
-                if (!isAdmin && !isSelf)
-                {
-                    return Forbid("You can only change your own password.");
-                }
-
-                // Only allow Admin or self to update password
-                existing.PasswordHash = updated.PasswordHash;
-            }
 
             try
             {

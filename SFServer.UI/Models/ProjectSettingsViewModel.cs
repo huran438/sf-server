@@ -3,15 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SFServer.UI.Models
 {
-    public class ServerSettingsViewModel
+    public class ProjectSettingsViewModel
     {
         public Guid Id { get; set; }
-
-        [Display(Name = "Server Title")]
-        public string ServerTitle { get; set; } = string.Empty;
-
-        [Display(Name = "Copyright")]
-        public string ServerCopyright { get; set; } = string.Empty;
 
         [Display(Name = "Google Client ID")]
         public string GoogleClientId { get; set; } = string.Empty;
@@ -23,5 +17,8 @@ namespace SFServer.UI.Models
 
         [Display(Name = "Service Account JSON")]
         public string GoogleServiceAccountJson { get; set; } = string.Empty;
+
+        [Display(Name = "Bundle ID")]
+        public string BundleId { get; set; } = string.Empty;
     }
 }

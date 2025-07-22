@@ -1,15 +1,8 @@
-@model SFServer.UI.Models.ServerSettingsViewModel
+@model SFServer.UI.Models.ProjectSettingsViewModel
 @{
-    ViewData["Title"] = "Server Settings";
+    ViewData["Title"] = "Project Settings";
 }
-
-<h1>Server Settings</h1>
-
-<div class="mb-3">
-    <a asp-controller="AuditLog" asp-action="Index" class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-clipboard-data"></i> View Audit Log
-    </a>
-</div>
+<h1>Project Settings</h1>
 
 @if (TempData["Success"] != null)
 {
@@ -24,14 +17,6 @@
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <div class="mb-3">
-        <label asp-for="ServerTitle" class="form-label"></label>
-        <input asp-for="ServerTitle" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="ServerCopyright" class="form-label"></label>
-        <input asp-for="ServerCopyright" class="form-control" />
-    </div>
-    <div class="mb-3">
         <label asp-for="GoogleClientId" class="form-label"></label>
         <input asp-for="GoogleClientId" class="form-control" />
     </div>
@@ -42,6 +27,10 @@
     <div class="mb-3">
         <label asp-for="ClickHouseConnection" class="form-label"></label>
         <input asp-for="ClickHouseConnection" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="BundleId" class="form-label"></label>
+        <input asp-for="BundleId" class="form-control" />
     </div>
     <div class="mb-3">
         <label asp-for="GoogleServiceAccountJson" class="form-label"></label>

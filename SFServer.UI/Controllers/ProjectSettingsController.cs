@@ -12,61 +12,61 @@ using SFServer.UI;
 namespace SFServer.UI.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class ServerSettingsController : Controller
+    public class ProjectSettingsController : Controller
     {
         private readonly IConfiguration _configuration;
-        private readonly ServerSettingsService _service;
-        public ServerSettingsController(IConfiguration configuration, ServerSettingsService service)
+        private readonly ProjectSettingsService _service;
+        private readonly ProjectContext _project;
+        public ProjectSettingsController(IConfiguration configuration, ProjectSettingsService service, ProjectContext project)
         {
             _configuration = configuration;
             _service = service;
+            _project = project;
         }
 
         private HttpClient GetAuthenticatedHttpClient()
         {
-            return User.CreateApiClient(_configuration);
+            return User.CreateApiClient(_configuration, _project.CurrentProjectId);
         }
 
         public async Task<IActionResult> Index()
         {
             using var client = GetAuthenticatedHttpClient();
-            var settings = await client.GetFromMessagePackAsync<ServerSettings>("ServerSettings");
+            var settings = await client.GetFromMessagePackAsync<ProjectSettings>("ProjectSettings");
             if (settings != null)
                 _service.UpdateCache(settings);
             else
-                settings = new ServerSettings();
-            var vm = new ServerSettingsViewModel
+                settings = new ProjectSettings();
+            var vm = new ProjectSettingsViewModel
             {
                 Id = settings.Id,
-                ServerTitle = settings.ServerTitle,
-                ServerCopyright = settings.ServerCopyright,
                 GoogleClientId = settings.GoogleClientId,
                 ClickHouseConnection = settings.ClickHouseConnection,
                 GoogleClientSecret = settings.GoogleClientSecret,
                 GoogleServiceAccountJson = settings.GoogleServiceAccountJson
+                ,BundleId = settings.BundleId
             };
             return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(ServerSettingsViewModel model)
+        public async Task<IActionResult> Index(ProjectSettingsViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             using var client = GetAuthenticatedHttpClient();
-            var payload = new ServerSettings
+            var payload = new ProjectSettings
             {
                 Id = model.Id,
-                ServerTitle = model.ServerTitle,
-                ServerCopyright = model.ServerCopyright,
                 GoogleClientId = model.GoogleClientId,
                 GoogleClientSecret = model.GoogleClientSecret,
                 ClickHouseConnection = model.ClickHouseConnection,
                 GoogleServiceAccountJson = model.GoogleServiceAccountJson,
+                BundleId = model.BundleId
             };
-            var response = await client.PutAsMessagePackAsync("ServerSettings", payload);
+            var response = await client.PutAsMessagePackAsync("ProjectSettings", payload);
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to save settings.";
@@ -76,7 +76,7 @@ namespace SFServer.UI.Controllers
                 TempData["Success"] = "Settings saved.";
                 _service.UpdateCache(payload);
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
     }
 }

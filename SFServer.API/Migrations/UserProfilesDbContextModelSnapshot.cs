@@ -18,7 +18,7 @@ namespace SFServer.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("ProductVersion", "9.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -48,6 +48,29 @@ namespace SFServer.API.Migrations
                     b.ToTable("UserSessions");
                 });
 
+            modelBuilder.Entity("SFServer.Shared.Server.Admin.Administrator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Administrators");
+                });
+
             modelBuilder.Entity("SFServer.Shared.Server.Audit.AuditLogEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -59,6 +82,9 @@ namespace SFServer.API.Migrations
 
                     b.Property<string>("Path")
                         .HasColumnType("text");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("StatusCode")
                         .HasColumnType("integer");
@@ -91,6 +117,9 @@ namespace SFServer.API.Migrations
 
                     b.Property<string>("ProductId")
                         .HasColumnType("text");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Rarity")
                         .IsRequired()
@@ -135,11 +164,45 @@ namespace SFServer.API.Migrations
                     b.ToTable("PlayerInventoryItems");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Server.Settings.ServerSettings", b =>
+            modelBuilder.Entity("SFServer.Shared.Server.Project.ProjectInfo", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Settings.GlobalSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ServerCopyright")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServerTitle")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GlobalSettings");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Settings.ProjectSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BundleId")
+                        .HasColumnType("text");
 
                     b.Property<string>("ClickHouseConnection")
                         .HasColumnType("text");
@@ -153,6 +216,9 @@ namespace SFServer.API.Migrations
                     b.Property<string>("GoogleServiceAccountJson")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ServerCopyright")
                         .HasColumnType("text");
 
@@ -161,7 +227,7 @@ namespace SFServer.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ServerSettings");
+                    b.ToTable("ProjectSettings");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserDevice", b =>
@@ -271,8 +337,8 @@ namespace SFServer.API.Migrations
                     b.Property<DateTime>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -303,6 +369,9 @@ namespace SFServer.API.Migrations
 
                     b.Property<int>("InitialAmount")
                         .HasColumnType("integer");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("RefillSeconds")
                         .HasColumnType("integer");

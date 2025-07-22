@@ -17,23 +17,25 @@ namespace SFServer.UI.Controllers
     public class AuditLogController : Controller
     {
         private readonly IConfiguration _config;
+        private readonly ProjectContext _project;
 
-        public AuditLogController(IConfiguration config)
+        public AuditLogController(IConfiguration config, ProjectContext project)
         {
             _config = config;
+            _project = project;
         }
 
         private HttpClient GetClient()
         {
-            return User.CreateApiClient(_config);
+            return User.CreateApiClient(_config, _project.CurrentProjectId);
         }
 
         public async Task<IActionResult> Index()
         {
             using var client = GetClient();
 
-            var logs = await client.GetFromMessagePackAsync<List<AuditLogEntry>>("AuditLog?count=100");
-            var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles");
+            var logs = await client.GetFromMessagePackAsync<List<AuditLogEntry>>("AuditLog?count=100") ?? new();
+            var profiles = await client.GetFromMessagePackAsync<List<UserProfile>>("UserProfiles") ?? new();
             var profileLookup = profiles.ToDictionary(p => p.Id);
 
             var groups = new Dictionary<UserRole, List<AuditLogEntry>>();
@@ -79,7 +81,7 @@ namespace SFServer.UI.Controllers
                 TempData["Success"] = "Audit log cleared.";
             else
                 TempData["Error"] = "Failed to clear audit log.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
 
         public async Task<IActionResult> Export()
@@ -89,7 +91,7 @@ namespace SFServer.UI.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to export audit log.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
             }
 
             var fileBytes = await response.Content.ReadAsByteArrayAsync();

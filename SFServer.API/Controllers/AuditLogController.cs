@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace SFServer.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("{projectId:guid}/[controller]")]
     [Authorize(Roles = "Admin")]
     public class AuditLogController : ControllerBase
     {
@@ -22,9 +22,10 @@ namespace SFServer.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<AuditLogEntry>>> Get([FromQuery] int count = 100)
+        public async Task<ActionResult<List<AuditLogEntry>>> Get(Guid projectId, [FromQuery] int count = 100)
         {
             var logs = await _db.AuditLogs
+                .Where(l => l.ProjectId == projectId)
                 .OrderByDescending(l => l.Timestamp)
                 .Take(count)
                 .ToListAsync();
@@ -32,17 +33,19 @@ namespace SFServer.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Clear()
+        public async Task<IActionResult> Clear(Guid projectId)
         {
-            _db.AuditLogs.RemoveRange(_db.AuditLogs);
+            var toRemove = _db.AuditLogs.Where(l => l.ProjectId == projectId);
+            _db.AuditLogs.RemoveRange(toRemove);
             await _db.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpGet("export")]
-        public async Task<IActionResult> Export()
+        public async Task<IActionResult> Export(Guid projectId)
         {
             var logs = await _db.AuditLogs
+                .Where(l => l.ProjectId == projectId)
                 .OrderByDescending(l => l.Timestamp)
                 .ToListAsync();
 

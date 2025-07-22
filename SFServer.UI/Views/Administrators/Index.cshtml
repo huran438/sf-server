@@ -1,0 +1,47 @@
+@model List<SFServer.Shared.Server.Admin.Administrator>
+@{
+    ViewData["Title"] = "Administrators";
+}
+<h1>Administrators</h1>
+
+<form asp-action="Create" method="post" class="mb-3">
+    <div class="row g-2">
+        <div class="col-auto">
+            <input type="text" name="Username" class="form-control" placeholder="Username" required />
+        </div>
+        <div class="col-auto">
+            <input type="email" name="Email" class="form-control" placeholder="Email" />
+        </div>
+        <div class="col-auto">
+            <input type="password" name="Password" class="form-control" placeholder="Password" required />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-success">Add</button>
+        </div>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th style="width:150px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var a in Model)
+{
+        <tr>
+            <td>@a.Username</td>
+            <td>@a.Email</td>
+            <td>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@a.Id" />
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

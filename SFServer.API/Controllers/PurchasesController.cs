@@ -11,7 +11,7 @@ using SFServer.Shared.Server.Inventory;
 namespace SFServer.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("{projectId:guid}/[controller]")]
 [Authorize]
 public class PurchasesController : ControllerBase
 {
@@ -25,12 +25,12 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpPost("validate-android")]
-    public async Task<IActionResult> ValidateAndroid([FromBody] AndroidPurchaseValidationRequest request)
+    public async Task<IActionResult> ValidateAndroid(Guid projectId, [FromBody] AndroidPurchaseValidationRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var settings = await _db.ServerSettings.FirstOrDefaultAsync();
+        var settings = await _db.ProjectSettings.FirstOrDefaultAsync(s => s.ProjectId == projectId);
         var credJson = settings?.GoogleServiceAccountJson;
         if (string.IsNullOrEmpty(credJson))
             credJson = _config["GOOGLE_SERVICE_ACCOUNT_JSON"];
@@ -75,7 +75,7 @@ public class PurchasesController : ControllerBase
                         {
                             _db.PlayerInventoryItems.Add(new PlayerInventoryItem
                             {
-                                Id = Guid.NewGuid(),
+                                Id = Guid.CreateVersion7(),
                                 UserId = userId,
                                 ItemId = item.Id,
                                 Amount = 1
