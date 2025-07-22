@@ -65,7 +65,12 @@
             }
             <tr>
                 <td>
-                    <enum-dropdown asp-for="Product.Drops[@Model.Product.Drops.Count].Type" enum-type="@(typeof(ProductDropType))" />
+                    <select name="Product.Drops[@Model.Product.Drops.Count].Type" class="form-select">
+                        @foreach (var t in Enum.GetValues(typeof(ProductDropType)))
+                        {
+                            <option value="@t">@t</option>
+                        }
+                    </select>
                 </td>
                 <td>
                     <select name="Product.Drops[@Model.Product.Drops.Count].TargetId" class="form-select">
