@@ -25,6 +25,8 @@ namespace SFServer.API.Data
 
         public DbSet<InventoryItem> InventoryItems { get; set; }
         public DbSet<PlayerInventoryItem> PlayerInventoryItems { get; set; }
+        public DbSet<SFServer.Shared.Server.Purchases.Product> Products { get; set; }
+        public DbSet<SFServer.Shared.Server.Purchases.PlayerPurchase> PlayerPurchases { get; set; }
 
         public DbSet<UserSession> UserSessions { get; set; }
 
@@ -46,6 +48,12 @@ namespace SFServer.API.Data
 
             modelBuilder.Entity<InventoryItem>();
 
+            modelBuilder.Entity<SFServer.Shared.Server.Purchases.Product>(entity =>
+            {
+                entity.Property(p => p.Type)
+                    .HasConversion<string>();
+            });
+
             modelBuilder.Entity<PlayerInventoryItem>(entity =>
             {
                 entity.HasOne<InventoryItem>()
@@ -55,6 +63,19 @@ namespace SFServer.API.Data
 
                 entity.HasOne<UserProfile>()
                     .WithMany(u => u.PlayerInventory)
+                    .HasForeignKey(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SFServer.Shared.Server.Purchases.PlayerPurchase>(entity =>
+            {
+                entity.HasOne<SFServer.Shared.Server.Purchases.Product>()
+                    .WithMany()
+                    .HasForeignKey(p => p.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<UserProfile>()
+                    .WithMany(u => u.Purchases)
                     .HasForeignKey(p => p.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });

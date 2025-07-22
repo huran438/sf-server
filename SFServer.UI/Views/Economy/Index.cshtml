@@ -113,7 +113,6 @@
             <thead>
             <tr>
                 <th>Title</th>
-                <th>Product Id</th>
                 <th></th>
             </tr>
             </thead>
@@ -122,7 +121,6 @@
             {
                 <tr>
                     <td>@item.Title</td>
-                    <td>@item.ProductId</td>
                     <td>
                         <a class="btn btn-sm btn-secondary" asp-page="/Inventory/Edit" asp-route-projectId="@ProjectContext.CurrentProjectId" asp-route-id="@item.Id">Edit</a>
                     </td>

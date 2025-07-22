@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using SFServer.Shared.Client.Purchases;
 using SFServer.API.Data;
 using Microsoft.EntityFrameworkCore;
-using SFServer.Shared.Server.Inventory;
+using SFServer.Shared.Server.Purchases;
 
 namespace SFServer.API.Controllers;
 
@@ -22,6 +22,66 @@ public class PurchasesController : ControllerBase
     {
         _config = config;
         _db = db;
+    }
+
+    [Authorize(Roles = "Admin,Developer")]
+    [HttpGet("products")]
+    public async Task<IActionResult> GetProducts(Guid projectId)
+    {
+        var list = await _db.Products.Where(p => p.ProjectId == projectId).ToListAsync();
+        return Ok(list);
+    }
+
+    [Authorize(Roles = "Admin,Developer")]
+    [HttpGet("products/{id:guid}")]
+    public async Task<IActionResult> GetProduct(Guid projectId, Guid id)
+    {
+        var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id && p.ProjectId == projectId);
+        if (product == null) return NotFound();
+        return Ok(product);
+    }
+
+    [Authorize(Roles = "Admin,Developer")]
+    [HttpPost("products")]
+    public async Task<IActionResult> CreateProduct(Guid projectId, [FromBody] Product product)
+    {
+        product.ProjectId = projectId;
+        _db.Products.Add(product);
+        await _db.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+    }
+
+    [Authorize(Roles = "Admin,Developer")]
+    [HttpPut("products/{id:guid}")]
+    public async Task<IActionResult> UpdateProduct(Guid projectId, Guid id, [FromBody] Product product)
+    {
+        if (id != product.Id) return BadRequest();
+        var existing = await _db.Products.FirstOrDefaultAsync(p => p.Id == id && p.ProjectId == projectId);
+        if (existing == null) return NotFound();
+        _db.Entry(existing).CurrentValues.SetValues(product);
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Admin,Developer")]
+    [HttpDelete("products/{id:guid}")]
+    public async Task<IActionResult> DeleteProduct(Guid projectId, Guid id)
+    {
+        var existing = await _db.Products.FirstOrDefaultAsync(p => p.Id == id && p.ProjectId == projectId);
+        if (existing == null) return NotFound();
+        _db.Products.Remove(existing);
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpGet("player/{userId}/purchases")]
+    public async Task<IActionResult> GetPlayerPurchases(Guid projectId, Guid userId)
+    {
+        var list = await _db.PlayerPurchases
+            .Where(p => p.UserId == userId)
+            .Include(p => p.Product)
+            .ToListAsync();
+        return Ok(list);
     }
 
     [HttpPost("validate-android")]
@@ -65,22 +125,16 @@ public class PurchasesController : ControllerBase
                 }
                 if (Guid.TryParse(userIdValue, out var userId))
                 {
-                    var item = await _db.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == request.ProductId);
-                    if (item != null)
+                    var product = await _db.Products.FirstOrDefaultAsync(p => p.ProductId == request.ProductId && p.ProjectId == projectId);
+                    if (product != null)
                     {
-                        var existing = await _db.PlayerInventoryItems.FirstOrDefaultAsync(p => p.UserId == userId && p.ItemId == item.Id);
-                        if (existing != null)
-                            existing.Amount += 1;
-                        else
+                        _db.PlayerPurchases.Add(new PlayerPurchase
                         {
-                            _db.PlayerInventoryItems.Add(new PlayerInventoryItem
-                            {
-                                Id = Guid.CreateVersion7(),
-                                UserId = userId,
-                                ItemId = item.Id,
-                                Amount = 1
-                            });
-                        }
+                            Id = Guid.CreateVersion7(),
+                            UserId = userId,
+                            ProductId = product.Id,
+                            PurchasedAt = DateTime.UtcNow
+                        });
                         await _db.SaveChangesAsync();
                     }
                 }

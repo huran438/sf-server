@@ -106,9 +106,6 @@ namespace SFServer.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("text");
-
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
@@ -142,6 +139,57 @@ namespace SFServer.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("PlayerInventoryItems");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Purchases.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProductId")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Purchases.PlayerPurchase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("PurchasedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PlayerPurchases");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Project.ProjectInfo", b =>
@@ -404,6 +452,21 @@ namespace SFServer.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SFServer.Shared.Server.Purchases.PlayerPurchase", b =>
+                {
+                    b.HasOne("SFServer.Shared.Server.Purchases.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SFServer.Shared.Server.UserProfile.UserProfile", null)
+                        .WithMany("Purchases")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.HasOne("SFServer.Shared.Server.Wallet.Currency", "Currency")
@@ -418,6 +481,7 @@ namespace SFServer.API.Migrations
             modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserProfile", b =>
                 {
                     b.Navigation("PlayerInventory");
+                    b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
         }

@@ -27,6 +27,11 @@
                 aria-controls="inventory" aria-selected="false">Inventory
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="purchases-tab" data-bs-toggle="tab" data-bs-target="#purchases" type="button" role="tab"
+                aria-controls="purchases" aria-selected="false">Purchases
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content" id="profileTabContent">
@@ -312,6 +317,26 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="tab-pane fade" id="purchases" role="tabpanel" aria-labelledby="purchases-tab">
+        <h3 class="mt-3">Purchases</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Purchased At</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model.Purchases)
+            {
+                <tr>
+                    <td>@p.Title</td>
+                    <td>@p.PurchasedAt</td>
+                </tr>
+            }
+            </tbody>
+        </table>
     </div>
 </div>
 

@@ -73,6 +73,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-page="/Purchases/Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
+                                <i class="bi bi-cart"></i> Purchases
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Statistics" asp-action="Index" asp-route-projectId="@ProjectContext.CurrentProjectId">
                                 <i class="bi bi-bar-chart"></i> Statistics
                             </a>

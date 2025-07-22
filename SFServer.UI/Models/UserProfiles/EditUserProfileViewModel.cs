@@ -35,5 +35,6 @@ namespace SFServer.UI.Models.UserProfiles
         public UserDevice[] UserDevices { get; set; } = Array.Empty<UserDevice>();
 
         public List<PlayerInventoryItemViewModel> InventoryItems { get; set; } = new() { };
+        public List<PlayerPurchaseViewModel> Purchases { get; set; } = new();
     }
 }

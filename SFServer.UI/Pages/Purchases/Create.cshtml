@@ -1,0 +1,27 @@
+@page "/{projectId:guid}/Purchases/Create"
+@using SFServer.Shared.Server.Purchases
+@model SFServer.UI.Pages.Purchases.CreateProductModel
+@{
+    ViewData["Title"] = "Create Product";
+}
+
+<h1>Create Product</h1>
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="Product.Title" class="form-label"></label>
+        <input asp-for="Product.Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.ProductId" class="form-label"></label>
+        <input asp-for="Product.ProductId" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.Description" class="form-label"></label>
+        <textarea asp-for="Product.Description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.Type" class="form-label"></label>
+        <enum-dropdown asp-for="Product.Type" enum-type="@(typeof(ProductType))" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

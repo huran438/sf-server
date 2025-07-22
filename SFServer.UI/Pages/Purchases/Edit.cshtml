@@ -1,0 +1,28 @@
+@page "/{projectId:guid}/Purchases/Edit/{id:guid}"
+@using SFServer.Shared.Server.Purchases
+@model SFServer.UI.Pages.Purchases.EditProductModel
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h1>Edit Product</h1>
+<form method="post">
+    <input type="hidden" asp-for="Product.Id" />
+    <div class="mb-3">
+        <label asp-for="Product.Title" class="form-label"></label>
+        <input asp-for="Product.Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.ProductId" class="form-label"></label>
+        <input asp-for="Product.ProductId" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.Description" class="form-label"></label>
+        <textarea asp-for="Product.Description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.Type" class="form-label"></label>
+        <enum-dropdown asp-for="Product.Type" enum-type="@(typeof(ProductType))" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

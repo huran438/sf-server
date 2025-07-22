@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using SFServer.Shared.Server.UserProfile;
 using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
+using SFServer.Shared.Server.Purchases;
 using SFServer.UI.Models.UserProfiles;
 using SFServer.UI;
 
@@ -217,7 +218,27 @@ namespace SFServer.UI.Controllers
             {
                 viewModel.InventoryItems = new List<PlayerInventoryItemViewModel> { };
             }
+
             ViewData["AllInventoryItems"] = allItems ?? new List<InventoryItem>();
+
+            var purchases = await httpClient.GetFromMessagePackAsync<List<PlayerPurchase>>($"Purchases/player/{profile.Id}/purchases");
+            var products = await httpClient.GetFromMessagePackAsync<List<Product>>("Purchases/products");
+            if (purchases != null && products != null)
+            {
+                viewModel.Purchases = purchases.Join(products,
+                    p => p.ProductId,
+                    pr => pr.Id,
+                    (p, pr) => new PlayerPurchaseViewModel
+                    {
+                        ProductId = pr.Id,
+                        Title = pr.Title,
+                        PurchasedAt = p.PurchasedAt
+                    }).ToList();
+            }
+            else
+            {
+                viewModel.Purchases = new List<PlayerPurchaseViewModel>();
+            }
 
             return View(viewModel);
         }

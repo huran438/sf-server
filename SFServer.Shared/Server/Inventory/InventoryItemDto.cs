@@ -9,9 +9,5 @@ namespace SFServer.Shared.Server.Inventory
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
-        /// <summary>
-        /// Optional product id used for Google Play or App Store purchases.
-        /// </summary>
-        public string ProductId { get; set; }
     }
 }
