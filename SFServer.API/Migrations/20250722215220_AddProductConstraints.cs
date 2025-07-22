@@ -10,6 +10,12 @@ namespace SFServer.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Ensure all products have a ProductId
+            migrationBuilder.Sql(@"UPDATE ""Products"" SET ""ProductId"" = lower(replace(""Id""::text,'-','')) WHERE ""ProductId"" IS NULL;");
+
+            // Remove duplicates before creating the unique index
+            migrationBuilder.Sql(@"DELETE FROM ""Products"" a USING ""Products"" b WHERE a.ctid < b.ctid AND a.""ProjectId"" = b.""ProjectId"" AND a.""ProductId"" IS NOT DISTINCT FROM b.""ProductId"";");
+
             migrationBuilder.AlterColumn<string>(
                 name: "ProductId",
                 table: "Products",
