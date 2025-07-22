@@ -45,6 +45,12 @@ public class PurchasesController : ControllerBase
     [HttpPost("products")]
     public async Task<IActionResult> CreateProduct(Guid projectId, [FromBody] Product product)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (await _db.Products.AnyAsync(p => p.ProjectId == projectId && p.ProductId == product.ProductId))
+            return Conflict("ProductId already exists");
+
         product.ProjectId = projectId;
         _db.Products.Add(product);
         await _db.SaveChangesAsync();
@@ -58,6 +64,10 @@ public class PurchasesController : ControllerBase
         if (id != product.Id) return BadRequest();
         var existing = await _db.Products.FirstOrDefaultAsync(p => p.Id == id && p.ProjectId == projectId);
         if (existing == null) return NotFound();
+
+        if (await _db.Products.AnyAsync(p => p.ProjectId == projectId && p.ProductId == product.ProductId && p.Id != id))
+            return Conflict("ProductId already exists");
+
         _db.Entry(existing).CurrentValues.SetValues(product);
         await _db.SaveChangesAsync();
         return NoContent();

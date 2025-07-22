@@ -41,7 +41,8 @@ namespace SFServer.UI.Pages.Purchases
                 ModelState.AddModelError(string.Empty, "Failed to create product");
                 return Page();
             }
-            return RedirectToPage("/Purchases/Index", new { projectId });
+            ViewData["ClosePage"] = true;
+            return Page();
         }
     }
 }

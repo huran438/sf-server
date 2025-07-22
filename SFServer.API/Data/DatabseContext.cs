@@ -52,6 +52,10 @@ namespace SFServer.API.Data
             {
                 entity.Property(p => p.Type)
                     .HasConversion<string>();
+                entity.Property(p => p.ProductId)
+                    .IsRequired();
+                entity.HasIndex(p => new { p.ProjectId, p.ProductId })
+                    .IsUnique();
             });
 
             modelBuilder.Entity<PlayerInventoryItem>(entity =>

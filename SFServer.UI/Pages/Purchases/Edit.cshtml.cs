@@ -39,8 +39,14 @@ namespace SFServer.UI.Pages.Purchases
         public async Task<IActionResult> OnPostAsync()
         {
             using var http = GetClient();
-            await http.PutAsMessagePackAsync($"Purchases/products/{id}", Product);
-            return RedirectToPage("/Purchases/Index", new { projectId });
+            var response = await http.PutAsMessagePackAsync($"Purchases/products/{id}", Product);
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to update product");
+                return Page();
+            }
+            ViewData["ClosePage"] = true;
+            return Page();
         }
     }
 }

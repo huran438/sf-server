@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using SFServer.Shared.Server.Wallet;
 using SFServer.Shared.Server.Inventory;
+using SFServer.Shared.Server.Purchases;
 
 namespace SFServer.UI.Models
 {
@@ -9,6 +10,7 @@ namespace SFServer.UI.Models
     {
         public List<Currency> Currencies { get; set; } = new List<Currency>();
         public List<InventoryItem> InventoryItems { get; set; } = new();
+        public List<Product> Products { get; set; } = new();
 
         // Only Title is required.
         [Required(ErrorMessage = "Title is required.")]
