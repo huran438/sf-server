@@ -82,7 +82,7 @@ namespace SFServer.API.Services
 
             foreach (var item in grouped)
             {
-                item.Id = Guid.NewGuid();
+                item.Id = Guid.CreateVersion7();
                 item.UserId = playerId;
                 _db.PlayerInventoryItems.Add(item);
             }

@@ -9,28 +9,24 @@ namespace SFServer.API.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize(Roles = "Admin,Developer")]
-public class ProjectsController : ControllerBase
-{
+public class ProjectsController : ControllerBase {
     private readonly DatabseContext _db;
 
-    public ProjectsController(DatabseContext db)
-    {
+    public ProjectsController(DatabseContext db) {
         _db = db;
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll()
-    {
+    public async Task<IActionResult> GetAll() {
         var list = await _db.Projects.ToListAsync();
         return Ok(list);
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromBody] ProjectInfo project)
-    {
-        project.Id = Guid.NewGuid();
+    public async Task<IActionResult> Create([FromBody] ProjectInfo project) {
+        project.Id = Guid.CreateVersion7();
         _db.Projects.Add(project);
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAll), new { id = project.Id }, project);
@@ -38,8 +34,7 @@ public class ProjectsController : ControllerBase
 
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Rename(Guid id, [FromBody] ProjectInfo project)
-    {
+    public async Task<IActionResult> Rename(Guid id, [FromBody] ProjectInfo project) {
         if (id != project.Id)
             return BadRequest();
 
@@ -54,11 +49,10 @@ public class ProjectsController : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        if (id == Guid.Empty)
-            return BadRequest();
-
+    public async Task<IActionResult> Delete(Guid id) {
+        var count = await _db.Projects.CountAsync();
+        if (count == 1) return BadRequest();
+        
         var project = await _db.Projects.FindAsync(id);
         if (project == null)
             return NotFound();

@@ -31,7 +31,7 @@ namespace SFServer.API.Controllers {
             var existing = await _db.ProjectSettings.FirstOrDefaultAsync(s => s.ProjectId == projectId);
             if (existing == null)
             {
-                updated.Id = Guid.NewGuid();
+                updated.Id = Guid.CreateVersion7();
                 updated.ProjectId = projectId;
                 if (updated.BundleId == null)
                     updated.BundleId = string.Empty;

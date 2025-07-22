@@ -52,9 +52,9 @@ public class AdministratorsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        if (id == Guid.Empty) return BadRequest();
+    public async Task<IActionResult> Delete(Guid id) {
+        var count = await _db.Administrators.CountAsync();
+        if (count  == 1) return BadRequest();
         var admin = await _db.Administrators.FindAsync(id);
         if (admin == null) return NotFound();
         _db.Administrators.Remove(admin);

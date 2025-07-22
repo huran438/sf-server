@@ -182,7 +182,7 @@ using (var scope = app.Services.CreateScope())
     {
         var gs = new SFServer.Shared.Server.Settings.GlobalSettings
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             ServerTitle = config["SERVER_TITLE"] ?? string.Empty,
             ServerCopyright = config["SERVER_COPYRIGHT"] ?? string.Empty
         };
@@ -195,7 +195,7 @@ using (var scope = app.Services.CreateScope())
     {
         var ps = new SFServer.Shared.Server.Settings.ProjectSettings
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             ProjectId = project.Id,
             ServerTitle = project.Name,
             ServerCopyright = string.Empty,

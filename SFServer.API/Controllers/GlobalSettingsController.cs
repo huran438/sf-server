@@ -34,7 +34,7 @@ public class GlobalSettingsController : ControllerBase
         var existing = await _db.GlobalSettings.FirstOrDefaultAsync();
         if (existing == null)
         {
-            updated.Id = Guid.NewGuid();
+            updated.Id = Guid.CreateVersion7();
             _db.GlobalSettings.Add(updated);
         }
         else

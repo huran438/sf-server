@@ -30,8 +30,6 @@ namespace SFServer.API.Utils
                 userIdString = context.User?.FindFirstValue("UserId");
             }
             
-            Console.WriteLine("User Id: " + userIdString);
-
             Guid projectId = Guid.Empty;
             var segments = context.Request.Path.Value?.Split('/', StringSplitOptions.RemoveEmptyEntries);
             if (segments != null && segments.Length > 0)

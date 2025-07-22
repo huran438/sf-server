@@ -75,7 +75,7 @@ public class PurchasesController : ControllerBase
                         {
                             _db.PlayerInventoryItems.Add(new PlayerInventoryItem
                             {
-                                Id = Guid.NewGuid(),
+                                Id = Guid.CreateVersion7(),
                                 UserId = userId,
                                 ItemId = item.Id,
                                 Amount = 1
