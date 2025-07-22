@@ -162,5 +162,20 @@ namespace SFServer.UI.Controllers
 
             return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProduct(Guid id)
+        {
+            using var httpClient = GetAuthenticatedHttpClient();
+            var response = await httpClient.DeleteAsync($"Purchases/products/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to delete product.";
+            }
+
+            TempData["activeTab"] = "products";
+            return RedirectToAction("Index", new { projectId = _project.CurrentProjectId });
+        }
     }
 }

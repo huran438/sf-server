@@ -28,6 +28,9 @@ namespace SFServer.UI.Pages.Purchases
         [BindProperty]
         public Product Product { get; set; } = new();
 
+        [TempData]
+        public string? ActiveTab { get; set; }
+
         private HttpClient GetClient() => User.CreateApiClient(_config, _project.CurrentProjectId);
 
         public async Task OnGetAsync()
@@ -45,8 +48,8 @@ namespace SFServer.UI.Pages.Purchases
                 ModelState.AddModelError(string.Empty, "Failed to update product");
                 return Page();
             }
-            ViewData["ClosePage"] = true;
-            return Page();
+            ActiveTab = "products";
+            return Redirect($"/{projectId}/Economy#products");
         }
     }
 }

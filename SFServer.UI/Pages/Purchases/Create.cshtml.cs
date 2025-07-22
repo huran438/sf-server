@@ -26,6 +26,9 @@ namespace SFServer.UI.Pages.Purchases
         [BindProperty]
         public Product Product { get; set; } = new();
 
+        [TempData]
+        public string? ActiveTab { get; set; }
+
         private HttpClient GetClient() => User.CreateApiClient(_config, _project.CurrentProjectId);
 
         public void OnGet()
@@ -41,8 +44,8 @@ namespace SFServer.UI.Pages.Purchases
                 ModelState.AddModelError(string.Empty, "Failed to create product");
                 return Page();
             }
-            ViewData["ClosePage"] = true;
-            return Page();
+            ActiveTab = "products";
+            return Redirect($"/{projectId}/Economy#products");
         }
     }
 }

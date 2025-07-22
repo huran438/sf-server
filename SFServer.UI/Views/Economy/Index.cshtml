@@ -157,6 +157,10 @@
                     <td>@p.Type</td>
                     <td>
                         <a class="btn btn-sm btn-secondary" asp-page="/Purchases/Edit" asp-route-projectId="@ProjectContext.CurrentProjectId" asp-route-id="@p.Id">Edit</a>
+                        <form asp-action="DeleteProduct" asp-route-id="@p.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this product?');">Remove</button>
+                        </form>
                     </td>
                 </tr>
             }
@@ -166,5 +170,17 @@
 </div>
 
 @section Scripts {
+    <script>
+        (function () {
+            var activeTab = '@(TempData["activeTab"] ?? "")';
+            if (activeTab !== "") {
+                var tabButton = document.getElementById(activeTab + '-tab');
+                if (tabButton) {
+                    var tab = new bootstrap.Tab(tabButton);
+                    tab.show();
+                }
+            }
+        })();
+    </script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
