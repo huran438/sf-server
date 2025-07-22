@@ -44,6 +44,7 @@ namespace SFServer.UI.Controllers
                 ClickHouseConnection = settings.ClickHouseConnection,
                 GoogleClientSecret = settings.GoogleClientSecret,
                 GoogleServiceAccountJson = settings.GoogleServiceAccountJson
+                ,BundleId = settings.BundleId
             };
             return View(vm);
         }
@@ -63,6 +64,7 @@ namespace SFServer.UI.Controllers
                 GoogleClientSecret = model.GoogleClientSecret,
                 ClickHouseConnection = model.ClickHouseConnection,
                 GoogleServiceAccountJson = model.GoogleServiceAccountJson,
+                BundleId = model.BundleId
             };
             var response = await client.PutAsMessagePackAsync("ProjectSettings", payload);
             if (!response.IsSuccessStatusCode)

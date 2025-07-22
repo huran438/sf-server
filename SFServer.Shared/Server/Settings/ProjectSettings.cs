@@ -14,5 +14,6 @@ namespace SFServer.Shared.Server.Settings
         public string ClickHouseConnection { get; set; } = string.Empty;
         public string GoogleClientSecret { get; set; } = string.Empty;
         public string GoogleServiceAccountJson { get; set; } = string.Empty;
+        public string BundleId { get; set; } = string.Empty;
     }
 }

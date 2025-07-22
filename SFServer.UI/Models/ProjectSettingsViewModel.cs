@@ -17,5 +17,8 @@ namespace SFServer.UI.Models
 
         [Display(Name = "Service Account JSON")]
         public string GoogleServiceAccountJson { get; set; } = string.Empty;
+
+        [Display(Name = "Bundle ID")]
+        public string BundleId { get; set; } = string.Empty;
     }
 }

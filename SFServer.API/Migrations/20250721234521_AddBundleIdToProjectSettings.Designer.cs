@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SFServer.API.Data;
@@ -12,9 +13,11 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250721234521_AddBundleIdToProjectSettings")]
+    partial class AddBundleIdToProjectSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

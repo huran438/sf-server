@@ -202,7 +202,8 @@ using (var scope = app.Services.CreateScope())
             GoogleClientId = string.Empty,
             ClickHouseConnection = string.Empty,
             GoogleClientSecret = string.Empty,
-            GoogleServiceAccountJson = string.Empty
+            GoogleServiceAccountJson = string.Empty,
+            BundleId = string.Empty
         };
         context.ProjectSettings.Add(ps);
         context.SaveChanges();

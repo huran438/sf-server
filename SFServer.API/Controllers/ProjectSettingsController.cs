@@ -33,6 +33,8 @@ namespace SFServer.API.Controllers {
             {
                 updated.Id = Guid.NewGuid();
                 updated.ProjectId = projectId;
+                if (updated.BundleId == null)
+                    updated.BundleId = string.Empty;
                 _db.ProjectSettings.Add(updated);
             }
             else
@@ -42,6 +44,7 @@ namespace SFServer.API.Controllers {
                 existing.GoogleClientId = updated.GoogleClientId;
                 existing.GoogleClientSecret = updated.GoogleClientSecret;
                 existing.ClickHouseConnection = updated.ClickHouseConnection;
+                existing.BundleId = updated.BundleId;
                 if (string.IsNullOrEmpty(updated.GoogleServiceAccountJson) == false) {
                     dynamic parsedJson = JsonConvert.DeserializeObject(updated.GoogleServiceAccountJson);
                     existing.GoogleServiceAccountJson = parsedJson == null ? updated.GoogleServiceAccountJson : (string)JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
