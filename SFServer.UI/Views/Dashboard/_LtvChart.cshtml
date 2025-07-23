@@ -5,11 +5,9 @@
         <canvas id="ltvChart"></canvas>
     </div>
 </div>
-@section Scripts{
 <script>
     document.addEventListener('DOMContentLoaded', function(){
         const ctx = document.getElementById('ltvChart').getContext('2d');
         new Chart(ctx,{type:'line',data:{labels:[7,14,30],datasets:Model.LtvCohorts.map((c,i)=>({label:`Cohort ${i+1}`,data:c}))}});
     });
 </script>
-}

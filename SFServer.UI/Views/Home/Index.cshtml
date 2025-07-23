@@ -1,42 +1,48 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using SFServer.UI.Models
+@using SFServer.UI
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+@inject ProjectContext ProjectContext
+@{
+    ViewData["Title"] = "Home";
 }
 
-<h1>Welcome to Secret Game Backend UI</h1>
-<p>This is the web interface for the Secret Game Backend service.</p>
-
-<canvas id="myChart" width="400" height="200"></canvas>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-                    datasets: [{
-                        label: 'Example',
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        data: [0, 10, 5, 2, 20, 30, 45],
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Chart.js Line Chart'
-                        }
-                    }
-                }
-            });
-        });
-    </script>
-}
+<h1>Dashboard</h1>
+<form asp-action="Refresh" asp-controller="Home" asp-route-projectId="@ProjectContext.CurrentProjectId" method="post">
+    <button type="submit" class="btn btn-sm btn-secondary mb-3">Refresh</button>
+</form>
+<div class="grid row row-cols-1 row-cols-md-2 g-4">
+    <div class="col-12">
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-6 g-2">
+            @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "DAU", Value = Model.DAU.ToString("N0"), Change = 0.05, Unit = "" })
+            @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "D1 Retention", Value = String.Format("{0:P2}", Model.D1Retention), Change = -0.02, Unit = "" })
+            @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "Revenue Today", Value = Model.RevenueToday.ToString("F2"), Change = 0.1, Unit = "$" })
+            @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "ARPU", Value = Model.ARPU.ToString("F2"), Change = 0.02, Unit = "$" })
+            @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "Paying %", Value = String.Format("{0:P2}", Model.PayingPercent), Change = 0.01, Unit = "" })
+            @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "ROAS", Value = Model.ROAS.ToString("F2"), Change = -0.03, Unit = "" })
+        </div>
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_RetentionChart.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_RevenueChart.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_FunnelChart.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_LtvChart.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_GeoPlatformSplit.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_ProgressFunnel.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_CrashReport.cshtml", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("~/Views/Dashboard/_LiveOpsEvent.cshtml", Model)
+    </div>
+</div>
