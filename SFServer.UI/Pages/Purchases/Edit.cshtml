@@ -44,7 +44,6 @@
                     </td>
                     <td>
                         <select asp-for="Product.Drops[i].TargetId" class="form-select drop-target">
-                            <option value="">-- Select --</option>
                             <optgroup label="Items">
                                 @foreach (var it in Model.InventoryItems)
                                 {
@@ -81,7 +80,7 @@
         let dropIndex = @Model.Product.Drops.Count;
 
         function buildOptions(source, used, current) {
-            let html = '<option value="">-- Select --</option>';
+            let html = '';
             source.forEach(o => {
                 if (used.includes(o.id) && o.id !== current) return;
                 html += `<option value="${o.id}" ${o.id === current ? 'selected' : ''}>${o.title}</option>`;
@@ -89,7 +88,7 @@
             return html;
         }
 
-        function updateOptions() {
+        function getUsed() {
             const usedItems = [];
             const usedCurr = [];
             document.querySelectorAll('#dropBody .drop-row').forEach(r => {
@@ -98,6 +97,11 @@
                 if (type === 'Item' && target) usedItems.push(target);
                 if (type === 'Currency' && target) usedCurr.push(target);
             });
+            return { usedItems, usedCurr };
+        }
+
+        function updateOptions() {
+            const { usedItems, usedCurr } = getUsed();
 
             document.querySelectorAll('#dropBody .drop-row').forEach(r => {
                 const typeSel = r.querySelector('.drop-type');
@@ -108,12 +112,20 @@
                 } else if (typeSel.value === 'Currency') {
                     targetSel.innerHTML = buildOptions(currencies, usedCurr, curVal);
                 } else {
-                    targetSel.innerHTML = '<option value="">-- Select --</option>';
+                    targetSel.innerHTML = '';
                 }
             });
+
+            const remainingItems = items.filter(o => !usedItems.includes(o.id));
+            const remainingCurr = currencies.filter(o => !usedCurr.includes(o.id));
+            document.getElementById('addDrop').disabled = remainingItems.length === 0 && remainingCurr.length === 0;
         }
 
         function addRow(drop) {
+            const { usedItems, usedCurr } = getUsed();
+            const remainingItems = items.filter(o => !usedItems.includes(o.id));
+            const remainingCurr = currencies.filter(o => !usedCurr.includes(o.id));
+            const defaultType = remainingItems.length > 0 ? 'Item' : 'Currency';
             const row = document.createElement('tr');
             row.className = 'drop-row';
             row.innerHTML = `
@@ -137,6 +149,8 @@
             if (drop) {
                 row.querySelector('.drop-type').value = drop.Type;
                 row.querySelector('.drop-target').value = drop.TargetId;
+            } else {
+                row.querySelector('.drop-type').value = defaultType;
             }
             updateOptions();
         }
