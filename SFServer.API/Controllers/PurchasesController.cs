@@ -233,13 +233,13 @@ public class PurchasesController : ControllerBase
                         Id = Guid.CreateVersion7(),
                         UserId = userId,
                         ItemId = drop.TargetId,
-                        Amount = (int)drop.Amount
+                        Amount = drop.Amount
                     };
                     _db.PlayerInventoryItems.Add(inv);
                 }
                 else
                 {
-                    inv.Amount += (int)drop.Amount;
+                    inv.Amount += drop.Amount;
                 }
             }
             else if (drop.Type == ProductDropType.Currency)

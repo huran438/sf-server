@@ -59,7 +59,7 @@
                         </select>
                     </td>
                     <td>
-                        <input asp-for="Product.Drops[i].Amount" class="form-control" />
+                        <input asp-for="Product.Drops[i].Amount" class="form-control" type="number" min="1" />
                     </td>
                     <td class="text-end">
                         <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
@@ -125,6 +125,7 @@
             const { usedItems, usedCurr } = getUsed();
             const remainingItems = items.filter(o => !usedItems.includes(o.id));
             const remainingCurr = currencies.filter(o => !usedCurr.includes(o.id));
+            if (!drop && remainingItems.length === 0 && remainingCurr.length === 0) return;
             const defaultType = remainingItems.length > 0 ? 'Item' : 'Currency';
             const row = document.createElement('tr');
             row.className = 'drop-row';
@@ -139,7 +140,7 @@
                     <select name="Product.Drops[${dropIndex}].TargetId" class="form-select drop-target"></select>
                 </td>
                 <td>
-                    <input name="Product.Drops[${dropIndex}].Amount" class="form-control" value="${drop ? drop.Amount : 0}" />
+                    <input name="Product.Drops[${dropIndex}].Amount" class="form-control" type="number" min="1" step="1" value="${drop ? drop.Amount : 1}" />
                 </td>
                 <td class="text-end">
                     <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
