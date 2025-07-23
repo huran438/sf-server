@@ -31,6 +31,7 @@
                 <th>Type</th>
                 <th>Item</th>
                 <th>Amount</th>
+                <th></th>
             </tr>
             </thead>
             <tbody id="dropBody">
@@ -59,6 +60,8 @@
                     </td>
                     <td>
                         <input asp-for="Product.Drops[i].Amount" class="form-control" />
+                    </td>
+                    <td class="text-end">
                         <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
                     </td>
                 </tr>
@@ -124,6 +127,8 @@
                 </td>
                 <td>
                     <input name="Product.Drops[${dropIndex}].Amount" class="form-control" value="${drop ? drop.Amount : 0}" />
+                </td>
+                <td class="text-end">
                     <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
                 </td>`;
             document.getElementById('dropBody').appendChild(row);
