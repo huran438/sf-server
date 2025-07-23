@@ -26,7 +26,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label">Drops</label>
-        <table class="table">
+        <table class="table" id="dropsTable">
             <thead>
             <tr>
                 <th>Type</th>
@@ -34,15 +34,15 @@
                 <th>Amount</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="dropBody">
             @for (var i = 0; i < Model.Product.Drops.Count; i++)
             {
-                <tr>
+                <tr class="drop-row">
                     <td>
-                        <enum-dropdown asp-for="Product.Drops[i].Type" enum-type="@(typeof(ProductDropType))" />
+                        <enum-dropdown asp-for="Product.Drops[i].Type" enum-type="@(typeof(ProductDropType))" class="drop-type" />
                     </td>
                     <td>
-                        <select asp-for="Product.Drops[i].TargetId" class="form-select">
+                        <select asp-for="Product.Drops[i].TargetId" class="form-select drop-target">
                             <option value="">-- Select --</option>
                             <optgroup label="Items">
                                 @foreach (var it in Model.InventoryItems)
@@ -60,41 +60,96 @@
                     </td>
                     <td>
                         <input asp-for="Product.Drops[i].Amount" class="form-control" />
+                        <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
                     </td>
                 </tr>
             }
-            <tr>
-                <td>
-                    <select name="Product.Drops[@Model.Product.Drops.Count].Type" class="form-select">
-                        @foreach (var t in Enum.GetValues(typeof(ProductDropType)))
-                        {
-                            <option value="@t">@t</option>
-                        }
-                    </select>
-                </td>
-                <td>
-                    <select name="Product.Drops[@Model.Product.Drops.Count].TargetId" class="form-select">
-                        <option value="">-- Select --</option>
-                        <optgroup label="Items">
-                            @foreach (var it in Model.InventoryItems)
-                            {
-                                <option value="@it.Id">@it.Title</option>
-                            }
-                        </optgroup>
-                        <optgroup label="Currencies">
-                            @foreach (var c in Model.Currencies)
-                            {
-                                <option value="@c.Id">@c.Title</option>
-                            }
-                        </optgroup>
-                    </select>
-                </td>
-                <td>
-                    <input name="Product.Drops[@Model.Product.Drops.Count].Amount" class="form-control" value="0" />
-                </td>
-            </tr>
             </tbody>
         </table>
+        <button type="button" id="addDrop" class="btn btn-secondary">Add Drop</button>
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+
+@section Scripts {
+    <script>
+        const items = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.InventoryItems.Select(i => new { id = i.Id, title = i.Title }))); 
+        const currencies = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Currencies.Select(c => new { id = c.Id, title = c.Title }))); 
+        let dropIndex = @Model.Product.Drops.Count;
+
+        function buildOptions(source, used, current) {
+            let html = '<option value="">-- Select --</option>';
+            source.forEach(o => {
+                if (used.includes(o.id) && o.id !== current) return;
+                html += `<option value="${o.id}" ${o.id === current ? 'selected' : ''}>${o.title}</option>`;
+            });
+            return html;
+        }
+
+        function updateOptions() {
+            const usedItems = [];
+            const usedCurr = [];
+            document.querySelectorAll('#dropBody .drop-row').forEach(r => {
+                const type = r.querySelector('.drop-type').value;
+                const target = r.querySelector('.drop-target').value;
+                if (type === 'Item' && target) usedItems.push(target);
+                if (type === 'Currency' && target) usedCurr.push(target);
+            });
+
+            document.querySelectorAll('#dropBody .drop-row').forEach(r => {
+                const typeSel = r.querySelector('.drop-type');
+                const targetSel = r.querySelector('.drop-target');
+                const curVal = targetSel.value;
+                if (typeSel.value === 'Item') {
+                    targetSel.innerHTML = buildOptions(items, usedItems, curVal);
+                } else if (typeSel.value === 'Currency') {
+                    targetSel.innerHTML = buildOptions(currencies, usedCurr, curVal);
+                } else {
+                    targetSel.innerHTML = '<option value="">-- Select --</option>';
+                }
+            });
+        }
+
+        function addRow(drop) {
+            const row = document.createElement('tr');
+            row.className = 'drop-row';
+            row.innerHTML = `
+                <td>
+                    <select name="Product.Drops[${dropIndex}].Type" class="form-select drop-type">
+                        <option value="Item">Item</option>
+                        <option value="Currency">Currency</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="Product.Drops[${dropIndex}].TargetId" class="form-select drop-target"></select>
+                </td>
+                <td>
+                    <input name="Product.Drops[${dropIndex}].Amount" class="form-control" value="${drop ? drop.Amount : 0}" />
+                    <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
+                </td>`;
+            document.getElementById('dropBody').appendChild(row);
+            dropIndex++;
+            if (drop) {
+                row.querySelector('.drop-type').value = drop.Type;
+                row.querySelector('.drop-target').value = drop.TargetId;
+            }
+            updateOptions();
+        }
+
+        document.getElementById('addDrop').addEventListener('click', () => addRow());
+        document.getElementById('dropBody').addEventListener('click', function(e){
+            if (e.target.classList.contains('remove-drop')) {
+                e.target.closest('tr').remove();
+                updateOptions();
+            }
+        });
+        document.getElementById('dropBody').addEventListener('change', function(e){
+            if (e.target.classList.contains('drop-type') || e.target.classList.contains('drop-target')) {
+                updateOptions();
+            }
+        });
+
+        updateOptions();
+    </script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
