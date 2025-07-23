@@ -118,8 +118,11 @@
 
             const remainingItems = items.filter(o => !usedItems.includes(o.id));
             const remainingCurr = currencies.filter(o => !usedCurr.includes(o.id));
-            document.getElementById('addDrop').disabled = remainingItems.length === 0 && remainingCurr.length === 0;
-        }
+            const hasEmpty = Array.from(document.querySelectorAll('#dropBody .drop-target'))
+                .some(sel => sel.options.length === 0 || !sel.value);
+            document.getElementById('addDrop').disabled =
+                (remainingItems.length === 0 && remainingCurr.length === 0) || hasEmpty;
+       }
 
         function addRow(drop) {
             const { usedItems, usedCurr } = getUsed();
@@ -152,6 +155,9 @@
                 row.querySelector('.drop-target').value = drop.TargetId;
             } else {
                 row.querySelector('.drop-type').value = defaultType;
+                const targetSel = row.querySelector('.drop-target');
+                const first = (defaultType === 'Item' ? remainingItems : remainingCurr)[0];
+                if (first) targetSel.innerHTML = `<option value="${first.id}" selected>${first.title}</option>`;
             }
             updateOptions();
         }
