@@ -1,0 +1,23 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Geo / Platform Split</div>
+    <div class="card-body">
+        <canvas id="geoChart"></canvas>
+        <table class="table table-sm mt-3">
+            <tbody>
+            @foreach(var kv in Model.GeoSplit)
+            {
+                <tr><td>@kv.Key</td><td>@kv.Value%</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const ctx = document.getElementById('geoChart').getContext('2d');
+        new Chart(ctx,{type:'pie',data:{labels:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GeoSplit.Keys)),datasets:[{data:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GeoSplit.Values)),backgroundColor:['#4e79a7','#f28e2c','#e15759','#76b7b2']}]}});
+    });
+</script>
+}

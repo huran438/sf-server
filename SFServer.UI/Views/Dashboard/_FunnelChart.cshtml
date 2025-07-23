@@ -1,0 +1,15 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Monetization Funnel</div>
+    <div class="card-body">
+        <canvas id="funnelChart"></canvas>
+    </div>
+</div>
+@section Scripts{
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const ctx = document.getElementById('funnelChart').getContext('2d');
+        new Chart(ctx,{type:'bar',data:{labels:['Store','Offer','Purchase','Repeat'],datasets:[{label:'Users',data:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonetizationFunnel)),backgroundColor:'steelblue'}]},options:{indexAxis:'y'}});
+    });
+</script>
+}

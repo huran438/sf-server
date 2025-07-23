@@ -1,0 +1,31 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Revenue Trends</div>
+    <div class="card-body">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+@section Scripts{
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data:{
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueDates.Select(d=>d.ToString("MM-dd")))),
+                datasets:[{
+                    label:'IAP',
+                    data:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueIap)),
+                    borderColor:'green',
+                    fill:false
+                },{
+                    label:'Ads',
+                    data:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueAds)),
+                    borderColor:'orange',
+                    fill:false
+                }]
+            }
+        });
+    });
+</script>
+}
