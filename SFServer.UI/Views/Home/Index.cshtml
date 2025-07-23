@@ -10,7 +10,7 @@
 <form asp-action="Refresh" asp-controller="Home" asp-route-projectId="@ProjectContext.CurrentProjectId" method="post">
     <button type="submit" class="btn btn-sm btn-secondary mb-3">Refresh</button>
 </form>
-<div class="grid row row-cols-1 row-cols-md-2 g-4">
+<div class="grid row row-cols-1 row-cols-lg-2 g-4">
     <div class="col-12">
         <div class="row row-cols-1 row-cols-md-3 row-cols-lg-6 g-2">
             @await Html.PartialAsync("~/Views/Dashboard/_KpiCard.cshtml", new KpiCardModel { Title = "DAU", Value = Model.DAU.ToString("N0"), Change = 0.05, Unit = "" })
