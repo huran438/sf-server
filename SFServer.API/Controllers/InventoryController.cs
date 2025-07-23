@@ -41,7 +41,7 @@ namespace SFServer.API.Controllers
                 return Conflict("Item with same title or product id already exists.");
             }
 
-            return CreatedAtAction(nameof(GetItems), new { id = created.Id }, created);
+            return CreatedAtAction(nameof(GetItem), new { projectId, id = created.Id }, created);
         }
 
         [HttpPut("{id:guid}")]

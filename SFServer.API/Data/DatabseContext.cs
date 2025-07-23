@@ -25,6 +25,9 @@ namespace SFServer.API.Data
 
         public DbSet<InventoryItem> InventoryItems { get; set; }
         public DbSet<PlayerInventoryItem> PlayerInventoryItems { get; set; }
+        public DbSet<SFServer.Shared.Server.Purchases.Product> Products { get; set; }
+        public DbSet<SFServer.Shared.Server.Purchases.ProductDrop> ProductDrops { get; set; }
+        public DbSet<SFServer.Shared.Server.Purchases.PlayerPurchase> PlayerPurchases { get; set; }
 
         public DbSet<UserSession> UserSessions { get; set; }
 
@@ -44,12 +47,28 @@ namespace SFServer.API.Data
                     .HasConversion<string>();
             });
 
-            modelBuilder.Entity<InventoryItem>(entity =>
+            modelBuilder.Entity<InventoryItem>();
+
+            modelBuilder.Entity<SFServer.Shared.Server.Purchases.Product>(entity =>
             {
                 entity.Property(p => p.Type)
                     .HasConversion<string>();
-                entity.Property(p => p.Rarity)
+                entity.Property(p => p.ProductId)
+                    .IsRequired();
+                entity.HasIndex(p => new { p.ProjectId, p.ProductId })
+                    .IsUnique();
+                entity.HasMany(p => p.Drops)
+                    .WithOne()
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SFServer.Shared.Server.Purchases.ProductDrop>(entity =>
+            {
+                entity.Property(d => d.Type)
                     .HasConversion<string>();
+                entity.HasIndex(d => new { d.ProductId, d.Type, d.TargetId })
+                    .IsUnique();
             });
 
             modelBuilder.Entity<PlayerInventoryItem>(entity =>
@@ -61,6 +80,19 @@ namespace SFServer.API.Data
 
                 entity.HasOne<UserProfile>()
                     .WithMany(u => u.PlayerInventory)
+                    .HasForeignKey(p => p.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<SFServer.Shared.Server.Purchases.PlayerPurchase>(entity =>
+            {
+                entity.HasOne(p => p.Product)
+                    .WithMany()
+                    .HasForeignKey(p => p.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<UserProfile>()
+                    .WithMany(u => u.Purchases)
                     .HasForeignKey(p => p.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });

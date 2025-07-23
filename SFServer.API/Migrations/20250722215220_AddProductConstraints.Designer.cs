@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SFServer.API.Data;
@@ -12,9 +13,11 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250722215220_AddProductConstraints")]
+    partial class AddProductConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,33 +211,6 @@ namespace SFServer.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.Purchases.ProductDrop", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TargetId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId", "Type", "TargetId")
-                        .IsUnique();
-
-                    b.ToTable("ProductDrops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Settings.GlobalSettings", b =>
@@ -500,15 +476,6 @@ namespace SFServer.API.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("SFServer.Shared.Server.Purchases.ProductDrop", b =>
-                {
-                    b.HasOne("SFServer.Shared.Server.Purchases.Product", null)
-                        .WithMany("Drops")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SFServer.Shared.Server.Wallet.WalletItem", b =>
                 {
                     b.HasOne("SFServer.Shared.Server.Wallet.Currency", "Currency")
@@ -518,11 +485,6 @@ namespace SFServer.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.Purchases.Product", b =>
-                {
-                    b.Navigation("Drops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.UserProfile.UserProfile", b =>

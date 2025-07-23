@@ -1,0 +1,37 @@
+@page "/{projectId:guid}/Purchases"
+@using SFServer.Shared.Server.Purchases
+@model SFServer.UI.Pages.Purchases.PurchasesPageModel
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h1>Products</h1>
+<p>
+    <a class="btn btn-primary" asp-page="/Purchases/Create" asp-route-projectId="@Model.projectId">Add Product</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Product Id</th>
+        <th>Type</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var p in Model.Products)
+    {
+        <tr>
+            <td>@p.Title</td>
+            <td>@p.ProductId</td>
+            <td>@p.Type</td>
+            <td>
+                <a class="btn btn-sm btn-secondary" asp-page="/Purchases/Edit" asp-route-projectId="@Model.projectId" asp-route-id="@p.Id">Edit</a>
+                <form method="post" asp-page-handler="Delete" asp-route-projectId="@Model.projectId" asp-route-id="@p.Id" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this product?');">Remove</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

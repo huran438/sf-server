@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -27,8 +26,6 @@ namespace SFServer.UI.Pages.Inventory
         [BindProperty]
         public InventoryItem Item { get; set; } = new();
 
-        [BindProperty]
-        public string Tags { get; set; }
 
         private HttpClient GetClient()
         {
@@ -42,12 +39,6 @@ namespace SFServer.UI.Pages.Inventory
         public async Task<IActionResult> OnPostAsync()
         {
             using var http = GetClient();
-            if (!string.IsNullOrWhiteSpace(Tags))
-            {
-                Item.Tags = Tags.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim())
-                    .ToList();
-            }
 
             var response = await http.PostMessagePackAsync("Inventory", Item);
             if (!response.IsSuccessStatusCode)

@@ -25,5 +25,6 @@ namespace SFServer.Shared.Server.UserProfile
         public bool DebugMode { get; set; }
         public List<string> DeviceIds { get; set; } = new();
         public List<Inventory.PlayerInventoryItem> PlayerInventory { get; set; } = new();
+        public List<Purchases.PlayerPurchase> Purchases { get; set; } = new();
     }
 }

@@ -1,0 +1,181 @@
+@page "/{projectId:guid}/Purchases/Edit/{id:guid}"
+@using SFServer.Shared.Server.Purchases
+@model SFServer.UI.Pages.Purchases.EditProductModel
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h1>Edit Product</h1>
+<form method="post">
+    <input type="hidden" asp-for="Product.Id" />
+    <div class="mb-3">
+        <label asp-for="Product.Title" class="form-label"></label>
+        <input asp-for="Product.Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.ProductId" class="form-label"></label>
+        <input asp-for="Product.ProductId" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.Description" class="form-label"></label>
+        <textarea asp-for="Product.Description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Product.Type" class="form-label"></label>
+        <enum-dropdown asp-for="Product.Type" enum-type="@(typeof(ProductType))" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Drops</label>
+        <table class="table" id="dropsTable">
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Item</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="dropBody">
+            @for (var i = 0; i < Model.Product.Drops.Count; i++)
+            {
+                <tr class="drop-row">
+                    <td>
+                        <enum-dropdown asp-for="Product.Drops[i].Type" enum-type="@(typeof(ProductDropType))" class="drop-type" />
+                    </td>
+                    <td>
+                        <select asp-for="Product.Drops[i].TargetId" class="form-select drop-target">
+                            <optgroup label="Items">
+                                @foreach (var it in Model.InventoryItems)
+                                {
+                                    <option value="@it.Id">@it.Title</option>
+                                }
+                            </optgroup>
+                            <optgroup label="Currencies">
+                                @foreach (var c in Model.Currencies)
+                                {
+                                    <option value="@c.Id">@c.Title</option>
+                                }
+                            </optgroup>
+                        </select>
+                    </td>
+                    <td>
+                        <input asp-for="Product.Drops[i].Amount" class="form-control" type="number" min="1" />
+                    </td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <button type="button" id="addDrop" class="btn btn-secondary">Add Drop</button>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <script>
+        const items = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.InventoryItems.Select(i => new { id = i.Id, title = i.Title }))); 
+        const currencies = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Currencies.Select(c => new { id = c.Id, title = c.Title }))); 
+        let dropIndex = @Model.Product.Drops.Count;
+
+        function buildOptions(source, used, current) {
+            let html = '';
+            source.forEach(o => {
+                if (used.includes(o.id) && o.id !== current) return;
+                html += `<option value="${o.id}" ${o.id === current ? 'selected' : ''}>${o.title}</option>`;
+            });
+            return html;
+        }
+
+        function getUsed() {
+            const usedItems = [];
+            const usedCurr = [];
+            document.querySelectorAll('#dropBody .drop-row').forEach(r => {
+                const type = r.querySelector('.drop-type').value;
+                const target = r.querySelector('.drop-target').value;
+                if (type === 'Item' && target) usedItems.push(target);
+                if (type === 'Currency' && target) usedCurr.push(target);
+            });
+            return { usedItems, usedCurr };
+        }
+
+        function updateOptions() {
+            const { usedItems, usedCurr } = getUsed();
+
+            document.querySelectorAll('#dropBody .drop-row').forEach(r => {
+                const typeSel = r.querySelector('.drop-type');
+                const targetSel = r.querySelector('.drop-target');
+                const curVal = targetSel.value;
+                if (typeSel.value === 'Item') {
+                    targetSel.innerHTML = buildOptions(items, usedItems, curVal);
+                } else if (typeSel.value === 'Currency') {
+                    targetSel.innerHTML = buildOptions(currencies, usedCurr, curVal);
+                } else {
+                    targetSel.innerHTML = '';
+                }
+            });
+
+            const remainingItems = items.filter(o => !usedItems.includes(o.id));
+            const remainingCurr = currencies.filter(o => !usedCurr.includes(o.id));
+            const hasEmpty = Array.from(document.querySelectorAll('#dropBody .drop-target'))
+                .some(sel => sel.options.length === 0 || !sel.value);
+            document.getElementById('addDrop').disabled =
+                (remainingItems.length === 0 && remainingCurr.length === 0) || hasEmpty;
+       }
+
+        function addRow(drop) {
+            const { usedItems, usedCurr } = getUsed();
+            const remainingItems = items.filter(o => !usedItems.includes(o.id));
+            const remainingCurr = currencies.filter(o => !usedCurr.includes(o.id));
+            if (!drop && remainingItems.length === 0 && remainingCurr.length === 0) return;
+            const defaultType = remainingItems.length > 0 ? 'Item' : 'Currency';
+            const row = document.createElement('tr');
+            row.className = 'drop-row';
+            row.innerHTML = `
+                <td>
+                    <select name="Product.Drops[${dropIndex}].Type" class="form-select drop-type">
+                        <option value="Item">Item</option>
+                        <option value="Currency">Currency</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="Product.Drops[${dropIndex}].TargetId" class="form-select drop-target"></select>
+                </td>
+                <td>
+                    <input name="Product.Drops[${dropIndex}].Amount" class="form-control" type="number" min="1" step="1" value="${drop ? drop.Amount : 1}" />
+                </td>
+                <td class="text-end">
+                    <button type="button" class="btn btn-sm btn-danger remove-drop">Remove</button>
+                </td>`;
+            document.getElementById('dropBody').appendChild(row);
+            dropIndex++;
+            if (drop) {
+                row.querySelector('.drop-type').value = drop.Type;
+                row.querySelector('.drop-target').value = drop.TargetId;
+            } else {
+                row.querySelector('.drop-type').value = defaultType;
+                const targetSel = row.querySelector('.drop-target');
+                const first = (defaultType === 'Item' ? remainingItems : remainingCurr)[0];
+                if (first) targetSel.innerHTML = `<option value="${first.id}" selected>${first.title}</option>`;
+            }
+            updateOptions();
+        }
+
+        document.getElementById('addDrop').addEventListener('click', () => addRow());
+        document.getElementById('dropBody').addEventListener('click', function(e){
+            if (e.target.classList.contains('remove-drop')) {
+                e.target.closest('tr').remove();
+                updateOptions();
+            }
+        });
+        document.getElementById('dropBody').addEventListener('change', function(e){
+            if (e.target.classList.contains('drop-type') || e.target.classList.contains('drop-target')) {
+                updateOptions();
+            }
+        });
+
+        updateOptions();
+    </script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

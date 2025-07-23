@@ -22,8 +22,7 @@ namespace SFServer.API.Services
         public async Task<InventoryItem> CreateItemAsync(Guid projectId, InventoryItem item)
         {
             if (await _db.InventoryItems.AnyAsync(i =>
-                    i.Title == item.Title ||
-                    (i.ProductId != null && i.ProductId == item.ProductId)))
+                    i.Title == item.Title))
             {
                 return null;
             }
@@ -38,8 +37,7 @@ namespace SFServer.API.Services
         {
             if (await _db.InventoryItems.AnyAsync(i =>
                     i.Id != item.Id &&
-                    (i.Title == item.Title ||
-                     (i.ProductId != null && i.ProductId == item.ProductId))))
+                    i.Title == item.Title))
             {
                 return false;
             }

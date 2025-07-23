@@ -45,6 +45,22 @@ namespace SFServer.UI
 
             var selectTag = new TagBuilder("select");
             selectTag.Attributes["name"] = AspFor.Name;
+
+            // Preserve additional attributes like class or id from the original tag
+            foreach (var attr in output.Attributes)
+            {
+                if (attr.Name is "asp-for" or "enum-type" or "exclude")
+                    continue;
+                if (attr.Name == "class")
+                {
+                    selectTag.AddCssClass(attr.Value.ToString());
+                }
+                else
+                {
+                    selectTag.Attributes[attr.Name] = attr.Value.ToString();
+                }
+            }
+
             selectTag.AddCssClass("form-control");
 
             foreach (var item in options)
