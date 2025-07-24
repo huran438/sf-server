@@ -57,6 +57,7 @@ builder.Services.AddSingleton<ProjectSettingsService>();
 builder.Services.AddSingleton<GlobalSettingsService>();
 builder.Services.AddSingleton<ProjectContext>();
 builder.Services.AddScoped<ProjectContextFilter>();
+builder.Services.AddSingleton<DashboardMetricsService>();
 
 var app = builder.Build();
 

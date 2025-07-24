@@ -1,0 +1,24 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Retention</div>
+    <div class="card-body">
+        <canvas id="retentionChart"></canvas>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const ctx = document.getElementById('retentionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [1,2,3,4,5,6,7],
+                datasets: [{
+                    label: 'Retention',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RetentionSeries)),
+                    borderColor: 'blue',
+                    fill:false
+                }]
+            }
+        });
+    });
+</script>

@@ -1,0 +1,13 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Onboarding Funnel</div>
+    <div class="card-body">
+        <canvas id="onboardingChart"></canvas>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const ctx = document.getElementById('onboardingChart').getContext('2d');
+        new Chart(ctx,{type:'bar',data:{labels:['Install','Tutorial','Level3','First Pay'],datasets:[{data:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.OnboardingFunnel)),backgroundColor:'purple'}]},options:{indexAxis:'y'}});
+    });
+</script>

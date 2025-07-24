@@ -1,0 +1,54 @@
+@using SFServer.UI.Models
+@using SFServer.UI
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+@inject ProjectContext ProjectContext
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-end mb-2">
+    <div class="btn-group" role="group" aria-label="Zoom controls">
+        <button id="zoomOutBtn" class="btn btn-outline-secondary btn-sm" type="button">
+            <i class="bi bi-zoom-out"></i>
+        </button>
+        <button id="zoomInBtn" class="btn btn-outline-secondary btn-sm" type="button">
+            <i class="bi bi-zoom-in"></i>
+        </button>
+    </div>
+</div>
+<div id="dashboardContainer" class="grid row row-cols-1 row-cols-lg-2 g-4">
+    <div class="col-12">
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-6 g-2">
+            @await Html.PartialAsync("_KpiCard", new KpiCardModel { Title = "DAU", Value = Model.DAU.ToString("N0"), Change = 0.05, Unit = "" })
+            @await Html.PartialAsync("_KpiCard", new KpiCardModel { Title = "D1 Retention", Value = String.Format("{0:P2}", Model.D1Retention), Change = -0.02, Unit = "" })
+            @await Html.PartialAsync("_KpiCard", new KpiCardModel { Title = "Revenue Today", Value = Model.RevenueToday.ToString("F2"), Change = 0.1, Unit = "$" })
+            @await Html.PartialAsync("_KpiCard", new KpiCardModel { Title = "ARPU", Value = Model.ARPU.ToString("F2"), Change = 0.02, Unit = "$" })
+            @await Html.PartialAsync("_KpiCard", new KpiCardModel { Title = "Paying %", Value = String.Format("{0:P2}", Model.PayingPercent), Change = 0.01, Unit = "" })
+            @await Html.PartialAsync("_KpiCard", new KpiCardModel { Title = "ROAS", Value = Model.ROAS.ToString("F2"), Change = -0.03, Unit = "" })
+        </div>
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_RetentionChart", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_RevenueChart", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_FunnelChart", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_LtvChart", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_GeoPlatformSplit", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_ProgressFunnel", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_CrashReport", Model)
+    </div>
+    <div class="col">
+        @await Html.PartialAsync("_LiveOpsEvent", Model)
+    </div>
+</div>

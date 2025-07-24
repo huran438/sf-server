@@ -1,0 +1,10 @@
+@model SFServer.UI.Models.KpiCardModel
+<div class="card text-center">
+    <div class="card-body">
+        <h6 class="card-title">@Model.Title</h6>
+        <h3>@Model.Value @Model.Unit</h3>
+        <span class="@(Model.Change >= 0 ? "text-success" : "text-danger")">
+            @(Model.Change >= 0 ? "+" : "")@String.Format("{0:P2}", Model.Change)
+        </span>
+    </div>
+</div>

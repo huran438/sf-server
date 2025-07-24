@@ -1,0 +1,21 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Crash Report</div>
+    <div class="card-body">
+        <canvas id="crashChart"></canvas>
+        <table class="table table-sm mt-3">
+            <tbody>
+            @foreach(var trace in Model.CrashTraces)
+            {
+                <tr><td>@trace</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const ctx = document.getElementById('crashChart').getContext('2d');
+        new Chart(ctx,{type:'pie',data:{labels:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CrashTypes.Keys)),datasets:[{data:@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CrashTypes.Values)),backgroundColor:['#ff6384','#36a2eb','#cc65fe']}]}});
+    });
+</script>

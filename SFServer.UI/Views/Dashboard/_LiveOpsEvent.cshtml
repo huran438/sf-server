@@ -1,0 +1,10 @@
+@model SFServer.Shared.Server.Dashboard.DashboardMetricsDTO
+<div class="card">
+    <div class="card-header">Live Ops Event</div>
+    <div class="card-body">
+        <h5>@Model.LiveOpsEvent.Title</h5>
+        <p>@Model.LiveOpsEvent.Start.ToShortDateString() - @Model.LiveOpsEvent.End.ToShortDateString()</p>
+        <p>Engagement: @String.Format("{0:P2}", Model.LiveOpsEvent.EngagementPercent)</p>
+        <p>Revenue: $@Model.LiveOpsEvent.Revenue</p>
+    </div>
+</div>
