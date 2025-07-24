@@ -25,6 +25,7 @@ namespace SFServer.API.Data
 
         public DbSet<InventoryItem> InventoryItems { get; set; }
         public DbSet<PlayerInventoryItem> PlayerInventoryItems { get; set; }
+        public DbSet<InventoryItemDrop> InventoryItemDrops { get; set; }
         public DbSet<SFServer.Shared.Server.Purchases.Product> Products { get; set; }
         public DbSet<SFServer.Shared.Server.Purchases.ProductDrop> ProductDrops { get; set; }
         public DbSet<SFServer.Shared.Server.Purchases.PlayerPurchase> PlayerPurchases { get; set; }
@@ -47,7 +48,21 @@ namespace SFServer.API.Data
                     .HasConversion<string>();
             });
 
-            modelBuilder.Entity<InventoryItem>();
+            modelBuilder.Entity<InventoryItem>(entity =>
+            {
+                entity.HasMany(i => i.Drops)
+                    .WithOne()
+                    .HasForeignKey(d => d.ItemId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<InventoryItemDrop>(entity =>
+            {
+                entity.Property(d => d.Type)
+                    .HasConversion<string>();
+                entity.HasIndex(d => new { d.ItemId, d.Type, d.TargetId })
+                    .IsUnique();
+            });
 
             modelBuilder.Entity<SFServer.Shared.Server.Purchases.Product>(entity =>
             {

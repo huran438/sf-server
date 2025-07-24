@@ -112,6 +112,9 @@ namespace SFServer.API.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("text");
 
+                    b.Property<bool>("UnpackOnDrop")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.ToTable("InventoryItems");
@@ -235,6 +238,33 @@ namespace SFServer.API.Migrations
                         .IsUnique();
 
                     b.ToTable("ProductDrops");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItemDrop", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId", "Type", "TargetId")
+                        .IsUnique();
+
+                    b.ToTable("InventoryItemDrops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Settings.GlobalSettings", b =>

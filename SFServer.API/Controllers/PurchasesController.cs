@@ -8,6 +8,7 @@ using SFServer.Shared.Client.Purchases;
 using SFServer.API.Data;
 using Microsoft.EntityFrameworkCore;
 using SFServer.Shared.Server.Purchases;
+using SFServer.API.Services;
 using SFServer.Shared.Server.Inventory;
 using SFServer.Shared.Server.Wallet;
 
@@ -20,11 +21,13 @@ public class PurchasesController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly DatabseContext _db;
+    private readonly InventoryService _inventoryService;
 
-    public PurchasesController(IConfiguration config, DatabseContext db)
+    public PurchasesController(IConfiguration config, DatabseContext db, InventoryService inventoryService)
     {
         _config = config;
         _db = db;
+        _inventoryService = inventoryService;
     }
 
     [Authorize(Roles = "Admin,Developer")]
@@ -225,21 +228,31 @@ public class PurchasesController : ControllerBase
         {
             if (drop.Type == ProductDropType.Item)
             {
-                var inv = await _db.PlayerInventoryItems.FirstOrDefaultAsync(i => i.UserId == userId && i.ItemId == drop.TargetId);
-                if (inv == null)
+                var item = await _db.InventoryItems
+                    .Include(i => i.Drops)
+                    .FirstOrDefaultAsync(i => i.Id == drop.TargetId);
+                if (item != null && item.Drops.Count > 0 && item.UnpackOnDrop)
                 {
-                    inv = new PlayerInventoryItem
-                    {
-                        Id = Guid.CreateVersion7(),
-                        UserId = userId,
-                        ItemId = drop.TargetId,
-                        Amount = drop.Amount
-                    };
-                    _db.PlayerInventoryItems.Add(inv);
+                    await _inventoryService.ApplyItemDropsAsync(item.Id, userId, drop.Amount);
                 }
                 else
                 {
-                    inv.Amount += drop.Amount;
+                    var inv = await _db.PlayerInventoryItems.FirstOrDefaultAsync(i => i.UserId == userId && i.ItemId == drop.TargetId);
+                    if (inv == null)
+                    {
+                        inv = new PlayerInventoryItem
+                        {
+                            Id = Guid.CreateVersion7(),
+                            UserId = userId,
+                            ItemId = drop.TargetId,
+                            Amount = drop.Amount
+                        };
+                        _db.PlayerInventoryItems.Add(inv);
+                    }
+                    else
+                    {
+                        inv.Amount += drop.Amount;
+                    }
                 }
             }
             else if (drop.Type == ProductDropType.Currency)
