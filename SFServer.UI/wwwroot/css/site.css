@@ -20,7 +20,8 @@ body {
 }
 
 /* Allow content to fill available space */
-body > .container {
+body > .container,
+body > .container-fluid {
     flex: 1 0 auto;
     padding-bottom: 2rem; /* Optional: extra padding before footer */
 }
@@ -53,4 +54,11 @@ footer .container {
 
 #dashboardContainer {
     width: 100%;
+}
+
+
+.chart-small {
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
 }
