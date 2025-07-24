@@ -135,7 +135,10 @@
     </nav>
 </header>
 
-<div class="container-fluid px-lg-5">
+@{
+    var wideLayout = ViewData["WideLayout"] as bool? ?? false;
+}
+<div class="@(wideLayout ? "container-fluid px-lg-5" : "container")">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>

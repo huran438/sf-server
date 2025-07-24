@@ -20,7 +20,8 @@ body {
 }
 
 /* Allow content to fill available space */
-body > .container {
+body > .container,
+body > .container-fluid {
     flex: 1 0 auto;
     padding-bottom: 2rem; /* Optional: extra padding before footer */
 }
