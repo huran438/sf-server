@@ -498,6 +498,15 @@ namespace SFServer.API.Migrations
                     b.ToTable("WalletItems");
                 });
 
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItemDrop", b =>
+                {
+                    b.HasOne("SFServer.Shared.Server.Inventory.InventoryItem", null)
+                        .WithMany("Drops")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SFServer.Shared.Server.Inventory.PlayerInventoryItem", b =>
                 {
                     b.HasOne("SFServer.Shared.Server.Inventory.InventoryItem", null)
@@ -548,6 +557,11 @@ namespace SFServer.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItem", b =>
+                {
+                    b.Navigation("Drops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Purchases.Product", b =>
