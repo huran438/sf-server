@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SFServer.API.Data;
@@ -12,9 +13,11 @@ using SFServer.API.Data;
 namespace SFServer.API.Migrations
 {
     [DbContext(typeof(DatabseContext))]
-    partial class UserProfilesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250724183000_AddInventoryItemDrops")]
+    partial class AddInventoryItemDrops
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,6 +121,33 @@ namespace SFServer.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InventoryItems");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItemDrop", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId", "Type", "TargetId")
+                        .IsUnique();
+
+                    b.ToTable("InventoryItemDrops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Inventory.PlayerInventoryItem", b =>
@@ -238,33 +268,6 @@ namespace SFServer.API.Migrations
                         .IsUnique();
 
                     b.ToTable("ProductDrops");
-                });
-
-            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItemDrop", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TargetId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemId", "Type", "TargetId")
-                        .IsUnique();
-
-                    b.ToTable("InventoryItemDrops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Settings.GlobalSettings", b =>
@@ -498,6 +501,15 @@ namespace SFServer.API.Migrations
                     b.ToTable("WalletItems");
                 });
 
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItemDrop", b =>
+                {
+                    b.HasOne("SFServer.Shared.Server.Inventory.InventoryItem", null)
+                        .WithMany("Drops")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SFServer.Shared.Server.Inventory.PlayerInventoryItem", b =>
                 {
                     b.HasOne("SFServer.Shared.Server.Inventory.InventoryItem", null)
@@ -548,6 +560,11 @@ namespace SFServer.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("SFServer.Shared.Server.Inventory.InventoryItem", b =>
+                {
+                    b.Navigation("Drops");
                 });
 
             modelBuilder.Entity("SFServer.Shared.Server.Purchases.Product", b =>

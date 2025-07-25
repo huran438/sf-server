@@ -10,5 +10,7 @@ namespace SFServer.Shared.Server.Inventory
         public Guid Id { get; set; }
         public Guid ProjectId { get; set; }
         public string Title { get; set; }
+        public bool UnpackOnDrop { get; set; }
+        public List<InventoryItemDrop> Drops { get; set; } = new();
     }
 }
